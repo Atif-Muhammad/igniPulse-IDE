@@ -5,6 +5,7 @@ import { Rocket, Lightbulb } from "lucide-react";
 import py from "../assets/py.svg";
 import sql from "../assets/sql.svg";
 import pyVid from "../assets/python.webp";
+import sqlVid from "../assets/sql.webp";
 // import rocket_with_tail from "../assets/rocket-tail.png";
 // import rocket from "/rocket.fbx";
 
@@ -20,7 +21,7 @@ function Model() {
 
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.y += 0.06;
+      ref.current.rotation.y += 0.02;
       ref.current.rotation.x = Math.PI / -6;
     }
   });
@@ -116,32 +117,27 @@ const LandingPage = () => {
                   <div className="w-full h-60 rounded-md mx-auto bg-gray-300/60 overflow-hidden">
                     {card.name.toLowerCase() === "python" ? (
                       <img
-                      src={pyVid}
-                      alt="Description"
-                      style={{
-                        width: "100%",      
-                        height: "100%",     
-                        objectFit: "center", 
-                      }}
-                    />
-                    
-
-                      // <video
-                      //   src={pyVid}
-                      //   autoPlay
-                      //   muted
-                      //   playsInline
-                      //   loop
-                      //   onError={(e) => console.error("Video failed to load or play:", e)}
-                      //   style={{
-                      //     width: "100%",
-                      //     height: "100%",
-                      //     objectFit: "contain",
-                      //   }}
-                      // />
+                        src={pyVid}
+                        alt="Description"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "center",
+                        }}
+                      />
+                    ) : 
+                    card.name.toLowerCase() === "sql" ? (
+                      <img
+                        src={sqlVid}
+                        alt="Description"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
                     ) : (
                       <div style={{ width: "100%", height: "100%" }}>
-                        {/* Placeholder content when it's not 'python' */}
                         <p>No video available</p>
                       </div>
                     )}
