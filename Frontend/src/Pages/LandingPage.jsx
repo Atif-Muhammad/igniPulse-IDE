@@ -75,7 +75,7 @@ const LandingPage = () => {
               <Rocket className="text-blue-700" size={60} />
               igniUp
             </div>
-            <button className="flex items-center justify-center gap-x-2 bg-[#3960CC] text-white px-4 py-2 rounded-md text-sm tracking-wide">
+            {/* <button className="flex items-center justify-center gap-x-2 bg-[#3960CC] text-white px-4 py-2 rounded-md text-sm tracking-wide">
               About Us{" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +91,7 @@ const LandingPage = () => {
               >
                 <path d="M6 9h6V5l7 7-7 7v-4H6V9z" />
               </svg>
-            </button>
+            </button> */}
           </div>
           <div className="flex items-center justify-between h-40 w-full px-2 ">
             <div className="flex flex-col items-start justify-center h-full w-1/2">
@@ -125,15 +125,14 @@ const LandingPage = () => {
                           objectFit: "center",
                         }}
                       />
-                    ) : 
-                    card.name.toLowerCase() === "sql" ? (
+                    ) : card.name.toLowerCase() === "sql" ? (
                       <img
                         src={sqlVid}
                         alt="Description"
                         style={{
                           width: "100%",
                           height: "100%",
-                          objectFit: "cover",
+                          objectFit: "center",
                         }}
                       />
                     ) : (
