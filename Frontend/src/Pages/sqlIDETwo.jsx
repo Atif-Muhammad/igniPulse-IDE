@@ -305,19 +305,22 @@ function sqlIDETwo() {
   return (
     <>
       {showInfo && (
-        <div className="bg-red-500 w-1/3 h-auto px-4 py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s]">
-          <div className="flex justify-between items-start">
+        <div className="bg-red-500 w-full md:w-2/3 lg:w-1/3 h-auto px-3 py-2 md:px-4 md:py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s]">
+          <div className="flex justify-between items-start gap-2">
             <div className="flex gap-2 items-start">
-              <Info className="text-white mt-1" />
-              <p className="text-white text-sm font-medium">
+              <Info
+                className="text-white mt-0.5 md:mt-1 min-w-4 md:min-w-5"
+                size={18}
+              />
+              <p className="text-white text-xs md:text-sm font-medium">
                 Warning: Your user data, including databases, tables, and
                 records will be{" "}
-                <span className="underline">permanently deleted</span> after
-                7days.
+                <span className="underline">permanently deleted</span> after 7
+                days.
               </p>
             </div>
             <button
-              className="text-white hover:text-gray-300 transition"
+              className="text-white hover:text-gray-300 transition min-w-6"
               onClick={() => setShowInfo(false)}
             >
               <X size={18} />
@@ -325,40 +328,59 @@ function sqlIDETwo() {
           </div>
         </div>
       )}
+
       <div className="flex flex-col h-screen w-screen overflow-hidden relative bg-white/40">
-        <div className="w-full h-[15%]  text-center p-2">
-          <div className=" h-full w-full "></div>
+        {/* Top spacer */}
+        <div className="w-full h-[10%] md:h-[15%] text-center p-1 md:p-2">
+          <div className="h-full w-full"></div>
         </div>
+
+        {/* Main content area */}
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
-          <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full "></div>
+          {/* Left spacer - responsive width */}
+          <div className="h-full w-4 md:w-8 lg:w-30 text-center p-1 md:p-2">
+            <div className="h-full w-full"></div>
           </div>
+
+          {/* Main IDE content */}
           <div className="flex flex-col items-center justify-center h-full w-full gap-y-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div className="flex flex-row h-[85%] w-full overflow-hiddenpx-2 gap-x-2 bg-gray-50 p-2 rounded-lg">
+
+            <div className="flex flex-col md:flex-row h-[85%] w-full overflow-hidden px-1 md:px-2 gap-x-2 bg-gray-50 p-1 md:p-2 rounded-lg">
               <LeftMenu
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
                 copyDone={copyDone}
                 pasteDone={pasteDone}
               />
-              <div className="flex flex-row gap-x-2 h-full w-full ">
-                <TableDetail details={details} />
-                <div className="h-full w-full flex flex-col gap-y-2">
-                  <div className="border-2 border-sky-700 w-full h-55 rounded-lg flex flex-col items-center justify-center p-1 gap-y-1">
-                    <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-1 py-5">
-                      <div className="flex items-center justify-center gap-x-1 px-2">
-                        <img src={sql} alt="python" className="w-8 h-8" />
-                        <p className="font-black">SQL</p>
+
+              <div className="flex flex-col md:flex-row gap-x-2 h-full w-full">
+                {/* TableDetail - show on larger screens, hide on mobile */}
+                <div className="hidden md:block">
+                  <TableDetail details={details} />
+                </div>
+
+                <div className="h-full w-full flex flex-col gap-y-1 md:gap-y-2">
+                  {/* SQL Editor Section */}
+                  <div className="border-2 border-sky-700 w-full h-[40vh] md:h-55 rounded-lg flex flex-col items-center justify-center p-1 gap-y-1">
+                    <div className="w-full h-10 md:h-12 flex items-center justify-between gap-x-1 md:gap-x-2 rounded-lg bg-gray-200 px-1 md:px-2 py-2 md:py-5">
+                      <div className="flex items-center justify-center gap-x-1 px-1 md:px-2">
+                        <img
+                          src={sql}
+                          alt="sql"
+                          className="w-6 h-6 md:w-8 md:h-8"
+                        />
+                        <p className="font-black text-sm md:text-base">SQL</p>
                       </div>
-                      <div className="flex items-center justify-center gap-x-2">
+                      <div className="flex items-center justify-center gap-x-1 md:gap-x-2">
                         {editorBtns.map((btn, index) => (
                           <Button
-                            classNames={` cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
+                            key={index}
+                            classNames={`cursor-pointer flex items-center justify-center gap-x-1 md:gap-x-2 py-1 md:py-2.5 text-white font-semibold text-xs md:text-sm ${
                               btn.text === "Execute"
                                 ? "bg-[#10B335]"
                                 : "bg-[#F7665D]"
-                            } px-4 ${
+                            } px-2 md:px-4 ${
                               btn.text === "Execute"
                                 ? "hover:bg-green-600"
                                 : "hover:bg-[#f7766d]"
@@ -373,7 +395,7 @@ function sqlIDETwo() {
                     <div className="w-full h-full flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
-                        className="text-[1rem] scrollbar-custom rounded-lg"
+                        className="text-[0.9rem] md:text-[1rem] scrollbar-custom rounded-lg"
                         theme="light"
                         extensions={[
                           fullHeightEditor,
@@ -390,21 +412,28 @@ function sqlIDETwo() {
                       />
                     </div>
                   </div>
-                  <div className="w-full h-full border-sky-700 border-2 rounded-lg overflow-auto ">
+
+                  {/* Data Output Section */}
+                  <div className="w-full h-[40vh] md:h-full border-sky-700 border-2 rounded-lg overflow-auto">
                     <Data res={resDB} />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full "></div>{" "}
+
+          {/* Right spacer - responsive width */}
+          <div className="h-full w-4 md:w-8 lg:w-30 text-center p-1 md:p-2">
+            <div className="h-full w-full"></div>
           </div>
         </div>
-        <div className="w-full h-10 text-center p-2">
-          <div className=" h-full w-full"></div>{" "}
+
+        {/* Bottom spacer */}
+        <div className="w-full h-8 md:h-10 text-center p-1 md:p-2">
+          <div className="h-full w-full"></div>
         </div>
       </div>
+
       <Toaster
         position="top-center"
         reverseOrder={false}

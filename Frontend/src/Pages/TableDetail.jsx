@@ -14,14 +14,14 @@ function TableDetail({ details }) {
   };
 
   return (
-    <div className="w-50 h-[100%] border-2 border-sky-700 p-1 rounded-lg overflow-hidden">
+    <div className="w-full h-[100%] border-2 border-sky-700 p-1 rounded-lg overflow-hidden">
       {/* Header */}
       <p className="text-[#1E293B] rounded-lg py-3 text-md font-bold text-start px-4 w-full bg-[#E5E7EB] mb-1">
         Tables
       </p>
 
       {/* Table List */}
-      <div className="overflow-auto h-[90%] scrollbar-hide py-1">
+      <div className="overflow-auto h-[90%] w-full scrollbar-hide py-1">
         {details.map((detail, index) => (
           <div key={index} className="flex flex-col items-end w-full mb-1">
             {/* Table Name */}

@@ -365,37 +365,52 @@ function PythonIDE() {
 
   return (
     <>
-      <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
-        <div className="w-full h-22 text-center p-2">
-          <div className=" h-full w-full"></div>
+      <div className="flex flex-col h-screen w-screen overflow-hidden relative">
+        {/* Top spacer - can be used for header if needed */}
+        <div className="w-full h-16 md:h-22 text-center p-2">
+          <div className="h-full w-full"></div>
         </div>
+
+        {/* Main content area */}
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
-          <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full"></div>
+          {/* Left spacer - responsive width */}
+          <div className="h-full w-4 md:w-30 text-center p-1 md:p-2">
+            <div className="h-full w-full"></div>
           </div>
+
+          {/* Main IDE content */}
           <div className="w-full h-full gap-y-2 flex flex-col justify-between">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div className="bg-gray-100 h-full w-full flex items-center justify-center gap-x-2 p-2 rounded-xl">
+
+            <div className="bg-gray-100 h-full w-full flex items-center justify-center gap-x-2 p-1 md:p-2 rounded-xl">
+              {/* Left Menu - already made responsive */}
               <LeftMenu
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
                 copyDone={copyDone}
                 pasteDone={pasteDone}
               />
-              <div className="border-2 border-sky-700 w-[55%] h-full rounded-lg flex flex-col items-center justify-center p-2 gap-y-1">
-                <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2">
-                  <div className="flex items-center justify-center gap-x-1 px-2">
-                    <img src={py} alt="python" className="w-8 h-8" />
-                    <p className="font-black">Python</p>
+
+              {/* Editor Section */}
+              <div className="border-2 border-sky-700 w-full md:w-[55%] h-full rounded-lg flex flex-col justify-center p-1 md:p-2 gap-y-1">
+                <div className="w-full h-10 md:h-12 flex items-center justify-between gap-x-1 md:gap-x-2 rounded-lg bg-gray-200 px-1 md:px-2">
+                  <div className="flex items-center justify-center gap-x-1 px-1 md:px-2">
+                    <img
+                      src={py}
+                      alt="python"
+                      className="w-6 h-6 md:w-8 md:h-8"
+                    />
+                    <p className="font-black text-sm md:text-base">Python</p>
                   </div>
-                  <div className="flex items-center justify-center gap-x-2">
+                  <div className="flex items-center justify-center gap-x-1 md:gap-x-2">
                     {editorBtns.map((btn, index) => (
                       <Button
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
+                        key={index}
+                        classNames={`cursor-pointer flex items-center justify-center gap-x-1 md:gap-x-2 py-1 md:py-2.5 text-white font-semibold text-xs md:text-sm ${
                           btn.text === "Execute"
                             ? "bg-[#10B335]"
                             : "bg-[#F7665D]"
-                        } px-4 ${
+                        } px-2 md:px-4 ${
                           btn.text === "Execute"
                             ? "hover:bg-green-600"
                             : "hover:bg-[#f7766d]"
@@ -407,10 +422,11 @@ function PythonIDE() {
                     ))}
                   </div>
                 </div>
-                <div className="h-[475px] w-full flex items-start justify-center overflow-auto rounded-lg">
+
+                <div className="h-full w-full  flex items-start justify-center overflow-auto rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
-                    className="w-[650px] text-[1rem] scrollbar-custom overflow-hidden"
+                    className="w-full max-w-[650px] text-[0.9rem] md:text-[1rem] scrollbar-custom overflow-hidden"
                     theme="light"
                     extensions={[
                       fullHeightEditor,
@@ -420,7 +436,7 @@ function PythonIDE() {
                       indentOnInput(),
                     ]}
                     onChange={(newContent) => {
-                      setEditorContent(newContent); 
+                      setEditorContent(newContent);
                     }}
                     onCreateEditor={(editor) => {
                       editorRef.current = editor;
@@ -428,31 +444,37 @@ function PythonIDE() {
                   />
                 </div>
               </div>
-              <div className="border-2 border-sky-700 w-[45%] h-full rounded-lg p-2 flex flex-col gap-y-1">
+
+              {/* Output Section */}
+              <div className="border-2 border-sky-700 w-full md:w-[45%] h-full rounded-lg p-1 md:p-2 flex flex-col gap-y-1">
                 <div
-                  className="h-12 w-full flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2"
+                  className="h-10 md:h-12 w-full flex items-center justify-between gap-x-1 md:gap-x-2 rounded-lg bg-gray-200 px-1 md:px-2"
                   onClick={clearOutput}
                 >
-                  <p className="font-black px-1">Output</p>
+                  <p className="font-black px-1 text-sm md:text-base">Output</p>
                   <Button
-                    classNames={`cursor-pointer flex items-center justiy-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                    classNames={`cursor-pointer flex items-center justify-center gap-x-1 md:gap-x-2 py-1 md:py-2.5 text-white font-semibold text-xs bg-[#F7665D] px-2 md:px-4 hover:bg-[#f7766d] rounded-lg`}
                     text={editorBtns[0].text}
                     icon={editorBtns[0].icon}
                   />
                 </div>
                 <div
                   id="outputDiv"
-                  className="h-[450px] w-full overflow-auto"
+                  className="h-[280px] md:h-[450px] w-full overflow-auto"
                 ></div>
               </div>
             </div>
           </div>
-          <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full"></div>
+
+          {/* Right spacer - responsive width */}
+          <div className="h-full w-4 md:w-30 text-center p-1 md:p-2">
+            <div className="h-full w-full"></div>
           </div>
         </div>
-        <div className="w-full h-10 text-center p-2">
-          <div className=" h-full w-full"></div>
+
+        {/* Bottom spacer */}
+        <div className="w-full h-8 md:h-10 text-center p-1 md:p-2">
+          <div className="h-full w-full"></div>
         </div>
       </div>
     </>
