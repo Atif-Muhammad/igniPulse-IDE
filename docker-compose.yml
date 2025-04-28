@@ -1,0 +1,36 @@
+services:
+  front-end:
+    build: 
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - 8080:5000
+  backend:
+    container_name: backend_container
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mysql
+    environment:
+      - PORT=9000
+      - HOST=mysql
+      - USER=root
+      - PASSWORD=mySql123
+    command: sh -c "sleep 20 && node app.js"
+  mysql:
+    container_name: mysql-container
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mySql123
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - sql_volume:/var/lib/mysql
+
+volumes:
+  sql_volume:
+    driver: local
