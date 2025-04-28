@@ -6,9 +6,6 @@ import py from "../assets/py.svg";
 import sql from "../assets/sql.svg";
 import pyVid from "../assets/python.webp";
 import sqlVid from "../assets/sql.webp";
-// import rocket_with_tail from "../assets/rocket-tail.png";
-// import rocket from "/rocket.fbx";
-
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { FBXLoader } from "three-stdlib";
@@ -51,10 +48,10 @@ const LandingPage = () => {
 
   return (
     <>
-      <div className="w-1/5 h-1/2 absolute top-0 right-90 z-10 pointer-events-none">
-        {/* The canvas is positioned on the left initially and will be moved to the top-right */}
+      {/* Rocket Canvas - Hidden on mobile, visible from md screens up */}
+      <div className="hidden md:block md:w-1/5 md:h-1/2 absolute top-0 right-90 z-10 pointer-events-none">
         <Canvas
-          className=" absolute inset-0 z-0"
+          className="absolute inset-0 z-0"
           camera={{ position: [5, -2, 1] }}
         >
           <ambientLight intensity={1} />
@@ -63,19 +60,21 @@ const LandingPage = () => {
           <OrbitControls
             enableZoom={false}
             enablePan={false}
-            maxPolarAngle={Math.PI / 2} // Limit vertical rotation to 90 degrees (X-axis)
-            minPolarAngle={Math.PI / 2} // Optionally restrict to tilt range
+            maxPolarAngle={Math.PI / 2}
+            minPolarAngle={Math.PI / 2}
           />
         </Canvas>
       </div>
-      <div className="w-full h-screen grid place-items-center ">
-        <div className="w-[70%] h-[90%]py-14">
-          <div className="h-10 w-full flex  items-center justify-between px-2">
-            <div className="text-4xl flex items-center font-black tracking-tighter">
-              <Rocket className="text-blue-700" size={60} />
+
+      <div className="w-full min-h-screen flex items-center justify-center px-4 py-8 md:py-14">
+        <div className="w-full md:w-[90%] lg:w-[70%]">
+          {/* Header */}
+          <div className="w-full flex items-center justify-between mb-8 md:mb-12">
+            <div className="text-3xl md:text-4xl flex items-center font-black tracking-tighter">
+              <Rocket className="text-blue-700" size={40} />
               igniUp
             </div>
-            <button className="flex items-center justify-center gap-x-2 bg-[#3960CC] text-white px-4 py-2 rounded-md text-sm tracking-wide">
+            {/* <button className="flex items-center justify-center gap-x-2 bg-[#3960CC] text-white px-4 py-2 rounded-md text-sm tracking-wide">
               About Us{" "}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -91,73 +90,72 @@ const LandingPage = () => {
               >
                 <path d="M6 9h6V5l7 7-7 7v-4H6V9z" />
               </svg>
-            </button>
+            </button> */}
           </div>
-          <div className="flex items-center justify-between h-40 w-full px-2 ">
-            <div className="flex flex-col items-start justify-center h-full w-1/2">
-              <div className="font-black text-3xl">Empowering the</div>
-              <div className="font-black text-5xl text-[#284cac]">
+
+          {/* Hero Section */}
+          <div className="flex flex-col md:flex-row items-start justify-between w-full mb-8 md:mb-12">
+            <div className="w-full md:w-1/2 mb-6 md:mb-0">
+              <div className="font-black text-2xl md:text-3xl">
+                Empowering the
+              </div>
+              <div className="font-black text-4xl md:text-5xl text-[#284cac]">
                 Next Generation
               </div>
-              <div className="text-lg font-extrabold">
+              <div className="text-base md:text-lg font-extrabold">
                 of Innovations through Technology and Hands-on Learning.
               </div>
             </div>
           </div>
-          <div className="h-100 w-full">
-            <div className="flex items-center justify-between w-full h-full px-2 gap-x-4">
+
+          {/* Cards Section */}
+          <div className="w-full">
+            <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
               {cards.map((card, idx) => (
-                <div
+                <motion.div
                   key={idx}
-                  className="bg-gray-200 w-1/2 h-full rounded-sm px-2 py-2 flex flex-col justify-between items-center shadow-lg gap-y-1"
-                  // initial={{ opacity: 0, y: 50 }}
-                  // animate={{ opacity: 1, y: 0 }}
-                  // transition={{ duration: 0.8, delay: idx * 0.3 }}
+                  className="bg-gray-200 w-full md:w-1/2 h-full rounded-sm px-4 py-4 flex flex-col justify-between items-center shadow-lg gap-y-2"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: idx * 0.3 }}
                 >
-                  <div className="w-full h-60 rounded-md mx-auto bg-gray-300/60 overflow-hidden">
+                  <div className="w-full h-40 sm:h-48 md:h-60 rounded-md mx-auto bg-gray-300/60 overflow-hidden">
                     {card.name.toLowerCase() === "python" ? (
                       <img
                         src={pyVid}
-                        alt="Description"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "center",
-                        }}
+                        alt="Python tutorial"
+                        className="w-full h-full "
                       />
-                    ) : 
-                    card.name.toLowerCase() === "sql" ? (
+                    ) : card.name.toLowerCase() === "sql" ? (
                       <img
                         src={sqlVid}
-                        alt="Description"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
+                        alt="SQL tutorial"
+                        className="w-full h-full "
                       />
                     ) : (
-                      <div style={{ width: "100%", height: "100%" }}>
+                      <div className="w-full h-full flex items-center justify-center">
                         <p>No video available</p>
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center justify-start gap-x-2 w-full px-1">
+                  <div className="flex items-center justify-start gap-x-2 w-full">
                     <img
                       src={card.logo}
                       alt={`${card.name} logo`}
-                      className=" size-10"
+                      className="size-8 md:size-10"
                     />
-                    <h2 className="text-2xl font-bold">{card.name}</h2>
+                    <h2 className="text-xl md:text-2xl font-bold">
+                      {card.name}
+                    </h2>
                   </div>
-                  <p className="px-3">{card.desc}</p>
+                  <p className="w-full text-sm md:text-base">{card.desc}</p>
                   <NavLink
                     to={card.link}
-                    className="bg-blue-600 text-white text-center w-full py-1 rounded-md  hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white text-center w-full py-2 rounded-md hover:bg-blue-700 transition"
                   >
-                    <p className="leading-8">Get Started</p>
+                    <p>Get Started</p>
                   </NavLink>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
