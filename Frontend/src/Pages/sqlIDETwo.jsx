@@ -1,5 +1,13 @@
 import { React, useState, useRef, useEffect } from "react";
-import { CirclePlay, Eraser, File, Play, Save } from "lucide-react";
+import {
+  CirclePlay,
+  Eraser,
+  File,
+  Play,
+  Save,
+  MenuIcon,
+  XIcon,
+} from "lucide-react";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView, highlightActiveLineGutter } from "@codemirror/view";
 import Config from "../../Config/config";
@@ -30,7 +38,6 @@ function sqlIDETwo() {
   const fullHeightEditor = EditorView.theme({
     ".cm-scroller": {
       maxHeight: "130px !important",
-      width: "1020px !important",
       overflow: "auto !important",
     },
     ".cm-content": {
@@ -253,7 +260,7 @@ function sqlIDETwo() {
       console.error("Failed to copy:", err);
     }
   };
-  
+
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
@@ -279,9 +286,6 @@ function sqlIDETwo() {
       console.error("Failed to paste:", err);
     }
   };
-  
-  
-  
 
   const editorBtns = [
     {
@@ -305,15 +309,15 @@ function sqlIDETwo() {
   return (
     <>
       {showInfo && (
-        <div className="bg-red-500 w-1/3 h-auto px-4 py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s]">
+        <div className="bg-red-500 w-[90%] sm:w-2/3 md:w-1/2 lg:w-1/3 h-auto px-4 py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s]">
           <div className="flex justify-between items-start">
             <div className="flex gap-2 items-start">
               <Info className="text-white mt-1" />
-              <p className="text-white text-sm font-medium">
+              <p className="text-white text-xs sm:text-sm font-medium">
                 Warning: Your user data, including databases, tables, and
                 records will be{" "}
-                <span className="underline">permanently deleted</span> after
-                7days.
+                <span className="underline">permanently deleted</span> after 7
+                days.
               </p>
             </div>
             <button
@@ -325,6 +329,7 @@ function sqlIDETwo() {
           </div>
         </div>
       )}
+
       <div className="flex flex-col h-screen w-screen overflow-hidden relative bg-white/40">
         <div className="w-full h-[15%]  text-center p-2">
           <div className=" h-full w-full "></div>
@@ -333,19 +338,26 @@ function sqlIDETwo() {
           <div className="h-full w-30 text-center p-2">
             <div className=" h-full w-full "></div>
           </div>
-          <div className="flex flex-col items-center justify-center h-full w-full gap-y-1">
+          <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div className="flex flex-row h-[85%] w-full overflow-hiddenpx-2 gap-x-2 bg-gray-50 p-2 rounded-lg">
+            <div className="flex lg:flex-row md:flex-row flex-col lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 bg-gray-50 p-2 rounded-lg">
               <LeftMenu
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
                 copyDone={copyDone}
                 pasteDone={pasteDone}
+                TableDetail={TableDetail}
+                details={details}
               />
-              <div className="flex flex-row gap-x-2 h-full w-full ">
-                <TableDetail details={details} />
-                <div className="h-full w-full flex flex-col gap-y-2">
-                  <div className="border-2 border-sky-700 w-full h-55 rounded-lg flex flex-col items-center justify-center p-1 gap-y-1">
+              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full ">
+                
+
+                <div className="hidden md:block lg:block h-full ">
+                  <TableDetail details={details} />
+                </div>
+
+                <div className="w-full md:w-[100%] flex flex-col gap-y-2 h-full">
+                  <div className="border-2 border-sky-700 w-full h-49 rounded-lg flex flex-col items-center lg:justify-center md:justify-center justify-start p-1 gap-y-1">
                     <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-1 py-5">
                       <div className="flex items-center justify-center gap-x-1 px-2">
                         <img src={sql} alt="python" className="w-8 h-8" />
@@ -354,7 +366,8 @@ function sqlIDETwo() {
                       <div className="flex items-center justify-center gap-x-2">
                         {editorBtns.map((btn, index) => (
                           <Button
-                            classNames={` cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
+                            key={index}
+                            classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
                               btn.text === "Execute"
                                 ? "bg-[#10B335]"
                                 : "bg-[#F7665D]"
@@ -370,10 +383,10 @@ function sqlIDETwo() {
                         ))}
                       </div>
                     </div>
-                    <div className="w-full h-full flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="w-full flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
-                        className="text-[1rem] scrollbar-custom rounded-lg"
+                        className="text-[1rem] lg:w-[1020px] md:w-[1020px] w-[450px] scrollbar-custom rounded-lg"
                         theme="light"
                         extensions={[
                           fullHeightEditor,
@@ -390,7 +403,7 @@ function sqlIDETwo() {
                       />
                     </div>
                   </div>
-                  <div className="w-full h-full border-sky-700 border-2 rounded-lg overflow-auto ">
+                  <div className="w-full lg:h-full md:h-full h-[35vh] border-sky-700 border-2 rounded-lg overflow-auto">
                     <Data res={resDB} />
                   </div>
                 </div>

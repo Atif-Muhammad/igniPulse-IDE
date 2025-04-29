@@ -16,16 +16,20 @@ function NavBar({ openFile, handleDownload }) {
     },
   ];
   return (
-    <div className="w-full h-[10%] rounded-xl bg-gray-100 border-2 border-sky-700 overflow-hidden flex flex-row items-center justify-between px-2">
-      <div className="w-1/2 h-full flex items-center justify-start px-5 gap-x-2">
-        <Rocket className="text-blue-600" size={22} />{" "}
-        <p className="text-lg font-black">igniUp</p>
+    <div className="w-full lg:h-[10%] md:h-[10%] h-[8%] rounded-xl bg-gray-100 border-2 border-sky-700 overflow-hidden flex flex-row items-center justify-center lg:px-3 py-2 md:px-2 px-2">
+      <div className="w-full md:w-1/2 flex items-center  md:justify-start gap-x-1 px-1">
+        <Rocket className="text-blue-600" size={28} />
+        <p className="text-xl font-black">igniUp</p>
       </div>
-      <div className="w-1/2 h-full flex items-center justify-end gap-x-2">
+      <div className="w-full md:w-1/2 flex items-center justify-end gap-x-2">
         {navBtnText?.map((btn, index) => (
-
-          <Button classNames=" cursor-pointer flex items-center justify-center gap-x-2 py-2 text-white font-semibold bg-[#2E60EB] px-4 hover:bg-[#1f4bc6e0] rounded-lg"
-          action={btn.action} text={btn.text} icon={btn.icon} /> 
+          <Button
+            key={index}
+            classNames="cursor-pointer flex items-center justify-center lg:gap-x-2 md:gap-x-2 gap-x-1 py-2 text-white font-semibold bg-[#2E60EB] lg:px-4 md:px-4 px-2 hover:bg-[#1f4bc6e0] rounded-lg text-sm md:text-base"
+            action={btn.action}
+            text={btn.text}
+            icon={btn.icon}
+          />
         ))}
       </div>
     </div>

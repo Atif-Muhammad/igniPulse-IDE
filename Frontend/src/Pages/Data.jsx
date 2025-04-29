@@ -5,7 +5,7 @@ const Data = ({ res }) => {
   return (
     <>
       {res.length > 0 ? (
-        <div className="table-container bg-gray-50 rounded-lg shadow-md">
+        <div className="table-container bg-gray-50 rounded-lg shadow-md h-full">
           <table className="w-full border-none">
             {/* Table Header */}
             <thead className="sticky top-0 bg-[#194cd8] text-white z-10">

@@ -49,7 +49,7 @@ const LandingPage = () => {
   return (
     <>
       {/* Rocket Canvas - Hidden on mobile, visible from md screens up */}
-      <div className="hidden md:block md:w-1/5 md:h-1/2 absolute top-3 right-90 z-10  pointer-events-none">
+      <div className="md:block md:w-1/5 md:h-1/2 h-1/3 absolute lg:top-3 md:top-3 -top-8 lg:right-90 md:right-90 -right-10 z-10  pointer-events-none">
         <Canvas
           className="absolute inset-0 z-0"
           camera={{ position: [5, -2, 1] }}
@@ -112,12 +112,13 @@ const LandingPage = () => {
           <div className="w-full">
             <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
               {cards.map((card, idx) => (
-                <motion.div
+                // <motion.div
+                <div
                   key={idx}
                   className="bg-gray-200 w-full md:w-1/2 h-full rounded-sm px-4 py-4 flex flex-col justify-between items-center shadow-lg gap-y-2"
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: idx * 0.3 }}
+                  // initial={{ opacity: 0, y: 50 }}
+                  // animate={{ opacity: 1, y: 0 }}
+                  // transition={{ duration: 0.8, delay: idx * 0.3 }}
                 >
                   <div className="w-full h-40 sm:h-48 md:h-60 rounded-md mx-auto bg-gray-300/60 overflow-hidden">
                     {card.name.toLowerCase() === "python" ? (
@@ -155,7 +156,8 @@ const LandingPage = () => {
                   >
                     <p>Get Started</p>
                   </NavLink>
-                </motion.div>
+                {/* </motion.div> */}
+                </div>
               ))}
             </div>
           </div>

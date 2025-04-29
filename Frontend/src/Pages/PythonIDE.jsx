@@ -40,21 +40,35 @@ function PythonIDE() {
   const [pasteDone, setPasteDone] = useState(false);
   const [editorContent, setEditorContent] = useState("");
   const [disable, setDisable] = useState(false);
+  const [showOutput, setShowOutput] = useState(false);
 
   const clearOutput = () => {
-    document.getElementById("outputDiv").innerText = "";
+    document.getElementById("outputDivDesktop").innerText = "";
+    document.getElementById("outputDivMobile").innerText = "";
   };
+
+  const [shouldRunCode, setShouldRunCode] = useState(false);
+
+
 
   const socket = useRef(null);
 
+  const appendToOutputDivs = (el) => {
+    if (!el) return;
+    ["outputDivDesktop", "outputDivMobile"].forEach((id) => {
+      const target = document.getElementById(id);
+      if (target) target.appendChild(el.cloneNode(true));
+    });
+  };
+
   useEffect(() => {
     if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true
-      // });
-      socket.current = io("http://localhost:9000");
+      socket.current = io("https://igniup.com", {
+        path: "/socket.io/",
+        transports: ["websocket", "polling"],
+        withCredentials: true
+      });
+      // socket.current = io("http://localhost:9000");
 
       const handlePyResponse = (message) => {
         setDisable(false);
@@ -73,7 +87,8 @@ function PythonIDE() {
         res.innerHTML = formattedMessage;
         res.style.paddingBottom = "6px";
 
-        document.getElementById("outputDiv").appendChild(res);
+        // document.getElementById("outputDiv").appendChild(res);
+        appendToOutputDivs(res);
       };
 
       const handleExitSuccess = () => {
@@ -84,7 +99,8 @@ function PythonIDE() {
         exitMsg.style.marginTop = "10px";
         exitMsg.style.textAlign = "start";
 
-        document.getElementById("outputDiv").appendChild(exitMsg);
+        // document.getElementById("outputDiv").appendChild(exitMsg);
+        appendToOutputDivs(exitMsg);
       };
 
       socket.current.on("pyResponse", handlePyResponse);
@@ -108,7 +124,8 @@ function PythonIDE() {
           lineDiv.innerHTML = line.replace(/\n/g, "<br>");
           lineDiv.style.color = "black";
           lineDiv.style.marginBottom = "5px";
-          outputDiv.appendChild(lineDiv);
+          // outputDiv.appendChild(lineDiv);
+          inputPromptDiv(lineDiv);
         });
 
         // Create a container for the input prompt
@@ -155,7 +172,7 @@ function PythonIDE() {
         inputPromptDiv.appendChild(inputBox);
 
         // Append inputPromptDiv to the outputDiv
-        outputDiv.appendChild(inputPromptDiv);
+        appendToOutputDivs(inputPromptDiv);
 
         // Focus on the input box
         inputBox.focus();
@@ -176,6 +193,7 @@ function PythonIDE() {
     return () => {
       if (socket.current) {
         socket.current.disconnect();
+        socket.current.close();
         socket.current = null;
         socket.current?.off("pyResponse", handlePyResponse);
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
@@ -183,16 +201,39 @@ function PythonIDE() {
     };
   }, []);
 
+  // const handleRun = async () => {
+  //   // console.log("first")
+  //   if (editorContent != "") {
+  //     setShowOutput(true);
+  //     setDisable(true);
+  //     clearOutput();
+  //     // socket.current.close();
+  //     socket.current.connect();
+  //     // Emit the input data to the server using Socket.IO
+  //     socket.current.emit("runPy", editorContent);
+  //   }
+  // };
+  
   const handleRun = async () => {
-    // console.log("first")
-    if (editorContent != "") {
+    if (editorContent !== "") {
+      setShowOutput(true);       
+      setShouldRunCode(true);     
       setDisable(true);
       clearOutput();
-      socket.current.close();
-      socket.current.connect();
-      // Emit the input data to the server using Socket.IO
-      socket.current.emit("runPy", editorContent);
     }
+  };
+
+  useEffect(() => {
+    if (showOutput && shouldRunCode && socket.current) {
+      socket.current.connect();
+      socket.current.emit("runPy", editorContent);
+      setShouldRunCode(false); // Reset the trigger
+    }
+  }, [showOutput, shouldRunCode]);
+  
+
+  const handleClose = () => {
+    setShowOutput(false);
   };
 
   const handleDownload = async () => {
@@ -238,29 +279,28 @@ function PythonIDE() {
       }
     }
   };
-  
+
   const handlePaste = async () => {
     try {
-      const text = await navigator.clipboard.readText(); 
+      const text = await navigator.clipboard.readText();
       if (text && editorRef.current) {
         const contentLength = editorRef.current.state.doc.length;
-        
-      
+
         editorRef.current.dispatch({
           changes: {
-            from: contentLength, 
-            to: contentLength, 
-            insert: text, 
+            from: contentLength,
+            to: contentLength,
+            insert: text,
           },
         });
-  
+
         editorRef.current.focus();
-        
+
         editorRef.current.dispatch({
           selection: { anchor: contentLength, head: contentLength },
         });
-  
-        setEditorContent(editorRef.current.state.doc.toString()); 
+
+        setEditorContent(editorRef.current.state.doc.toString());
         setPasteDone(true);
         setTimeout(() => {
           setPasteDone(false);
@@ -270,8 +310,6 @@ function PythonIDE() {
       console.error("Failed to paste:", err);
     }
   };
-  
-  
 
   const openFile = async () => {
     const [fileHandle] = await window.showOpenFilePicker({
@@ -294,13 +332,18 @@ function PythonIDE() {
       setEditorContent("");
       if (editorRef.current) {
         editorRef.current.dispatch({
-          changes: { from: 0, to: editorRef.current.state.doc.length, insert: "" },
+          changes: {
+            from: 0,
+            to: editorRef.current.state.doc.length,
+            insert: "",
+          },
         });
+        setShowOutput(false)
         editorRef.current.focus();
       }
     }
   };
-  
+
   const fullHeightEditor = EditorView.theme({
     ".cm-scroller": {
       maxHeight: "440px !important",
@@ -366,24 +409,26 @@ function PythonIDE() {
   return (
     <>
       <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
-        <div className="w-full h-22 text-center p-2">
+        <div className="w-full h-12 text-center p-2">
           <div className=" h-full w-full"></div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
           <div className="h-full w-30 text-center p-2">
             <div className=" h-full w-full"></div>
           </div>
-          <div className="w-full h-full gap-y-2 flex flex-col justify-between">
+          <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div className="bg-gray-100 h-full w-full flex items-center justify-center gap-x-2 p-2 rounded-xl">
+            <div className="flex lg:flex-row md:flex-row flex-col lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 lg:gap-y-0 md:gap-y-0 gap-y-2 bg-gray-50 p-2 rounded-lg">
               <LeftMenu
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
                 copyDone={copyDone}
                 pasteDone={pasteDone}
+                TableDetail={null}
+                details={null}
               />
-              <div className="border-2 border-sky-700 w-[55%] h-full rounded-lg flex flex-col items-center justify-center p-2 gap-y-1">
-                <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2">
+              <div className="border-2 border-sky-700 lg:w-[55%] md:w-[55%] h-full rounded-lg flex flex-col items-center justify-center p-2 gap-y-1">
+                <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2 py-7">
                   <div className="flex items-center justify-center gap-x-1 px-2">
                     <img src={py} alt="python" className="w-8 h-8" />
                     <p className="font-black">Python</p>
@@ -407,7 +452,7 @@ function PythonIDE() {
                     ))}
                   </div>
                 </div>
-                <div className="h-[475px] w-full flex items-start justify-center overflow-auto rounded-lg">
+                <div className="lg:h-[475px] md:h-[475px] h-full w-full flex items-start justify-center overflow-auto rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
                     className="w-[650px] text-[1rem] scrollbar-custom overflow-hidden"
@@ -420,7 +465,7 @@ function PythonIDE() {
                       indentOnInput(),
                     ]}
                     onChange={(newContent) => {
-                      setEditorContent(newContent); 
+                      setEditorContent(newContent);
                     }}
                     onCreateEditor={(editor) => {
                       editorRef.current = editor;
@@ -428,7 +473,7 @@ function PythonIDE() {
                   />
                 </div>
               </div>
-              <div className="border-2 border-sky-700 w-[45%] h-full rounded-lg p-2 flex flex-col gap-y-1">
+              <div className="lg:flex md:flex border-2 border-sky-700 w-[45%] h-full rounded-lg p-2 hidden flex-col gap-y-1">
                 <div
                   className="h-12 w-full flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2"
                   onClick={clearOutput}
@@ -441,10 +486,29 @@ function PythonIDE() {
                   />
                 </div>
                 <div
-                  id="outputDiv"
+                  id="outputDivDesktop"
                   className="h-[450px] w-full overflow-auto"
                 ></div>
               </div>
+              {showOutput && (
+                <div className="lg:hidden md:hidden border-2 border-sky-700 w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 bg-gray-100 -translate-x-1/2 bottom-0">
+                  <div
+                    className="h-12 w-full flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2 py-1"
+                    onClick={clearOutput}
+                  >
+                    <p className="font-black px-1">Output</p>
+                    <Button
+                      classNames={`cursor-pointer flex items-center justiy-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4  hover:bg-[#f7766d] rounded-lg text-xs`}
+                      text={editorBtns[0].text}
+                      icon={editorBtns[0].icon}
+                    />
+                  </div>
+                  <div
+                    id="outputDivMobile"
+                    className="h-[450px] w-full overflow-auto"
+                  ></div>
+                </div>
+              )}
             </div>
           </div>
           <div className="h-full w-30 text-center p-2">
