@@ -29,6 +29,7 @@ services:
       MYSQL_ROOT_PASSWORD: mySql123
       MYSQL_ROOT_HOST: "%"
     volumes:
+      - my.cnf:/etc/mysql/my.cnf
       - sql_volume:/var/lib/mysql
 
 volumes:
