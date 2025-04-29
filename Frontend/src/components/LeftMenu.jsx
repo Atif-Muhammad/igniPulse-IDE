@@ -79,9 +79,9 @@ function LeftMenu({
             </>
           )}
           <div className="flex flex-col items-center justify-center gap-y-1 cursor-pointer">
-            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            {/* <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               <Moon className="text-white" size={16} />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
