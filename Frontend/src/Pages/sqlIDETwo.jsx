@@ -14,14 +14,17 @@ import Config from "../../Config/config";
 import toast, { Toaster } from "react-hot-toast";
 import Data from "./Data";
 import sql from "../assets/sql.svg";
-
+import { useTheme } from "../context/ThemeContext";
 import TableDetail from "./TableDetail";
-import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
 import { Info, X } from "lucide-react";
+import { oneDark } from "@codemirror/theme-one-dark";
+import LeftMenuSQL from "../components/leftmenuSQL";
+// import { EditorView } from "@codemirror/view";
 
 function sqlIDETwo() {
+  const { darkTheme } = useTheme();
   const dataRef = useRef(null);
   const editorRef = useRef(null);
   const [editorContent, setEditorContent] = useState("");
@@ -32,8 +35,10 @@ function sqlIDETwo() {
   const [details, setDetails] = useState([]);
   const [copyDone, setCopyDone] = useState(false);
   const [pasteDone, setPasteDone] = useState(false);
-
   const [showInfo, setShowInfo] = useState(false);
+
+  // Add line wrapping extension
+  const lineWrapping = EditorView.lineWrapping;
 
   const fullHeightEditor = EditorView.theme({
     ".cm-scroller": {
@@ -48,16 +53,16 @@ function sqlIDETwo() {
       minHeight: "130px !important",
     },
     ".cm-gutters": {
-      backgroundColor: "#F1F5F9", // Light background
-      color: "#64748B", // Slate text
-      borderRight: "1px solid #E5E7EB",
+      backgroundColor: darkTheme ? "#1E293B" : "#F1F5F9",
+      color: darkTheme ? "#94A3B8" : "#64748B",
+      borderRight: darkTheme ? "1px solid #334155" : "1px solid #E5E7EB",
     },
     ".cm-lineNumbers": {
       fontSize: "0.875rem",
       fontFamily: "monospace",
     },
     ".cm-activeLineGutter": {
-      backgroundColor: "#3B82F6", // Tailwind blue-500
+      backgroundColor: "#3B82F6",
       color: "white !important",
       padding: "2px 0px",
     },
@@ -65,22 +70,22 @@ function sqlIDETwo() {
 
   const customScrollbar = EditorView.theme({
     ".cm-scroller": {
-      scrollbarWidth: "thin", // For Firefox
+      scrollbarWidth: "thin",
     },
     "::-webkit-scrollbar": {
-      width: "8px", // Scrollbar width
-      height: "8px", // Horizontal scrollbar height
+      width: "8px",
+      height: "8px",
     },
     "::-webkit-scrollbar-track": {
-      background: "#F3F4F6", // Track color
+      background: darkTheme ? "#1E293B" : "#F3F4F6",
       borderRadius: "5px",
     },
     "::-webkit-scrollbar-thumb": {
-      background: "#F3F4F6", // Thumb color
+      background: darkTheme ? "#475569" : "#D1D5DB",
       borderRadius: "5px",
     },
     "::-webkit-scrollbar-thumb:hover": {
-      background: "#F3F4F6", // Thumb hover effect
+      background: darkTheme ? "#64748B" : "#9CA3AF",
     },
   });
 
@@ -309,7 +314,11 @@ function sqlIDETwo() {
   return (
     <>
       {showInfo && (
-        <div className="bg-red-500 w-[90%] sm:w-2/3 md:w-1/2 lg:w-1/3 h-auto px-4 py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s]">
+        <div
+          className={`w-[90%] sm:w-2/3 md:w-1/2 lg:w-1/3 h-auto px-4 py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s] ${
+            darkTheme ? "bg-red-700" : "bg-red-500"
+          }`}
+        >
           <div className="flex justify-between items-start">
             <div className="flex gap-2 items-start">
               <Info className="text-white mt-1" />
@@ -330,18 +339,24 @@ function sqlIDETwo() {
         </div>
       )}
 
-      <div className="flex flex-col h-screen w-screen overflow-hidden relative bg-white/40">
-        <div className="w-full h-[15%]  text-center p-2">
-          <div className=" h-full w-full "></div>
+      <div
+        className={`flex flex-col h-screen w-screen overflow-hidden relative `}
+      >
+        <div className="w-full h-[15%] text-center p-2">
+          <div className="h-full w-full"></div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
           <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full "></div>
+            <div className="h-full w-full"></div>
           </div>
-          <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
+          <div className="flex  flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div className="flex lg:flex-row md:flex-row flex-col lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 bg-gray-50 p-2 rounded-lg">
-              <LeftMenu
+            <div
+              className={`flex lg:flex-row flex-col lg:h-[85%] gap-2 md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 ${
+                darkTheme ? "bg-gray-800" : "bg-gray-50"
+              } p-2 rounded-lg`}
+            >
+              <LeftMenuSQL
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
                 copyDone={copyDone}
@@ -349,19 +364,33 @@ function sqlIDETwo() {
                 TableDetail={TableDetail}
                 details={details}
               />
-              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full ">
-                
-
-                <div className="hidden md:block lg:block h-full ">
+              <div className="lg:py-0  md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
+                <div className="hidden md:block lg:block w-full md:w-[25%] h-full">
                   <TableDetail details={details} />
                 </div>
 
-                <div className="w-full md:w-[100%] flex flex-col gap-y-2 h-full">
-                  <div className="border-2 border-sky-700 w-full h-49 rounded-lg flex flex-col items-center lg:justify-center md:justify-center justify-start p-1 gap-y-1">
-                    <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-1 py-5">
+                <div className="w-full md:w-[75%] flex flex-col gap-y-2 h-full">
+                  <div
+                    className={`border-2 ${
+                      darkTheme ? "border-blue-600" : "border-sky-700"
+                    } w-full h-49 rounded-lg flex flex-col items-center lg:justify-center md:justify-center justify-start p-1 gap-y-1 ${
+                      darkTheme ? "bg-gray-800" : "bg-white"
+                    }`}
+                  >
+                    <div
+                      className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
+                        darkTheme ? "bg-gray-700" : "bg-gray-200"
+                      } px-1 py-5`}
+                    >
                       <div className="flex items-center justify-center gap-x-1 px-2">
                         <img src={sql} alt="python" className="w-8 h-8" />
-                        <p className="font-black">SQL</p>
+                        <p
+                          className={`font-black ${
+                            darkTheme ? "text-white" : "text-black"
+                          }`}
+                        >
+                          SQL
+                        </p>
                       </div>
                       <div className="flex items-center justify-center gap-x-2">
                         {editorBtns.map((btn, index) => (
@@ -369,13 +398,9 @@ function sqlIDETwo() {
                             key={index}
                             classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
                               btn.text === "Execute"
-                                ? "bg-[#10B335]"
-                                : "bg-[#F7665D]"
-                            } px-4 ${
-                              btn.text === "Execute"
-                                ? "hover:bg-green-600"
-                                : "hover:bg-[#f7766d]"
-                            } rounded-lg`}
+                                ? "bg-[#10B335] hover:bg-green-600"
+                                : "bg-[#F7665D] hover:bg-[#f7766d]"
+                            } px-4 rounded-lg`}
                             action={btn.action}
                             text={btn.text}
                             icon={btn.icon}
@@ -383,15 +408,18 @@ function sqlIDETwo() {
                         ))}
                       </div>
                     </div>
-                    <div className="w-full flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="lg:max-w-[1020px] min-w-[360px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
-                        className="text-[1rem] lg:w-[1020px] md:w-[1020px] w-[450px] scrollbar-custom rounded-lg"
-                        theme="light"
+                        className={`text-[1rem] w-full  scrollbar-custom rounded-lg ${
+                          darkTheme ? "text-gray-200" : "text-gray-800"
+                        }`}
+                        theme={darkTheme ? oneDark : "light"}
                         extensions={[
                           fullHeightEditor,
                           customScrollbar,
                           highlightActiveLineGutter(),
+                          lineWrapping, // Add this line to enable text wrapping
                         ]}
                         onChange={(newContent, viewUpdate) => {
                           setEditorContent(newContent);
@@ -403,7 +431,15 @@ function sqlIDETwo() {
                       />
                     </div>
                   </div>
-                  <div className="w-full lg:h-full md:h-full h-[35vh] border-sky-700 border-2 rounded-lg overflow-auto">
+                  <div
+                    className={`w-full lg:h-full md:h-full h-[35vh] ${
+                      darkTheme ? "border-blue-600" : "border-sky-700"
+                    } border-2 rounded-lg overflow-auto ${
+                      darkTheme
+                        ? "bg-gray-800 text-gray-200"
+                        : "bg-white text-gray-800"
+                    }`}
+                  >
                     <Data res={resDB} />
                   </div>
                 </div>
@@ -411,11 +447,11 @@ function sqlIDETwo() {
             </div>
           </div>
           <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full "></div>{" "}
+            <div className="h-full w-full"></div>
           </div>
         </div>
         <div className="w-full h-10 text-center p-2">
-          <div className=" h-full w-full"></div>{" "}
+          <div className="h-full w-full"></div>
         </div>
       </div>
       <Toaster
@@ -429,7 +465,7 @@ function sqlIDETwo() {
           duration: 5000,
           removeDelay: 1000,
           style: {
-            background: "green",
+            background: "#10B335",
             color: "#fff",
           },
           success: {
@@ -442,12 +478,12 @@ function sqlIDETwo() {
           error: {
             duration: 3000,
             style: {
-              backgroundColor: "red",
+              backgroundColor: darkTheme ? "#7F1D1D" : "#EF4444",
               color: "white",
             },
             iconTheme: {
               primary: "white",
-              secondary: "red",
+              secondary: darkTheme ? "#7F1D1D" : "#EF4444",
             },
           },
         }}
