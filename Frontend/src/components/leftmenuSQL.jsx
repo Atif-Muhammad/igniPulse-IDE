@@ -10,7 +10,7 @@ import {
 import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
-function LeftMenu({
+function LeftMenuSQL({
   handleCopy,
   handlePaste,
   pasteDone,
@@ -24,56 +24,57 @@ function LeftMenu({
   return (
     <>
       <div
-        className={`border-2 w-full md:w-16  h-13 md:h-full rounded-lg overflow-hidden flex md:flex-col items-center justify-center lg:py-2 md:py-2 py-7 lg:px-0 md:px-0 px-2 gap-y-0 gap-x-2 md:gap-y-3 ${
+        className={`border-2 w-full lg:w-16 h-13  md:h-16 lg:h-full rounded-lg md:flex-row-reverse overflow-hidden flex lg:flex-col items-center lg:justify-center justify-between lg:py-2  py-7 lg:px-0  px-3 gap-y-0 gap-x-2 lg:gap-y-3 ${
           darkTheme
             ? "border-blue-500 bg-gray-800"
             : "border-sky-700 bg-gray-100"
         }`}
       >
-        {/* Copy Button */}
-        <div
-          className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
-          onClick={handleCopy}
-        >
-          <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
-            {copyDone ? (
-              <CheckCheckIcon className="text-white" size={16} />
-            ) : (
-              <Copy className="text-white" size={16} />
-            )}
-          </div>
-          <p
-            className={`text-sm  select-none hidden md:block ${
-              darkTheme ? "text-gray-300" : "text-gray-700"
-            }`}
+        <div className="flex lg:flex-col justify-between  gap-4 flex-row ">
+          {/* Copy Button */}
+          <div
+            className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
+            onClick={handleCopy}
           >
-            {copyDone ? "Copied" : "Copy"}
-          </p>
-        </div>
-
-        {/* Paste Button */}
-        <div
-          className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
-          onClick={handlePaste}
-        >
-          <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
-            {pasteDone ? (
-              <CheckCheckIcon className="text-white" size={16} />
-            ) : (
-              <ClipboardCheck className="text-white" size={18} />
-            )}
+            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+              {copyDone ? (
+                <CheckCheckIcon className="text-white" size={16} />
+              ) : (
+                <Copy className="text-white" size={16} />
+              )}
+            </div>
+            <p
+              className={`text-sm  select-none hidden lg:block ${
+                darkTheme ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              {copyDone ? "Copied" : "Copy"}
+            </p>
           </div>
-          <p
-            className={`text-sm select-none hidden md:block ${
-              darkTheme ? "text-gray-300" : "text-gray-700"
-            }`}
-          >
-            {pasteDone ? "Pasted" : "Paste"}
-          </p>
-        </div>
 
+          {/* Paste Button */}
+          <div
+            className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
+            onClick={handlePaste}
+          >
+            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+              {pasteDone ? (
+                <CheckCheckIcon className="text-white" size={16} />
+              ) : (
+                <ClipboardCheck className="text-white" size={18} />
+              )}
+            </div>
+            <p
+              className={`text-sm select-none hidden lg:block ${
+                darkTheme ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              {pasteDone ? "Pasted" : "Paste"}
+            </p>
+          </div>
+        </div>
         {/* Bottom Section */}
-        <div className="flex  items-center justify-center gap-x-2 lg:mt-auto md:mt-auto ml-auto lg:ml-0 md:ml-0">
+        <div className="flex  items-center  justify-center gap-x-2 lg:mt-auto  ml-auto lg:ml-0 md:ml-0">
           {TableDetail && details && (
             <>
               <div className="md:hidden lg:hidden flex">
@@ -130,7 +131,7 @@ function LeftMenu({
             </>
           )}
           {/* Theme Toggle */}
-          <div className="flex flex-col items-center justify-center gap-y-1 cursor-pointer">
+          <div className="flex flex-col items-center justify-center lg:gap-y-1 cursor-pointer">
             <div
               className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full cursor-pointer"
               onClick={toggleTheme}
@@ -142,7 +143,7 @@ function LeftMenu({
               )}
             </div>
             <p
-              className={`text-sm select-none hidden md:block ${
+              className={`text-sm select-none hidden lg:block ${
                 darkTheme ? "text-gray-300" : "text-gray-700"
               }`}
             >
@@ -155,4 +156,4 @@ function LeftMenu({
   );
 }
 
-export default LeftMenu;
+export default LeftMenuSQL;
