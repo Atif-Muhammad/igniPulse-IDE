@@ -19,7 +19,7 @@ ${data}
     });
 
     const execPy = (socket, code) => {
-      const pyProcess = spawn("python", ["-u", "-c", code], {
+      const pyProcess = spawn("python3", ["-u", "-c", code], {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
