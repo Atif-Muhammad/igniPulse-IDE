@@ -1,19 +1,7 @@
 import { React, useState, useRef, useEffect } from "react";
-import {
-  CirclePlay,
-  ClipboardCheck,
-  Copy,
-  Download,
-  Eraser,
-  File,
-  FileCode2,
-  Moon,
-  Play,
-  Rocket,
-  Save,
-} from "lucide-react";
+import { CirclePlay, Eraser, X } from "lucide-react";
 import { io } from "socket.io-client";
-
+import { useTheme } from "../context/ThemeContext";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import {
@@ -24,6 +12,7 @@ import {
 } from "@codemirror/view";
 import { defaultKeymap } from "@codemirror/commands";
 import { indentOnInput } from "@codemirror/language";
+import { oneDark } from "@codemirror/theme-one-dark";
 
 import py from "../assets/py.svg";
 import LeftMenu from "../components/LeftMenu";
@@ -31,6 +20,7 @@ import NavBar from "../components/NavBar";
 import Button from "../components/Button";
 
 function PythonIDE() {
+  const { darkTheme } = useTheme();
   const editorRef = useRef(null);
   const [tickerSuccess, setTickerSuccess] = useState({
     flag: false,
@@ -41,17 +31,17 @@ function PythonIDE() {
   const [editorContent, setEditorContent] = useState("");
   const [disable, setDisable] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
+  const [shouldRunCode, setShouldRunCode] = useState(false);
+  const socket = useRef(null);
 
   const clearOutput = () => {
     document.getElementById("outputDivDesktop").innerText = "";
     document.getElementById("outputDivMobile").innerText = "";
   };
 
-  const [shouldRunCode, setShouldRunCode] = useState(false);
+  // const [shouldRunCode, setShouldRunCode] = useState(false);
 
-
-
-  const socket = useRef(null);
+  // const socket = useRef(null);
 
   const appendToOutputDivs = (el) => {
     if (!el) return;
@@ -63,12 +53,12 @@ function PythonIDE() {
 
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
 
       const handlePyResponse = (message) => {
         setDisable(false);
@@ -213,11 +203,11 @@ function PythonIDE() {
   //     socket.current.emit("runPy", editorContent);
   //   }
   // };
-  
+
   const handleRun = async () => {
     if (editorContent !== "") {
-      setShowOutput(true);       
-      setShouldRunCode(true);     
+      setShowOutput(true);
+      setShouldRunCode(true);
       setDisable(true);
       clearOutput();
     }
@@ -230,7 +220,6 @@ function PythonIDE() {
       setShouldRunCode(false); // Reset the trigger
     }
   }, [showOutput, shouldRunCode]);
-  
 
   const handleClose = () => {
     setShowOutput(false);
@@ -338,7 +327,7 @@ function PythonIDE() {
             insert: "",
           },
         });
-        setShowOutput(false)
+        setShowOutput(false);
         editorRef.current.focus();
       }
     }
@@ -357,16 +346,16 @@ function PythonIDE() {
       minHeight: "440px !important",
     },
     ".cm-gutters": {
-      backgroundColor: "#F1F5F9", // Light background
-      color: "#64748B", // Slate text
-      borderRight: "1px solid #E5E7EB",
+      backgroundColor: darkTheme ? "#1E293B" : "#F1F5F9",
+      color: darkTheme ? "#94A3B8" : "#64748B",
+      borderRight: darkTheme ? "1px solid #334155" : "1px solid #E5E7EB",
     },
     ".cm-lineNumbers": {
       fontSize: "0.875rem",
       fontFamily: "monospace",
     },
     ".cm-activeLineGutter": {
-      backgroundColor: "#3B82F6", // Tailwind blue-500
+      backgroundColor: darkTheme ? "#3B82F6" : "#3B82F6",
       color: "white !important",
       padding: "2px 0px",
     },
@@ -374,22 +363,22 @@ function PythonIDE() {
 
   const customScrollbar = EditorView.theme({
     ".cm-scroller": {
-      scrollbarWidth: "thin", // For Firefox
+      scrollbarWidth: "thin",
     },
     "::-webkit-scrollbar": {
-      width: "8px", // Scrollbar width
-      height: "8px", // Horizontal scrollbar height
+      width: "8px",
+      height: "8px",
     },
     "::-webkit-scrollbar-track": {
-      background: "#F3F4F6", // Track color
+      background: darkTheme ? "#1E293B" : "#F3F4F6",
       borderRadius: "5px",
     },
     "::-webkit-scrollbar-thumb": {
-      background: "#F3F4F6", // Thumb color
+      background: darkTheme ? "#475569" : "#D1D5DB",
       borderRadius: "5px",
     },
     "::-webkit-scrollbar-thumb:hover": {
-      background: "#F3F4F6", // Thumb hover effect
+      background: darkTheme ? "#64748B" : "#9CA3AF",
     },
   });
 
@@ -410,15 +399,19 @@ function PythonIDE() {
     <>
       <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
         <div className="w-full h-12 text-center p-2">
-          <div className=" h-full w-full"></div>
+          <div className="h-full w-full"></div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
           <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full"></div>
+            <div className="h-full w-full"></div>
           </div>
           <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div className="flex lg:flex-row md:flex-row flex-col lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 lg:gap-y-0 md:gap-y-0 gap-y-2 bg-gray-50 p-2 rounded-lg">
+            <div
+              className={`flex lg:flex-row md:flex-row flex-col lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 lg:gap-y-0 md:gap-y-0 gap-y-2 ${
+                darkTheme ? "bg-gray-800" : "bg-gray-50"
+              } p-2 rounded-lg`}
+            >
               <LeftMenu
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
@@ -427,24 +420,37 @@ function PythonIDE() {
                 TableDetail={null}
                 details={null}
               />
-              <div className="border-2 border-sky-700 lg:w-[55%] md:w-[55%] h-full rounded-lg flex flex-col items-center justify-center p-2 gap-y-1">
-                <div className="w-full h-12 flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2 py-7">
+              <div
+                className={`border-2 ${
+                  darkTheme ? "border-blue-600" : "border-sky-700"
+                } lg:w-[55%] md:w-[55%] h-full rounded-lg flex flex-col items-center  justify-start p-2 gap-y-1 ${
+                  darkTheme ? "bg-gray-800" : "bg-white"
+                }`}
+              >
+                <div
+                  className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
+                    darkTheme ? "bg-gray-700" : "bg-gray-200"
+                  } px-2 py-7`}
+                >
                   <div className="flex items-center justify-center gap-x-1 px-2">
                     <img src={py} alt="python" className="w-8 h-8" />
-                    <p className="font-black">Python</p>
+                    <p
+                      className={`font-black ${
+                        darkTheme ? "text-white" : "text-black"
+                      }`}
+                    >
+                      Python
+                    </p>
                   </div>
                   <div className="flex items-center justify-center gap-x-2">
                     {editorBtns.map((btn, index) => (
                       <Button
+                        key={index}
                         classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
                           btn.text === "Execute"
-                            ? "bg-[#10B335]"
-                            : "bg-[#F7665D]"
-                        } px-4 ${
-                          btn.text === "Execute"
-                            ? "hover:bg-green-600"
-                            : "hover:bg-[#f7766d]"
-                        } rounded-lg`}
+                            ? "bg-[#10B335] hover:bg-green-600"
+                            : "bg-[#F7665D] hover:bg-[#f7766d]"
+                        } px-4 rounded-lg`}
                         action={btn.action}
                         text={btn.text}
                         icon={btn.icon}
@@ -456,9 +462,11 @@ function PythonIDE() {
                   <CodeMirror
                     defaultValue={editorContent}
                     className="w-[650px] text-[1rem] scrollbar-custom overflow-hidden"
-                    theme="light"
+                    theme={darkTheme ? oneDark : "light"}
                     extensions={[
+                      // python(),
                       fullHeightEditor,
+                      customScrollbar,
                       highlightActiveLineGutter(),
                       lineNumbers(),
                       keymap.of(defaultKeymap),
@@ -473,50 +481,100 @@ function PythonIDE() {
                   />
                 </div>
               </div>
-              <div className="lg:flex md:flex border-2 border-sky-700 w-[45%] h-full rounded-lg p-2 hidden flex-col gap-y-1">
+              <div
+                className={`lg:flex md:flex border-2 ${
+                  darkTheme ? "border-blue-600" : "border-sky-700"
+                } w-[45%] h-full rounded-lg p-2 hidden flex-col gap-y-1 ${
+                  darkTheme ? "bg-gray-800" : "bg-white"
+                }`}
+              >
                 <div
-                  className="h-12 w-full flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2"
+                  className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
+                    darkTheme ? "bg-gray-700" : "bg-gray-200"
+                  } px-2`}
                   onClick={clearOutput}
                 >
-                  <p className="font-black px-1">Output</p>
+                  <p
+                    className={`font-black px-1 ${
+                      darkTheme ? "text-white" : "text-black"
+                    }`}
+                  >
+                    Output
+                  </p>
                   <Button
-                    classNames={`cursor-pointer flex items-center justiy-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                    classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
                     text={editorBtns[0].text}
                     icon={editorBtns[0].icon}
                   />
                 </div>
                 <div
                   id="outputDivDesktop"
-                  className="h-[450px] w-full overflow-auto"
+                  className={`h-[450px] w-full overflow-auto ${
+                    darkTheme
+                      ? "text-gray-200 bg-gray-800"
+                      : "text-black bg-white"
+                  }`}
                 ></div>
               </div>
+
               {showOutput && (
-                <div className="lg:hidden md:hidden border-2 border-sky-700 w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 bg-gray-100 -translate-x-1/2 bottom-0">
+                <div
+                  className={`lg:hidden md:hidden border-2 ${
+                    darkTheme ? "border-blue-600" : "border-sky-700"
+                  } w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 ${
+                    darkTheme ? "bg-gray-800" : "bg-gray-100"
+                  } -translate-x-1/2 bottom-0`}
+                >
                   <div
-                    className="h-12 w-full flex items-center justify-between gap-x-2 rounded-lg bg-gray-200 px-2 py-1"
-                    onClick={clearOutput}
+                    className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
+                      darkTheme ? "bg-gray-700" : "bg-gray-200"
+                    } px-2 py-1`}
                   >
-                    <p className="font-black px-1">Output</p>
-                    <Button
-                      classNames={`cursor-pointer flex items-center justiy-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4  hover:bg-[#f7766d] rounded-lg text-xs`}
-                      text={editorBtns[0].text}
-                      icon={editorBtns[0].icon}
-                    />
+                    <p
+                      className={`font-black px-1 ${
+                        darkTheme ? "text-white" : "text-black"
+                      }`}
+                    >
+                      Output
+                    </p>
+                    <div className="flex items-center gap-x-2">
+                      <Button
+                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                        text={editorBtns[0].text}
+                        icon={editorBtns[0].icon}
+                        action={clearOutput}
+                      />
+                      <button
+                        onClick={handleClose}
+                        className={`p-2 rounded-full ${
+                          darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
+                        }`}
+                      >
+                        <X
+                          size={20}
+                          className={darkTheme ? "text-white" : "text-black"}
+                        />
+                      </button>
+                    </div>
                   </div>
                   <div
                     id="outputDivMobile"
-                    className="h-[450px] w-full overflow-auto"
+                    className={`h-[450px] w-full overflow-auto ${
+                      darkTheme
+                        ? "text-gray-200 bg-gray-800"
+                        : "text-black bg-white"
+                    }`}
                   ></div>
                 </div>
               )}
             </div>
           </div>
           <div className="h-full w-30 text-center p-2">
-            <div className=" h-full w-full"></div>
+            <div className="h-full w-full"></div>
           </div>
         </div>
         <div className="w-full h-10 text-center p-2">
-          <div className=" h-full w-full"></div>
+          <div className="h-full w-full"></div>
         </div>
       </div>
     </>

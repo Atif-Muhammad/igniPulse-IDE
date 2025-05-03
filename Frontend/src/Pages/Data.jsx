@@ -1,19 +1,31 @@
-import React, { useEffect } from "react";
+import React from "react";
+import { useTheme } from "../context/ThemeContext";
 
 const Data = ({ res }) => {
-  // console.log("::::::::", Object.keys(res));
+  const { darkTheme } = useTheme();
+
   return (
     <>
       {res.length > 0 ? (
-        <div className="table-container bg-gray-50 rounded-lg shadow-md h-full">
+        <div
+          className={`table-container rounded-lg shadow-md h-full ${
+            darkTheme ? "bg-gray-800" : "bg-gray-50"
+          }`}
+        >
           <table className="w-full border-none">
             {/* Table Header */}
-            <thead className="sticky top-0 bg-[#194cd8] text-white z-10">
+            <thead
+              className={`sticky top-0 z-10 ${
+                darkTheme ? "bg-blue-900" : "bg-[#194cd8]"
+              }`}
+            >
               <tr>
                 {Object.keys(res[0]).map((key) => (
                   <th
                     key={key}
-                    className="px-3 py-3 text-sm border-none text-white tracking-wider text-left uppercase"
+                    className={`px-3 py-3 text-sm border-none tracking-wider text-left uppercase ${
+                      darkTheme ? "text-gray-200" : "text-white"
+                    }`}
                   >
                     {key}
                   </th>
@@ -27,13 +39,21 @@ const Data = ({ res }) => {
                 <tr
                   key={rowIndex}
                   className={`transition duration-200 ${
-                    rowIndex % 2 === 0 ? "bg-white" : "bg-gray-200"
-                  } hover:bg-gray-300`}
+                    darkTheme
+                      ? rowIndex % 2 === 0
+                        ? "bg-gray-700"
+                        : "bg-gray-600"
+                      : rowIndex % 2 === 0
+                      ? "bg-white"
+                      : "bg-gray-200"
+                  } hover:${darkTheme ? "bg-gray-500" : "bg-gray-300"}`}
                 >
                   {Object.keys(row).map((key) => (
                     <td
                       key={key}
-                      className="border-2 border-none px-4 py-2 text-start text-sm text-gray-800"
+                      className={`border-2 border-none px-4 py-2 text-start text-sm ${
+                        darkTheme ? "text-gray-200" : "text-gray-800"
+                      }`}
                     >
                       {row[key]}
                     </td>
@@ -44,7 +64,13 @@ const Data = ({ res }) => {
           </table>
         </div>
       ) : (
-        <div className="text-center py-4 text-gray-500">No data available.</div>
+        <div
+          className={`text-center py-4 ${
+            darkTheme ? "text-gray-400" : "text-gray-500"
+          }`}
+        >
+          No data available.
+        </div>
       )}
     </>
   );

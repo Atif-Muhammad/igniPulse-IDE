@@ -1,8 +1,10 @@
 import { Minus, Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 function TableDetail({ details }) {
   const [visibleRows, setVisibleRows] = useState({});
+  const { darkTheme } = useTheme(); // Correctly use the theme context
 
   useEffect(() => {}, [details]);
 
@@ -14,27 +16,44 @@ function TableDetail({ details }) {
   };
 
   return (
-    <div className="w-full md:w-60 h-full border-2 border-sky-700  p-2 rounded-lg overflow-auto bg-white">
+    <div
+      className={`w-full  h-full border-2 p-2 rounded-lg overflow-auto ${
+        darkTheme
+          ? "border-blue-500 bg-gray-800 text-gray-200"
+          : "border-sky-700 bg-gray-100 text-gray-800"
+      }`}
+    >
       {/* Header */}
-      <p className="text-[#1E293B] rounded-lg py-3 text-md font-bold text-start px-4 w-full bg-[#E5E7EB] mb-2">
-        Tables
-      </p>
-
+      
       {/* Table List */}
       <div className="overflow-auto max-h-[75vh] scrollbar-hide py-1">
         {details.map((detail, index) => (
           <div key={index} className="flex flex-col items-end w-full mb-1">
             {/* Table Name */}
             <div
-              className="w-full flex items-center gap-x-2 cursor-pointer select-none py-2 px-3 rounded-md bg-[#0044ff39] hover:bg-[#0044ff51] transition duration-200"
+              className={`w-full flex items-center gap-x-2 cursor-pointer select-none py-2 px-3 rounded-md hover:bg-opacity-80 transition duration-200 ${
+                darkTheme
+                  ? "bg-blue-900 bg-opacity-40 hover:bg-blue-900"
+                  : "bg-[#0044ff39] hover:bg-[#0044ff51]"
+              }`}
               onClick={() => toggleVisibility(index)}
             >
               {visibleRows[index] ? (
-                <Minus size={15} className="text-[#0741df]" />
+                <Minus
+                  size={15}
+                  className={darkTheme ? "text-blue-300" : "text-[#0741df]"}
+                />
               ) : (
-                <Plus size={15} className="text-[#0741df]" />
+                <Plus
+                  size={15}
+                  className={darkTheme ? "text-blue-300" : "text-[#0741df]"}
+                />
               )}
-              <p className="text-md text-[#194cd8] tracking-widest font-bold">
+              <p
+                className={`text-md tracking-widest font-bold ${
+                  darkTheme ? "text-blue-300" : "text-[#194cd8]"
+                }`}
+              >
                 {detail.table}
               </p>
             </div>
@@ -44,12 +63,22 @@ function TableDetail({ details }) {
               detail.columns.map((col, colIndex) => (
                 <div
                   key={colIndex}
-                  className="w-[95%] flex items-center gap-x-1 pl-3 overflow-auto py-2 border-l-4 border-[#194cd8] bg-[#E5E7EB] text-gray-500 rounded-r-md mt-1 scrollbar-hide"
+                  className={`w-[95%] flex items-center gap-x-1 pl-3 overflow-auto py-2 border-l-4 rounded-r-md mt-1 scrollbar-hide ${
+                    darkTheme
+                      ? "border-blue-400 bg-gray-700 text-gray-300"
+                      : "border-[#194cd8] bg-[#E5E7EB] text-gray-500"
+                  }`}
                 >
                   <span className="font-semibold text-sm tracking-wide">
                     {col.column}
                   </span>
-                  <span className="text-gray-400 text-xs">{`(${col.type})`}</span>
+                  <span
+                    className={`text-xs ${
+                      darkTheme ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {`(${col.type})`}
+                  </span>
                 </div>
               ))}
           </div>
