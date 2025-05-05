@@ -365,11 +365,11 @@ function sqlIDETwo() {
                 details={details}
               />
               <div className="lg:py-0  md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
-                <div className="hidden md:block lg:block w-full md:w-[25%] h-full">
+                <div className="hidden md:block lg:block w-full md:w-[23%] h-full">
                   <TableDetail details={details} />
                 </div>
 
-                <div className="w-full md:w-[75%] flex flex-col gap-y-2 h-full">
+                <div className="w-full md:w-[77%] flex flex-col gap-y-2 h-full">
                   <div
                     className={`border-2 ${
                       darkTheme ? "border-blue-600" : "border-sky-700"
@@ -408,7 +408,7 @@ function sqlIDETwo() {
                         ))}
                       </div>
                     </div>
-                    <div className="lg:max-w-[1020px] min-w-[360px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="lg:max-w-[1020px] min-w-[335px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
                         className={`text-[1rem] w-full  scrollbar-custom rounded-lg ${

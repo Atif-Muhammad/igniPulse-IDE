@@ -4,21 +4,13 @@ import {
   Moon,
   Sun,
   CheckCheckIcon,
-  XIcon,
-  MenuIcon,
+  HomeIcon,
 } from "lucide-react";
 import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { NavLink } from "react-router-dom";
 
-function LeftMenu({
-  handleCopy,
-  handlePaste,
-  pasteDone,
-  copyDone,
-  TableDetail,
-  details,
-}) {
-  const [showTable, setShowTable] = useState(false);
+function LeftMenu({ handleCopy, handlePaste, pasteDone, copyDone }) {
   const { darkTheme, toggleTheme } = useTheme();
 
   return (
@@ -30,6 +22,24 @@ function LeftMenu({
             : "border-sky-700 bg-gray-100"
         }`}
       >
+        {/* Home Button */}
+        <NavLink
+          to="/"
+          className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
+          data-aos="fade-up"
+        >
+          <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            <HomeIcon className="text-white" size={16} />
+          </div>
+          <p
+            className={`text-sm select-none hidden md:block ${
+              darkTheme ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            Home
+          </p>
+        </NavLink>
+
         {/* Copy Button */}
         <div
           className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
@@ -74,61 +84,6 @@ function LeftMenu({
 
         {/* Bottom Section */}
         <div className="flex  items-center justify-center gap-x-2 lg:mt-auto md:mt-auto ml-auto lg:ml-0 md:ml-0">
-          {TableDetail && details && (
-            <>
-              <div className="md:hidden lg:hidden flex">
-                <button
-                  onClick={() => setShowTable(!showTable)}
-                  className={`px-3 py-1 rounded-md flex items-center gap-2 cursor-pointer ${
-                    darkTheme
-                      ? "bg-blue-600 text-white"
-                      : "bg-sky-700 text-white"
-                  }`}
-                >
-                  {showTable ? <XIcon size={18} /> : <MenuIcon size={18} />}
-                  Table Info
-                </button>
-              </div>
-              <div
-                className={` transition-all duration-300 ease-in-out ${
-                  showTable ? "block" : "hidden pointer-events-none"
-                } absolute md:relative z-20 border shadow-lg w-11/12 md:w-[30%] lg:w-[30%] left-1/2 md:left- -translate-x-1/2 md:translate-x-0 top-1/3 rounded-lg md:rounded-none ${
-                  darkTheme
-                    ? "bg-gray-700 border-gray-600"
-                    : "bg-white border-gray-200"
-                }`}
-              >
-                {/* Add close button here */}
-                <div
-                  className={`flex justify-between items-center p-2 border-b ${
-                    darkTheme ? "border-gray-600" : "border-gray-200"
-                  }`}
-                >
-                  <h3
-                    className={`font-semibold ${
-                      darkTheme ? "text-white" : "text-black"
-                    }`}
-                  >
-                    Tables
-                  </h3>
-                  <button
-                    onClick={() => setShowTable(false)}
-                    className={`p-1 rounded-full ${
-                      darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-200"
-                    }`}
-                  >
-                    <XIcon
-                      size={18}
-                      className={darkTheme ? "text-white" : "text-black"}
-                    />
-                  </button>
-                </div>
-                <div className="max-h-80 overflow-auto">
-                  <TableDetail details={details} />
-                </div>
-              </div>
-            </>
-          )}
           {/* Theme Toggle */}
           <div className="flex flex-col items-center justify-center gap-y-1 cursor-pointer">
             <div

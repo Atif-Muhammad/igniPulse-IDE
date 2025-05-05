@@ -10,20 +10,56 @@ import { OrbitControls } from "@react-three/drei";
 import { FBXLoader } from "three-stdlib";
 import { useLoader, useFrame } from "@react-three/fiber";
 import { useTheme } from "../context/ThemeContext";
+import { useState } from "react";
 
 function Model() {
   const fbx = useLoader(FBXLoader, "/rocket.fbx");
   const ref = useRef();
 
+  const [isHovered, setIsHovered] = useState(false);
+  const [lastMouseX, setLastMouseX] = useState(null);
+  const [rotationSpeed, setRotationSpeed] = useState(0.09); // default slow spin
+  const friction = 0.98; // decays swipe spin slowly
+  
+
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.y += 0.021;
+      ref.current.rotation.y += rotationSpeed;
       ref.current.rotation.x = Math.PI / -6;
+
+      // Gradually slow down if spinning from swipe
+      if (!isHovered) {
+        setRotationSpeed(
+          (prev) => Math.sign(prev) * Math.max(Math.abs(prev) * friction, 0.01)
+        );
+      }
     }
   });
 
+  const handlePointerMove = (e) => {
+    if (!isHovered || !ref.current) return;
+
+    const currentX = e.clientX;
+    if (lastMouseX !== null) {
+      const deltaX = currentX - lastMouseX;
+      const speed = deltaX * 0.005; // Sensitivity multiplier
+      setRotationSpeed(speed); // Set fast rotation based on swipe
+    }
+    setLastMouseX(currentX);
+  };
+
   return (
-    <group ref={ref} scale={0.012} position={[0, 0, 0]}>
+    <group
+      ref={ref}
+      scale={0.012}
+      position={[0, 0, 0]}
+      onPointerOver={() => setIsHovered(true)}
+      onPointerOut={() => {
+        setIsHovered(false);
+        setLastMouseX(null);
+      }}
+      onPointerMove={handlePointerMove}
+    >
       <primitive object={fbx} />
     </group>
   );
@@ -50,9 +86,9 @@ const LandingPage = () => {
   return (
     <>
       {/* Rocket Canvas */}
-      <div className="md:block md:w-1/5 md:h-1/2 h-1/3 absolute lg:top-3 md:top-3 -top-8 lg:right-90 md:right-90 -right-10 z-10 pointer-events-none">
+      <div className="md:block md:w-1/2   md:h-1/2   h-1/3 absolute lg:top-3 md:top-5 top-28  md:right-20 -right-10  z-10 pointer-events-none">
         <Canvas
-          className="absolute inset-0 z-0"
+          className="absolute inset-0   z-0"
           camera={{ position: [5, -2, 1] }}
         >
           <ambientLight intensity={1} />
@@ -82,7 +118,7 @@ const LandingPage = () => {
               />
               igniUp
             </div>
-            <div className="flex gap-4">
+            <div className="flex relative z-50 gap-4">
               <div
                 className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full cursor-pointer"
                 onClick={toggleTheme}
@@ -124,12 +160,12 @@ const LandingPage = () => {
           </div>
 
           {/* Cards Section */}
-          <div className="w-full">
-            <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4">
+          <div className="w-full h-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
               {cards.map((card, idx) => (
                 <div
                   key={idx}
-                  className={`w-full md:w-1/2 h-full rounded-sm px-4 py-4 flex flex-col justify-between items-center shadow-lg gap-y-2 transition-colors duration-300 ${
+                  className={`h-full flex flex-col justify-between items-center rounded-sm px-4 py-4 shadow-lg gap-y-2 transition-colors duration-300 ${
                     darkTheme
                       ? "bg-gray-800 text-white"
                       : "bg-gray-200 text-gray-800"
@@ -186,7 +222,9 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>
+
+      
     </>
   );
 };
