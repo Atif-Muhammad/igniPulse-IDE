@@ -4,8 +4,8 @@ import Button from "./Button";
 import { useTheme } from "../context/ThemeContext";
 
 function NavBar({ openFile, handleDownload }) {
-  // Add this inside your component
   const { darkTheme } = useTheme();
+
   const navBtnText = [
     {
       text: "Open Script",
@@ -24,7 +24,7 @@ function NavBar({ openFile, handleDownload }) {
         darkTheme ? "bg-gray-800" : "bg-gray-100"
       }`}
     >
-      <div className="w-full md:w-1/2 flex items-center  md:justify-start gap-x-1 px-1">
+      <div className="w-full md:w-1/2 flex items-center md:justify-start gap-x-1 px-1">
         <Rocket
           className={`text-blue-600 ${
             darkTheme ? "text-blue-200" : "text-blue-600"
@@ -43,9 +43,9 @@ function NavBar({ openFile, handleDownload }) {
         {navBtnText?.map((btn, index) => (
           <Button
             key={index}
-            classNames="cursor-pointer flex items-center justify-center lg:gap-x-2 md:gap-x-2 gap-x-1 py-2  text-white font-semibold bg-[#2E60EB] lg:px-4 md:px-4 px-2 hover:bg-[#1f4bc6e0] rounded-lg text-sm md:text-base py-1"
+            classNames="cursor-pointer flex items-center justify-center md:gap-x-2 py-2 text-white font-semibold bg-[#2E60EB] lg:px-4 md:px-4 px-2 hover:bg-[#1f4bc6e0] rounded-lg text-sm md:text-base py-1"
             action={btn.action}
-            text={btn.text}
+            text={<span className="hidden sm:block">{btn.text}</span>}
             icon={btn.icon}
           />
         ))}

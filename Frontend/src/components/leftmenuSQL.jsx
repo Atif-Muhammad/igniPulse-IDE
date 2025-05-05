@@ -6,9 +6,11 @@ import {
   CheckCheckIcon,
   XIcon,
   MenuIcon,
+  HomeIcon,
 } from "lucide-react";
 import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { NavLink } from "react-router-dom";
 
 function LeftMenuSQL({
   handleCopy,
@@ -31,6 +33,24 @@ function LeftMenuSQL({
         }`}
       >
         <div className="flex lg:flex-col justify-between  gap-4 flex-row ">
+          {/* Home Button */}
+          <NavLink
+            to="/"
+            className=" flex-col lg:flex hidden items-center justify-center gap-y-1 cursor-pointer"
+            data-aos="fade-up"
+          >
+            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+              <HomeIcon className="text-white" size={16} />
+            </div>
+            <p
+              className={`text-sm select-none hidden lg:block ${
+                darkTheme ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Home
+            </p>
+          </NavLink>
+
           {/* Copy Button */}
           <div
             className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
@@ -86,8 +106,8 @@ function LeftMenuSQL({
                       : "bg-sky-700 text-white"
                   }`}
                 >
+                  Tables
                   {showTable ? <XIcon size={18} /> : <MenuIcon size={18} />}
-                  Table Info
                 </button>
               </div>
               <div
@@ -130,6 +150,24 @@ function LeftMenuSQL({
               </div>
             </>
           )}
+
+          {/* Home Button */}
+          <NavLink
+            to="/"
+            className="flex flex-col  lg:hidden items-center justify-center gap-y-1 cursor-pointer"
+            data-aos="fade-up"
+          >
+            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+              <HomeIcon className="text-white" size={16} />
+            </div>
+            <p
+              className={`text-sm select-none hidden lg:block ${
+                darkTheme ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Home
+            </p>
+          </NavLink>
           {/* Theme Toggle */}
           <div className="flex flex-col items-center justify-center lg:gap-y-1 cursor-pointer">
             <div
