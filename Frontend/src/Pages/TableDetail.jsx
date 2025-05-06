@@ -4,8 +4,8 @@ import { useTheme } from "../context/ThemeContext";
 
 function TableDetail({ tables = [], views = [] }) {
   const [visibleRows, setVisibleRows] = useState({});
-  const [showTables, setShowTables] = useState(true);
-  const [showViews, setShowViews] = useState(true);
+  const [showTables, setShowTables] = useState(false);
+  const [showViews, setShowViews] = useState(false);
   const { darkTheme } = useTheme();
 
   const toggleVisibility = (index) => {
@@ -15,7 +15,7 @@ function TableDetail({ tables = [], views = [] }) {
     }));
   };
 
-  const sectionToggleStyle = `flex items-center gap-x-2 px-3 py-2 rounded-md cursor-pointer mb-2 ${
+  const sectionToggleStyle = `flex items-center gap-x-2 px-3 py-1 rounded-md cursor-pointer mb-1 ${
     darkTheme
       ? "bg-blue-800 hover:bg-blue-900 text-blue-200"
       : "bg-[#dbeafe] hover:bg-[#bfdbfe] text-blue-900"
@@ -23,17 +23,17 @@ function TableDetail({ tables = [], views = [] }) {
 
   const sectionHeader = (label, show, toggle) => (
     <div onClick={toggle} className={sectionToggleStyle}>
-      {show ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-      <p className="text-lg font-semibold tracking-wide">{label}</p>
+      {show ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      <p className="text-sm font-semibold tracking-wide">{label}</p>
     </div>
   );
 
   const renderDetails = (data, offset = 0) =>
     data.map((detail, index) => (
-      <div key={index + offset} className="flex flex-col items-end w-full mb-1">
+      <div key={index + offset} className="flex flex-col items-end w-full mb-1 ms-3">
         {/* Table/View Name */}
         <div
-          className={`w-full flex items-center gap-x-2 cursor-pointer select-none py-2 px-3 rounded-md hover:bg-opacity-80 transition duration-200 ${
+          className={`w-full flex items-center gap-x-2 cursor-pointer select-none py-3 px-3 rounded-md hover:bg-opacity-80 transition duration-200 ${
             darkTheme
               ? "bg-blue-900 bg-opacity-40 hover:bg-blue-900"
               : "bg-[#0044ff39] hover:bg-[#0044ff51]"
@@ -46,7 +46,7 @@ function TableDetail({ tables = [], views = [] }) {
             <Plus size={15} className={darkTheme ? "text-blue-300" : "text-[#0741df]"} />
           )}
           <p
-            className={`text-md tracking-widest font-bold ${
+            className={`text-sm tracking-widest font-bold ${
               darkTheme ? "text-blue-300" : "text-[#194cd8]"
             }`}
           >
@@ -76,7 +76,7 @@ function TableDetail({ tables = [], views = [] }) {
 
   return (
     <div
-      className={`w-full h-full border-2 p-2 rounded-lg overflow-auto ${
+      className={`w-full h-full border-2 px-2 py-1 rounded-lg overflow-auto ${
         darkTheme
           ? "border-blue-500 bg-gray-800 text-gray-200"
           : "border-sky-700 bg-gray-100 text-gray-800"
