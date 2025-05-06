@@ -408,7 +408,7 @@ function sqlIDETwo() {
                         ))}
                       </div>
                     </div>
-                    <div className="lg:max-w-[1020px] min-w-[335px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="lg:max-w-[1050px] min-w-[335px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
                         className={`text-[1rem] w-full  scrollbar-custom rounded-lg ${

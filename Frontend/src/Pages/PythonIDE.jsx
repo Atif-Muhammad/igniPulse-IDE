@@ -461,7 +461,7 @@ function PythonIDE() {
                 <div className="lg:h-[475px] md:h-[475px] h-full w-full flex items-start justify-center overflow-auto rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
-                    className="w-[750px] h-full text-[1rem] scrollbar-custom overflow-hidden"
+                    className="w-[850px] h-full text-[1rem] scrollbar-custom overflow-hidden"
                     theme={darkTheme ? oneDark : "light"}
                     extensions={[
                       // python(),

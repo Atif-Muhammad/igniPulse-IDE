@@ -130,7 +130,7 @@ function LeftMenuSQL({
                       darkTheme ? "text-white" : "text-black"
                     }`}
                   >
-                    Tables
+                    Available Tables
                   </h3>
                   <button
                     onClick={() => setShowTable(false)}
