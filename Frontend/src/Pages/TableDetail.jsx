@@ -4,15 +4,13 @@ import { useTheme } from "../context/ThemeContext";
 
 function TableDetail({ tables = [], views = [] }) {
   const [visibleRows, setVisibleRows] = useState({});
-<<<<<<< HEAD
+
   const [showTables, setShowTables] = useState(false);
   const [showViews, setShowViews] = useState(false);
   const { darkTheme } = useTheme();
-=======
-  const { darkTheme } = useTheme();
 
-  useEffect(() => {}, [details]);
->>>>>>> 9ac67276cf315dceab459048c7317ed7bd790e75
+
+  useEffect(() => {}, [tables , views ]);
 
   const toggleVisibility = (index) => {
     setVisibleRows((prev) => ({
@@ -88,7 +86,6 @@ function TableDetail({ tables = [], views = [] }) {
           : "border-sky-700 bg-gray-100 text-gray-800"
       }`}
     >
-<<<<<<< HEAD
       <div className="overflow-auto max-h-[75vh] scrollbar-hide py-1">
         {/* Tables Section */}
         {sectionHeader("Tables", showTables, () => setShowTables((prev) => !prev))}
@@ -98,7 +95,7 @@ function TableDetail({ tables = [], views = [] }) {
         {sectionHeader("Views", showViews, () => setShowViews((prev) => !prev))}
         {showViews && renderDetails(views, tables.length)}
       </div>
-=======
+
       {/* Show message if no tables exist */}
       {details.length === 0 ? (
         <div className="w-full h-full flex items-center justify-center">
@@ -173,7 +170,6 @@ function TableDetail({ tables = [], views = [] }) {
           </div>
         </>
       )}
->>>>>>> 9ac67276cf315dceab459048c7317ed7bd790e75
     </div>
   );
 }
