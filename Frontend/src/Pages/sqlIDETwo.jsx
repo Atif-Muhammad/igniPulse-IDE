@@ -237,22 +237,75 @@ function sqlIDETwo() {
   };
 
   const openFile = async () => {
-    const [fileHandle] = await window.showOpenFilePicker({
-      types: [
-        {
-          accept: {
-            "text/plain": [".txt", ".sql"],
-          },
-        },
-      ],
-      multiple: false,
-    });
+    try {
+      // Check if the File System Access API is available
+      if ("showOpenFilePicker" in window) {
+        const [fileHandle] = await window.showOpenFilePicker({
+          types: [
+            {
+              accept: {
+                "text/plain": [".txt", ".sql"],
+              },
+            },
+          ],
+          multiple: false,
+        });
 
-    const file = await fileHandle.getFile();
-    const fileContent = await file.text();
-    setEditorContent(fileContent);
+        const file = await fileHandle.getFile();
+        const fileContent = await file.text();
+        setEditorContent(fileContent);
+
+        // Update the CodeMirror editor content directly
+        if (editorRef.current) {
+          editorRef.current.dispatch({
+            changes: {
+              from: 0,
+              to: editorRef.current.state.doc.length,
+              insert: fileContent,
+            },
+          });
+        }
+      } else {
+        // Fallback for browsers that don't support File System Access API
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".sql,.txt";
+
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = (event) => {
+            const content = event.target.result;
+            setEditorContent(content);
+
+            // Update the CodeMirror editor content directly
+            if (editorRef.current) {
+              editorRef.current.dispatch({
+                changes: {
+                  from: 0,
+                  to: editorRef.current.state.doc.length,
+                  insert: content,
+                },
+              });
+            }
+          };
+
+          reader.readAsText(file);
+        };
+
+        input.click();
+      }
+    } catch (error) {
+      console.error("Error opening file:", error);
+      toast.error("Failed to open file");
+
+      // If the user cancels the file picker, it throws an error
+      if (error.name !== "AbortError") {
+        toast.error("Failed to open file");
+      }
+    }
   };
-
   const handleClear = () => {
     if (editorContent) {
       setEditorContent("");

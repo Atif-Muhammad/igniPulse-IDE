@@ -31,6 +31,7 @@ const dropDbs = async ()=>{
 }
 
 const postData = async (data, db)=>{
+    // console.log(data, db)
     try {
         const response = await axios.post(ENDPOINTS.post_data, {data, db});
         if(response){
