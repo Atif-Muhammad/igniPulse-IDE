@@ -17,8 +17,9 @@ function LeftMenuSQL({
   handlePaste,
   pasteDone,
   copyDone,
+  tables,
+  views,
   TableDetail,
-  details,
 }) {
   const [showTable, setShowTable] = useState(false);
   const { darkTheme, toggleTheme } = useTheme();
@@ -95,7 +96,7 @@ function LeftMenuSQL({
         </div>
         {/* Bottom Section */}
         <div className="flex  items-center  justify-center gap-x-2 lg:mt-auto  ml-auto lg:ml-0 md:ml-0">
-          {TableDetail && details && (
+          {(TableDetail && tables && views) && (
             <>
               <div className="md:hidden lg:hidden flex">
                 <button
@@ -145,7 +146,7 @@ function LeftMenuSQL({
                   </button>
                 </div>
                 <div className="max-h-80 overflow-auto">
-                  <TableDetail details={details} />
+                  <TableDetail tables={tables} views={views} />
                 </div>
               </div>
             </>

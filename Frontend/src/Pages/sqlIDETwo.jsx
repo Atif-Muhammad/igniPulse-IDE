@@ -37,6 +37,9 @@ function sqlIDETwo() {
   const [pasteDone, setPasteDone] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
+  const [tables, setTables] = useState();
+  const [views, setViews] = useState();
+
   // Add line wrapping extension
   const lineWrapping = EditorView.lineWrapping;
 
@@ -93,22 +96,43 @@ function sqlIDETwo() {
     // console.log(db);
     Config.getTables(db)
       .then((res) => {
-        // console.log(res.data)
-        const detail_data = Object.values(
-          res.data.reduce((acc, row) => {
-            if (!acc[row.TABLE_NAME]) {
-              acc[row.TABLE_NAME] = { table: row.TABLE_NAME, columns: [] };
-            }
+        const { tables, views } = res.data;
+        console.log(tables)
 
-            acc[row.TABLE_NAME].columns.push({
-              column: row.COLUMN_NAME,
-              type: row.DATA_TYPE,
-            });
-            return acc;
-          }, {})
+        // Process tables
+        const tableDetails = Object.values(
+          tables
+            ? Object.entries(tables).reduce((acc, [tableName, tableData]) => {
+                acc[tableName] = {
+                  table: tableName,
+                  columns: tableData.columns.map((col) => ({
+                    column: col.columnName,
+                    type: col.dataType,
+                  })),
+                };
+                return acc;
+              }, {})
+            : {}
         );
-        // console.log("dasdas",detail_data)
-        setDetails(detail_data);
+
+        // Process views
+        const viewDetails = Object.values(
+          views
+            ? Object.entries(views).reduce((acc, [viewName, viewData]) => {
+                acc[viewName] = {
+                  table: viewName,
+                  columns: viewData.columns.map((col) => ({
+                    column: col.columnName,
+                    type: col.dataType,
+                  })),
+                };
+                return acc;
+              }, {})
+            : {}
+        );
+
+        setTables(tableDetails);
+        setViews(viewDetails);
       })
       .catch((err) => {
         console.log(err);
@@ -362,11 +386,12 @@ function sqlIDETwo() {
                 copyDone={copyDone}
                 pasteDone={pasteDone}
                 TableDetail={TableDetail}
-                details={details}
+                tables={tables} 
+                views={views}
               />
               <div className="lg:py-0  md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
                 <div className="hidden md:block lg:block w-full md:w-[23%] h-full">
-                  <TableDetail details={details} />
+                  <TableDetail tables={tables} views={views} />
                 </div>
 
                 <div className="w-full md:w-[77%] flex flex-col gap-y-2 h-full">

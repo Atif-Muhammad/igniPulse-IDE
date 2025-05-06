@@ -135,24 +135,51 @@ exports.getTables = async (req, res) => {
             res.send(err)
         } else {
             const query = `
-                SELECT 
-                    t.TABLE_NAME,
-                    t.CREATE_TIME,
-                    c.COLUMN_NAME,
-                    c.DATA_TYPE
-                FROM INFORMATION_SCHEMA.TABLES t
-                JOIN INFORMATION_SCHEMA.COLUMNS c 
-                    ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
-                WHERE t.TABLE_SCHEMA = ?
-                ORDER BY t.CREATE_TIME DESC, c.ORDINAL_POSITION ASC;
-            `
+  SELECT 
+    t.TABLE_NAME,
+    t.TABLE_TYPE,
+    t.CREATE_TIME,
+    c.COLUMN_NAME,
+    c.DATA_TYPE
+  FROM INFORMATION_SCHEMA.TABLES t
+  JOIN INFORMATION_SCHEMA.COLUMNS c 
+    ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
+  WHERE t.TABLE_SCHEMA = ?
+  ORDER BY t.CREATE_TIME DESC, c.ORDINAL_POSITION ASC;
+`;
+
             connection.query(query, [db_name], (err, result) => {
                 if (err) {
-                    res.send(err)
-                } else {
-                    res.send(result)
+                    return res.send(err);
                 }
-            })
+
+                const tables = {};
+                const views = {};
+
+                for (const row of result) {
+                    const { TABLE_NAME, TABLE_TYPE, CREATE_TIME, COLUMN_NAME, DATA_TYPE } = row;
+                    const entry = {
+                        tableName: TABLE_NAME,
+                        createTime: CREATE_TIME,
+                        columnName: COLUMN_NAME,
+                        dataType: DATA_TYPE
+                    };
+
+                    if (TABLE_TYPE === "BASE TABLE") {
+                        if (!tables[TABLE_NAME]) tables[TABLE_NAME] = { createTime: CREATE_TIME, columns: [] };
+                        tables[TABLE_NAME].columns.push({ columnName: COLUMN_NAME, dataType: DATA_TYPE });
+                    } else if (TABLE_TYPE === "VIEW") {
+                        if (!views[TABLE_NAME]) views[TABLE_NAME] = { createTime: CREATE_TIME, columns: [] };
+                        views[TABLE_NAME].columns.push({ columnName: COLUMN_NAME, dataType: DATA_TYPE });
+                    }
+                }
+
+                res.send({
+                    tables,
+                    views
+                });
+            });
+
         }
     })
 
