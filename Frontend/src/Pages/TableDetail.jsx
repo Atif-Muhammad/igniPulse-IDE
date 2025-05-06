@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Minus, Plus } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 function TableDetail({ tables = [], views = [] }) {
