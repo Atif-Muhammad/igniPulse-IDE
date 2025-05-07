@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Minus, Plus } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 function TableDetail({ tables = [], views = [] }) {
@@ -7,6 +7,12 @@ function TableDetail({ tables = [], views = [] }) {
   const [showTables, setShowTables] = useState(false);
   const [showViews, setShowViews] = useState(false);
   const { darkTheme } = useTheme();
+
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+
 
   const toggleVisibility = (index) => {
     setVisibleRows((prev) => ({
@@ -50,7 +56,8 @@ function TableDetail({ tables = [], views = [] }) {
               darkTheme ? "text-blue-300" : "text-[#194cd8]"
             }`}
           >
-            {detail.table}
+            
+            {capitalizeFirstLetter(detail.table)}
           </p>
         </div>
 

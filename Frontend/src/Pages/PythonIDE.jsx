@@ -503,7 +503,7 @@ function PythonIDE() {
                         classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
                           btn.text === "Execute"
                             ? "bg-[#10B335] hover:bg-green-600"
-                            : "bg-[#F7665D] hover:bg-[#f7766d]"
+                            : "bg-[#FB2E38] hover:bg-[#FB2E10]"
                         } px-4 rounded-lg`}
                         action={btn.action}
                         text={btn.text}
@@ -556,7 +556,7 @@ function PythonIDE() {
                     Output
                   </p>
                   <Button
-                    classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                    classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs`}
                     text={editorBtns[0].text}
                     icon={editorBtns[0].icon}
                   />

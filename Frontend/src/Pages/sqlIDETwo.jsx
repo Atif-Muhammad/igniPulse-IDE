@@ -1,4 +1,4 @@
-import { React, useState, useRef, useEffect } from "react";
+import { React, useState, useRef, useEffect, useContext } from "react";
 import {
   CirclePlay,
   Eraser,
@@ -39,6 +39,8 @@ function sqlIDETwo() {
 
   const [tables, setTables] = useState();
   const [views, setViews] = useState();
+
+  const [loadingDB, setLoadingDB] = useState(true);
 
   // Add line wrapping extension
   const lineWrapping = EditorView.lineWrapping;
@@ -92,53 +94,76 @@ function sqlIDETwo() {
     },
   });
 
-  const getTables = () => {
+  const getTables = (database) => {
     // console.log(db);
-    Config.getTables(db)
+    Config.getTables(database)
       .then((res) => {
-        const { tables, views } = res.data;
-        console.log(tables)
+        if (res.status === 200) {
+          const { tables, views } = res.data;
+          // console.log("tables:",tables);
 
-        // Process tables
-        const tableDetails = Object.values(
-          tables
-            ? Object.entries(tables).reduce((acc, [tableName, tableData]) => {
-                acc[tableName] = {
-                  table: tableName,
-                  columns: tableData.columns.map((col) => ({
-                    column: col.columnName,
-                    type: col.dataType,
-                  })),
-                };
-                return acc;
-              }, {})
-            : {}
-        );
+          // Process tables
+          const tableDetails = Object.values(
+            tables
+              ? Object.entries(tables).reduce((acc, [tableName, tableData]) => {
+                  acc[tableName] = {
+                    table: tableName,
+                    columns: tableData.columns.map((col) => ({
+                      column: col.columnName,
+                      type: col.dataType,
+                    })),
+                  };
+                  return acc;
+                }, {})
+              : {}
+          );
 
-        // Process views
-        const viewDetails = Object.values(
-          views
-            ? Object.entries(views).reduce((acc, [viewName, viewData]) => {
-                acc[viewName] = {
-                  table: viewName,
-                  columns: viewData.columns.map((col) => ({
-                    column: col.columnName,
-                    type: col.dataType,
-                  })),
-                };
-                return acc;
-              }, {})
-            : {}
-        );
+          // Process views
+          const viewDetails = Object.values(
+            views
+              ? Object.entries(views).reduce((acc, [viewName, viewData]) => {
+                  acc[viewName] = {
+                    table: viewName,
+                    columns: viewData.columns.map((col) => ({
+                      column: col.columnName,
+                      type: col.dataType,
+                    })),
+                  };
+                  return acc;
+                }, {})
+              : {}
+          );
 
-        setTables(tableDetails);
-        setViews(viewDetails);
+          // console.log(tableDetails)
+          setTables(tableDetails);
+          setViews(viewDetails);
+        }
       })
       .catch((err) => {
         console.log(err);
       });
   };
-
+  const createDB = async () => {
+    const inq_id = window.localStorage.unique_id;
+    Config.createDB(inq_id)
+      .then(async (res) => {
+        if (res.status === 200) {
+          const unique_id = res.data;
+          if (unique_id != inq_id) {
+            window.localStorage.removeItem("unique_id");
+            window.localStorage.setItem("unique_id", unique_id);
+            setDb(unique_id);
+            // console.log("first");
+            getTables(unique_id);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      }).finally(()=>{
+        setLoadingDB(false);
+      })
+  };
   // const getDataBases = () => {
   //   Config.getDataBases()
   //     .then((res) => {
@@ -158,7 +183,7 @@ function sqlIDETwo() {
           if (res.data.success) {
             toast.success("success");
             setResDb(res.data.result);
-            getTables();
+            getTables(db);
           } else {
             setResDb([]);
             if (res.data.code == "ER_NO_SUCH_TABLE") {
@@ -179,28 +204,12 @@ function sqlIDETwo() {
     }
   };
 
-  const createDB = () => {
-    const inq_id = window.localStorage.unique_id;
-    Config.createDB(inq_id)
-      .then((res) => {
-        if (res.status === 200) {
-          const unique_id = res.data;
-          if (unique_id != inq_id) {
-            window.localStorage.removeItem("unique_id");
-            window.localStorage.setItem("unique_id", unique_id);
-            setDb(unique_id);
-          }
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+ 
 
   useEffect(() => {
     createDB();
     // getDataBases();
-    getTables();
+    getTables(db);
   }, []);
 
   useEffect(() => {
@@ -390,9 +399,16 @@ function sqlIDETwo() {
 
   return (
     <>
+      {loadingDB && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 flex flex-col gap-y-5 items-center justify-center">
+          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin" />
+          <p className="text-lg text-gray-800">Setting up the environment</p>
+        </div>
+      )}
+
       {showInfo && (
         <div
-          className={`w-[90%] sm:w-2/3 md:w-1/2 lg:w-1/3 h-auto px-4 py-3 absolute top-4 left-1/2 -translate-x-1/2 z-10 rounded-xl shadow-lg animate-pulse [animation-duration:3s] ${
+          className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] sm:w-2/3 md:w-1/2 lg:w-1/3 px-4 py-3 rounded-xl shadow-lg animate-pulse [animation-duration:3s] ${
             darkTheme ? "bg-red-700" : "bg-red-500"
           }`}
         >
@@ -439,7 +455,7 @@ function sqlIDETwo() {
                 copyDone={copyDone}
                 pasteDone={pasteDone}
                 TableDetail={TableDetail}
-                tables={tables} 
+                tables={tables}
                 views={views}
               />
               <div className="lg:py-0  md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
@@ -477,7 +493,7 @@ function sqlIDETwo() {
                             classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
                               btn.text === "Execute"
                                 ? "bg-[#10B335] hover:bg-green-600"
-                                : "bg-[#F7665D] hover:bg-[#f7766d]"
+                                : "bg-[#FB2E38] hover:bg-[#FB2E10]"
                             } px-4 rounded-lg`}
                             action={btn.action}
                             text={btn.text}
