@@ -518,12 +518,12 @@ function PythonIDE() {
       <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
         <div className="w-full h-12 text-center p-2">
           <div className="h-full w-full overflow-hidden ">
-           
+          <Ads />
           </div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
           <div className="h-full w-50 text-center p-2">
-            <div className="h-full w-full"> <Ads /></div>
+            <div className="h-full w-full"> </div>
           </div>
           <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
@@ -690,8 +690,8 @@ function PythonIDE() {
             </div>
           </div>
           <div className="h-full w-50 text-center p-2">
-            <div className="h-full w-full">
-              <Ads />
+            <div className="h-full w-full ">
+            <Ads />
             </div>
           </div>
         </div>
