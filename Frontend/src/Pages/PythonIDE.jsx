@@ -18,6 +18,7 @@ import py from "../assets/py.svg";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
+import Ads from "../components/Ads";
 
 function PythonIDE() {
   const { darkTheme } = useTheme();
@@ -517,20 +518,7 @@ function PythonIDE() {
       <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
         <div className="w-full h-12 text-center p-2">
           <div className="h-full w-full">
-            <script
-              async
-              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2917906237665869"
-              crossorigin="anonymous"
-            ></script>
-            <ins
-              class="adsbygoogle"
-              style="display:block"
-              data-ad-client="ca-pub-2917906237665869"
-              data-ad-slot="2932306120"
-              data-ad-format="auto"
-              data-full-width-responsive="true"
-            ></ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            <Ads />
           </div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
@@ -703,23 +691,7 @@ function PythonIDE() {
           </div>
           <div className="h-full w-30 text-center p-2">
             <div className="h-full w-full">
-              <script
-                async
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2917906237665869"
-                crossorigin="anonymous"
-              ></script>
-              <ins
-                class="adsbygoogle"
-                style="display:block"
-                data-ad-client="ca-pub-2917906237665869"
-                data-ad-slot="2932306120"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              ></ins>
-
-              <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-              </script>
+              <Ads />
             </div>
           </div>
         </div>
