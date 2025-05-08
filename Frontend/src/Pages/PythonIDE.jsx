@@ -709,13 +709,13 @@ function PythonIDE() {
                 crossorigin="anonymous"
               ></script>
               <ins
-                className="adsbygoogle"
-                style={{ display: "block" }} 
+                class="adsbygoogle"
+                style="display:block"
                 data-ad-client="ca-pub-2917906237665869"
                 data-ad-slot="2932306120"
                 data-ad-format="auto"
                 data-full-width-responsive="true"
-              />
+              ></ins>
 
               <script>
                 (adsbygoogle = window.adsbygoogle || []).push({});
