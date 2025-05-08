@@ -2030,6 +2030,14 @@ INSERT INTO Students (registration, name, marks, college, nationality) VALUES (9
         INSERT INTO Students (registration, name, marks, college, nationality) VALUES (1000, 'Alice', 83, 'UCLA', 'American');
     `;
 
+    const empView = `
+        create view ukEmployee as select  firstname,lastname , salary*21/100 as Tax, salary-(salary*21/100) as "Net Salary", Country from Employees where country='UK'
+    `
+
+    const stuView = `
+        create view StudentsData  as select registration as Regno,name,marks*100/150 as Percentage,nationality  from students
+    `
+
     // Execute all queries in sequence
     connection.query(`use ${dbName};`, (err, result) => {
         connection.query(employeeTable, (err) => {
@@ -2040,7 +2048,13 @@ INSERT INTO Students (registration, name, marks, college, nationality) VALUES (9
                     if (err) return callback(err);
                     connection.query(studentInserts, (err) => {
                         if (err) return callback(err);
-                        callback(null);
+                        connection.query(empView, (err) => {
+                            if (err) return callback(err);
+                            connection.query(stuView, (err) => {
+                                if (err) return callback(err);
+                                callback(null);
+                            });
+                        });
                     });
                 });
             });
