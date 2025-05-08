@@ -23,14 +23,14 @@ function TableDetail({ tables = [], views = [] }) {
 
   const sectionToggleStyle = `flex items-center gap-x-2 px-3 py-1 rounded-md cursor-pointer mb-1 ${
     darkTheme
-      ? "bg-blue-800 hover:bg-blue-900 text-blue-200"
-      : "bg-[#dbeafe] hover:bg-[#bfdbfe] text-blue-900"
+      ? "bg-blue-600 hover:bg-blue-700 text-blue-200"
+      : "bg-[#2E60EB] hover:bg-[#1f4bc6e0] text-white"
   }`;
 
   const sectionHeader = (label, show, toggle) => (
     <div onClick={toggle} className={sectionToggleStyle}>
       {show ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-      <p className="text-sm font-semibold tracking-wide">{label}</p>
+      <p className="text-sm  font-semibold tracking-wide">{label}</p>
     </div>
   );
 
