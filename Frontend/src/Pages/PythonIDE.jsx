@@ -96,9 +96,88 @@ function PythonIDE() {
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
 
+      // socket.current.on("userInput", (message) => {
+      //   setDisable(false);
+
+      //   const outputDiv = document.getElementById("outputDiv");
+
+      //   let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
+      //   const lines = formattedMessage
+      //     .match(/[^\n]*(\n|$)/g)
+      //     .filter((line) => line !== "");
+
+      //   // Show all lines except the last one
+      //   lines.slice(0, -1).forEach((line) => {
+      //     const lineDiv = document.createElement("div");
+      //     lineDiv.innerHTML = line.replace(/\n/g, "<br>");
+      //     lineDiv.style.color = "black";
+      //     lineDiv.style.marginBottom = "5px";
+      //     inputPromptDiv(lineDiv); // ← ensure this is a valid function
+      //   });
+
+      //   // Create prompt container
+      //   const inputPromptDiv = document.createElement("div");
+      //   inputPromptDiv.id = "inputPromptDiv";
+      //   inputPromptDiv.style.display = "flex";
+      //   inputPromptDiv.style.alignItems = "start";
+
+      //   const promptLabel = document.createElement("label");
+      //   promptLabel.innerHTML = lines[lines.length - 1].replace(/\n/g, "<br>");
+      //   promptLabel.style.marginRight = "10px";
+      //   promptLabel.style.paddingTop = "3px";
+      //   promptLabel.style.color = "black";
+
+      //   // Input element
+      //   const inputBox = document.createElement("input");
+      //   inputBox.type = "text";
+      //   inputBox.id = "dynamicInput";
+      //   inputBox.style.padding = "4px";
+      //   inputBox.style.outline = "none";
+      //   inputBox.style.backgroundColor = "inherit";
+      //   inputBox.style.color = "black";
+      //   inputBox.style.boxSizing = "content-box";
+      //   inputBox.style.display = "inline-block";
+      //   inputBox.style.minWidth = "50px";
+      //   inputBox.style.maxWidth = "450px";
+      //   inputBox.style.border = "none";
+      //   inputBox.style.font = "inherit";
+
+      //   const measurer = document.createElement("span");
+      //   measurer.style.position = "absolute";
+      //   measurer.style.visibility = "hidden";
+      //   measurer.style.whiteSpace = "pre";
+      //   measurer.style.font = "inherit";
+      //   document.body.appendChild(measurer);
+
+      //   const updateWidth = () => {
+      //     measurer.textContent = inputBox.value || " ";
+      //     inputBox.style.width = `${measurer.offsetWidth + 8}px`;
+      //   };
+
+      //   inputBox.addEventListener("input", updateWidth);
+      //   updateWidth();
+
+      //   inputPromptDiv.appendChild(promptLabel);
+      //   inputPromptDiv.appendChild(inputBox);
+      //   appendToOutputDivs(inputPromptDiv); // ← make sure this works
+
+      //   inputBox.focus();
+
+      //   inputBox.addEventListener("keydown", (event) => {
+      //     if (event.key === "Enter" && !event.shiftKey) {
+      //       event.preventDefault(); // 👈 critical to block default behavior
+      //       const userInput = inputBox.value.trim();
+      //       if (userInput) {
+      //         socket.current.emit("userEntry", userInput);
+      //         inputBox.disabled = true;
+      //       }
+      //     }
+      //   });
+      // });
+
       socket.current.on("userInput", (message) => {
         setDisable(false);
-        const outputDiv = document.getElementById("outputDiv");
+        const outputDiv = document.getElementById("outputDivDesktop");
 
         // Normalize newlines to ensure consistency
         let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -114,8 +193,7 @@ function PythonIDE() {
           lineDiv.innerHTML = line.replace(/\n/g, "<br>");
           lineDiv.style.color = "black";
           lineDiv.style.marginBottom = "5px";
-          // outputDiv.appendChild(lineDiv);
-          inputPromptDiv(lineDiv);
+          outputDiv.appendChild(lineDiv);
         });
 
         // Create a container for the input prompt
@@ -123,46 +201,31 @@ function PythonIDE() {
         inputPromptDiv.id = "inputPromptDiv";
         inputPromptDiv.style.marginTop = "0px";
         inputPromptDiv.style.display = "flex";
-        inputPromptDiv.style.alignItems = "start";
+        inputPromptDiv.style.alignItems = "center";
         inputPromptDiv.style.justifyContent = "start";
 
         // Create a label for the last line
         const promptLabel = document.createElement("label");
         promptLabel.innerHTML = lines[lines.length - 1].replace(/\n/g, "<br>");
         promptLabel.style.marginRight = "10px";
-        promptLabel.style.paddingTop = "3px";
         promptLabel.style.color = "black";
 
-        const inputBox = document.createElement("textarea");
+        // Create the input box
+        const inputBox = document.createElement("input");
+        inputBox.type = "text";
         inputBox.id = "dynamicInput";
-        inputBox.style.padding = "4px";
+        inputBox.style.padding = "0px";
         inputBox.style.outline = "none";
         inputBox.style.backgroundColor = "inherit";
         inputBox.style.color = "black";
-        inputBox.style.resize = "none";
-        inputBox.style.overflow = "hidden";
-        inputBox.rows = 1;
-        inputBox.style.boxSizing = "border-box";
-        inputBox.style.display = "inline-block";
-        inputBox.style.minWidth = "50px";
-        inputBox.style.maxWidth = "450px";
-
-        // Auto height and width
-        inputBox.addEventListener("input", () => {
-          inputBox.style.height = "auto";
-          inputBox.style.height = inputBox.scrollHeight + "px";
-
-          // Set width based on characters but limited by parent width
-          const length = inputBox.value.length || 1;
-          inputBox.style.width = `${length + 1}ch`;
-        });
-
-        // Append label and input box
+        inputBox.style.maxWidth = "100ch";
+        inputBox.style.minWidth = "1ch";
+        // Append label and input box to inputPromptDiv
         inputPromptDiv.appendChild(promptLabel);
         inputPromptDiv.appendChild(inputBox);
 
         // Append inputPromptDiv to the outputDiv
-        appendToOutputDivs(inputPromptDiv);
+        outputDiv.appendChild(inputPromptDiv);
 
         // Focus on the input box
         inputBox.focus();
@@ -308,7 +371,7 @@ function PythonIDE() {
           types: [
             {
               accept: {
-                "text/plain": [".txt", ".sql"],
+                "text/plain": [".txt", ".py"],
               },
             },
           ],
@@ -453,7 +516,22 @@ function PythonIDE() {
     <>
       <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
         <div className="w-full h-12 text-center p-2">
-          <div className="h-full w-full"></div>
+          <div className="h-full w-full">
+            <script
+              async
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2917906237665869"
+              crossorigin="anonymous"
+            ></script>
+            <ins
+              class="adsbygoogle"
+              style="display:block"
+              data-ad-client="ca-pub-2917906237665869"
+              data-ad-slot="2932306120"
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            ></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          </div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
           <div className="h-full w-30 text-center p-2">
@@ -624,7 +702,24 @@ function PythonIDE() {
             </div>
           </div>
           <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+            <div className="h-full w-full">
+              <script
+                async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2917906237665869"
+                crossorigin="anonymous"
+              ></script>
+              <ins
+                class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-2917906237665869"
+                data-ad-slot="2932306120"
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              ></ins>
+              <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+              </script>
+            </div>
           </div>
         </div>
         <div className="w-full h-10 text-center p-2">
