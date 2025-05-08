@@ -18,7 +18,6 @@ import py from "../assets/py.svg";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
-import Ads from "../components/Ads";
 
 function PythonIDE() {
   const { darkTheme } = useTheme();
@@ -54,12 +53,12 @@ function PythonIDE() {
 
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      //   socket.current = io("https://igniup.com", {
+      //     path: "/socket.io/",
+      //     transports: ["websocket", "polling"],
+      //     withCredentials: true,
+      //   });
+      socket.current = io("http://localhost:9000");
 
       const handlePyResponse = (message) => {
         setDisable(false);
@@ -97,88 +96,9 @@ function PythonIDE() {
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
 
-      // socket.current.on("userInput", (message) => {
-      //   setDisable(false);
-
-      //   const outputDiv = document.getElementById("outputDiv");
-
-      //   let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
-      //   const lines = formattedMessage
-      //     .match(/[^\n]*(\n|$)/g)
-      //     .filter((line) => line !== "");
-
-      //   // Show all lines except the last one
-      //   lines.slice(0, -1).forEach((line) => {
-      //     const lineDiv = document.createElement("div");
-      //     lineDiv.innerHTML = line.replace(/\n/g, "<br>");
-      //     lineDiv.style.color = "black";
-      //     lineDiv.style.marginBottom = "5px";
-      //     inputPromptDiv(lineDiv); // ← ensure this is a valid function
-      //   });
-
-      //   // Create prompt container
-      //   const inputPromptDiv = document.createElement("div");
-      //   inputPromptDiv.id = "inputPromptDiv";
-      //   inputPromptDiv.style.display = "flex";
-      //   inputPromptDiv.style.alignItems = "start";
-
-      //   const promptLabel = document.createElement("label");
-      //   promptLabel.innerHTML = lines[lines.length - 1].replace(/\n/g, "<br>");
-      //   promptLabel.style.marginRight = "10px";
-      //   promptLabel.style.paddingTop = "3px";
-      //   promptLabel.style.color = "black";
-
-      //   // Input element
-      //   const inputBox = document.createElement("input");
-      //   inputBox.type = "text";
-      //   inputBox.id = "dynamicInput";
-      //   inputBox.style.padding = "4px";
-      //   inputBox.style.outline = "none";
-      //   inputBox.style.backgroundColor = "inherit";
-      //   inputBox.style.color = "black";
-      //   inputBox.style.boxSizing = "content-box";
-      //   inputBox.style.display = "inline-block";
-      //   inputBox.style.minWidth = "50px";
-      //   inputBox.style.maxWidth = "450px";
-      //   inputBox.style.border = "none";
-      //   inputBox.style.font = "inherit";
-
-      //   const measurer = document.createElement("span");
-      //   measurer.style.position = "absolute";
-      //   measurer.style.visibility = "hidden";
-      //   measurer.style.whiteSpace = "pre";
-      //   measurer.style.font = "inherit";
-      //   document.body.appendChild(measurer);
-
-      //   const updateWidth = () => {
-      //     measurer.textContent = inputBox.value || " ";
-      //     inputBox.style.width = `${measurer.offsetWidth + 8}px`;
-      //   };
-
-      //   inputBox.addEventListener("input", updateWidth);
-      //   updateWidth();
-
-      //   inputPromptDiv.appendChild(promptLabel);
-      //   inputPromptDiv.appendChild(inputBox);
-      //   appendToOutputDivs(inputPromptDiv); // ← make sure this works
-
-      //   inputBox.focus();
-
-      //   inputBox.addEventListener("keydown", (event) => {
-      //     if (event.key === "Enter" && !event.shiftKey) {
-      //       event.preventDefault(); // 👈 critical to block default behavior
-      //       const userInput = inputBox.value.trim();
-      //       if (userInput) {
-      //         socket.current.emit("userEntry", userInput);
-      //         inputBox.disabled = true;
-      //       }
-      //     }
-      //   });
-      // });
-
       socket.current.on("userInput", (message) => {
         setDisable(false);
-        const outputDiv = document.getElementById("outputDivDesktop");
+        const outputDiv = document.getElementById("outputDiv");
 
         // Normalize newlines to ensure consistency
         let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -194,7 +114,8 @@ function PythonIDE() {
           lineDiv.innerHTML = line.replace(/\n/g, "<br>");
           lineDiv.style.color = "black";
           lineDiv.style.marginBottom = "5px";
-          outputDiv.appendChild(lineDiv);
+          // outputDiv.appendChild(lineDiv);
+          inputPromptDiv(lineDiv);
         });
 
         // Create a container for the input prompt
@@ -202,38 +123,37 @@ function PythonIDE() {
         inputPromptDiv.id = "inputPromptDiv";
         inputPromptDiv.style.marginTop = "0px";
         inputPromptDiv.style.display = "flex";
-        inputPromptDiv.style.alignItems = "center";
+        inputPromptDiv.style.alignItems = "start";
         inputPromptDiv.style.justifyContent = "start";
 
         // Create a label for the last line
         const promptLabel = document.createElement("label");
         promptLabel.innerHTML = lines[lines.length - 1].replace(/\n/g, "<br>");
         promptLabel.style.marginRight = "10px";
+        promptLabel.style.paddingTop = "3px";
         promptLabel.style.color = "black";
 
-        // Create the input box
-        const inputBox = document.createElement("input");
-        inputBox.type = "text";
+        const inputBox = document.createElement("textArea");
         inputBox.id = "dynamicInput";
-        inputBox.style.padding = "0px";
-        inputBox.style.outline = "none";
-        inputBox.style.backgroundColor = "inherit";
-        inputBox.style.color = "black";
-        inputBox.style.maxWidth = "100ch";
-        inputBox.style.minWidth = "1ch";
-        // Append label and input box to inputPromptDiv
+        inputBox.style.padding = "4px";
+        
+
+        // Append label and input box
         inputPromptDiv.appendChild(promptLabel);
         inputPromptDiv.appendChild(inputBox);
 
         // Append inputPromptDiv to the outputDiv
-        outputDiv.appendChild(inputPromptDiv);
+        appendToOutputDivs(inputPromptDiv);
 
         // Focus on the input box
         inputBox.focus();
 
         // Handle Enter key event
         inputBox.addEventListener("keydown", (event) => {
+        console.log("first")
           if (event.key === "Enter") {
+            event.preventDefault(); 
+
             const userInput = inputBox.value.trim();
             if (userInput) {
               socket.current.emit("userEntry", userInput);
@@ -517,13 +437,11 @@ function PythonIDE() {
     <>
       <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
         <div className="w-full h-12 text-center p-2">
-          <div className="h-full w-full overflow-hidden ">
-          <Ads />
-          </div>
+          <div className="h-full w-full"></div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
-          <div className="h-full w-50 text-center p-2">
-            <div className="h-full w-full"> </div>
+          <div className="h-full w-30 text-center p-2">
+            <div className="h-full w-full"></div>
           </div>
           <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
@@ -689,10 +607,8 @@ function PythonIDE() {
               )}
             </div>
           </div>
-          <div className="h-full w-50 text-center p-2">
-            <div className="h-full w-full ">
-            <Ads />
-            </div>
+          <div className="h-full w-30 text-center p-2">
+            <div className="h-full w-full"></div>
           </div>
         </div>
         <div className="w-full h-10 text-center p-2">
