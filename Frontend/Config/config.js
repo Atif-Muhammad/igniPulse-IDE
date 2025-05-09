@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://igniup.com/api";
-// const BASE_URL = "http://localhost:9000/api";
+// const BASE_URL = "https://igniup.com/api";
+const BASE_URL = "http://localhost:9000/api";
 
 const ENDPOINTS = {
     create_db : `${BASE_URL}/sql/createDB`,

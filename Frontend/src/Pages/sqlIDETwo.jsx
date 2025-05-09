@@ -21,6 +21,7 @@ import Button from "../components/Button";
 import { Info, X } from "lucide-react";
 import { oneDark } from "@codemirror/theme-one-dark";
 import LeftMenuSQL from "../components/leftmenuSQL";
+import Ads from "../components/Ads";
 // import { EditorView } from "@codemirror/view";
 
 function sqlIDETwo() {
@@ -160,9 +161,10 @@ function sqlIDETwo() {
       })
       .catch((err) => {
         console.log(err);
-      }).finally(()=>{
-        setLoadingDB(false);
       })
+      .finally(() => {
+        setLoadingDB(false);
+      });
   };
   // const getDataBases = () => {
   //   Config.getDataBases()
@@ -203,8 +205,6 @@ function sqlIDETwo() {
         });
     }
   };
-
- 
 
   useEffect(() => {
     createDB();
@@ -432,17 +432,14 @@ function sqlIDETwo() {
         </div>
       )}
 
-      <div
-        className={`flex flex-col h-screen w-screen overflow-hidden relative `}
-      >
-        <div className="w-full h-[15%] text-center p-2">
-          <div className="h-full w-full"></div>
-        </div>
-        <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
-          <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+      <div className="flex items-center justify-center w-screen h-screen py-18">
+        <div className="w-screen grid grid-cols-[10rem_2fr_10rem] grid-rows-[80vh] gap-x-4 overflow-hidden">
+          <div className="flex items-center justify-center overflow-hidden h-full">
+          
+            <Ads />
           </div>
-          <div className="flex  flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
+
+          <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1 overflow-hidden">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
             <div
               className={`flex lg:flex-row flex-col lg:h-[85%] gap-2 md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 ${
@@ -458,8 +455,8 @@ function sqlIDETwo() {
                 tables={tables}
                 views={views}
               />
-              <div className="lg:py-0  md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
-                <div className="hidden md:block lg:block w-full md:w-[23%] h-full">
+              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
+                <div className="hidden md:block lg:block w-full md:w-[23%] h-full overflow-hidden">
                   <TableDetail tables={tables} views={views} />
                 </div>
 
@@ -502,10 +499,11 @@ function sqlIDETwo() {
                         ))}
                       </div>
                     </div>
+
                     <div className="lg:max-w-[1020px] min-w-[335px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
-                        className={`text-[1rem] w-full  scrollbar-custom rounded-lg ${
+                        className={`text-[1rem] w-full scrollbar-custom rounded-lg ${
                           darkTheme ? "text-gray-200" : "text-gray-800"
                         }`}
                         theme={darkTheme ? oneDark : "light"}
@@ -513,7 +511,7 @@ function sqlIDETwo() {
                           fullHeightEditor,
                           customScrollbar,
                           highlightActiveLineGutter(),
-                          lineWrapping, // Add this line to enable text wrapping
+                          lineWrapping,
                         ]}
                         onChange={(newContent, viewUpdate) => {
                           setEditorContent(newContent);
@@ -525,10 +523,11 @@ function sqlIDETwo() {
                       />
                     </div>
                   </div>
+
                   <div
-                    className={`w-full lg:h-full md:h-full h-[35vh] ${
+                    className={`w-full lg:h-full md:h-full h-full ${
                       darkTheme ? "border-blue-600" : "border-sky-700"
-                    } border-2 rounded-lg overflow-auto ${
+                    } border-2 rounded-lg overflow-hidden ${
                       darkTheme
                         ? "bg-gray-800 text-gray-200"
                         : "bg-white text-gray-800"
@@ -540,14 +539,13 @@ function sqlIDETwo() {
               </div>
             </div>
           </div>
-          <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+
+          <div className="flex items-center justify-center overflow-hidden h-full">
+            <Ads />
           </div>
         </div>
-        <div className="w-full h-10 text-center p-2">
-          <div className="h-full w-full"></div>
         </div>
-      </div>
+
       <Toaster
         position="top-center"
         reverseOrder={false}

@@ -18,6 +18,7 @@ import py from "../assets/py.svg";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
+import Ads from "../components/Ads";
 
 function PythonIDE() {
   const { darkTheme } = useTheme();
@@ -45,20 +46,22 @@ function PythonIDE() {
 
   const appendToOutputDivs = (el) => {
     if (!el) return;
-    ["outputDivDesktop", "outputDivMobile"].forEach((id) => {
-      const target = document.getElementById(id);
-      if (target) target.appendChild(el.cloneNode(true));
-    });
+    const clone = el.cloneNode(true);
+    const desktop = document.getElementById("outputDivDesktop");
+    const mobile = document.getElementById("outputDivMobile");
+
+    if (desktop) desktop.appendChild(el);
+    if (mobile) mobile.appendChild(clone);
   };
 
   useEffect(() => {
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
 
       const handlePyResponse = (message) => {
         setDisable(false);
@@ -76,6 +79,10 @@ function PythonIDE() {
         const res = document.createElement("div");
         res.innerHTML = formattedMessage;
         res.style.paddingBottom = "6px";
+        res.style.wordWrap = "break-word";
+        res.style.overflowWrap = "break-word";
+        res.style.whiteSpace = "normal";
+        res.style.width = "100%";
 
         // document.getElementById("outputDiv").appendChild(res);
         appendToOutputDivs(res);
@@ -88,6 +95,10 @@ function PythonIDE() {
         exitMsg.style.fontWeight = "bold";
         exitMsg.style.marginTop = "10px";
         exitMsg.style.textAlign = "start";
+        exitMsg.style.wordWrap = "break-word";
+        exitMsg.style.overflowWrap = "break-word";
+        exitMsg.style.whiteSpace = "normal";
+        exitMsg.style.width = "100%";
 
         // document.getElementById("outputDiv").appendChild(exitMsg);
         appendToOutputDivs(exitMsg);
@@ -98,7 +109,6 @@ function PythonIDE() {
 
       socket.current.on("userInput", (message) => {
         setDisable(false);
-        const outputDiv = document.getElementById("outputDiv");
 
         // Normalize newlines to ensure consistency
         let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -114,54 +124,60 @@ function PythonIDE() {
           lineDiv.innerHTML = line.replace(/\n/g, "<br>");
           lineDiv.style.color = "black";
           lineDiv.style.marginBottom = "5px";
-          // outputDiv.appendChild(lineDiv);
-          inputPromptDiv(lineDiv);
+          lineDiv.style.backgroundColor = "pink";
+          appendToGrid(lineDiv);
         });
 
         // Create a container for the input prompt
         const inputPromptDiv = document.createElement("div");
         inputPromptDiv.id = "inputPromptDiv";
-        inputPromptDiv.style.marginTop = "0px";
+        inputPromptDiv.className = "input-prompt-container"; // Add a class for styling
         inputPromptDiv.style.display = "flex";
-        inputPromptDiv.style.alignItems = "start";
-        inputPromptDiv.style.justifyContent = "start";
+        inputPromptDiv.style.flexDirection = "column"; // Stack input and label vertically
+        inputPromptDiv.style.alignItems = "flex-start";
+        inputPromptDiv.style.backgroundColor = "blue"; // Customize this as needed
+        inputPromptDiv.style.padding = "10px"; // Space for readability
 
         // Create a label for the last line
         const promptLabel = document.createElement("label");
         promptLabel.innerHTML = lines[lines.length - 1].replace(/\n/g, "<br>");
+        promptLabel.className = "prompt-label"; // Add class for styling
         promptLabel.style.marginRight = "10px";
-        promptLabel.style.paddingTop = "3px";
         promptLabel.style.color = "black";
+        promptLabel.style.wordWrap = "break-word";
+        promptLabel.style.overflowWrap = "break-word";
+        promptLabel.style.whiteSpace = "normal";
+        promptLabel.style.backgroundColor = "yellow";
+        promptLabel.style.maxWidth = "100%";
 
+        // Create the input box
         const inputBox = document.createElement("textarea");
         inputBox.id = "dynamicInput";
-        inputBox.style.padding = "4px";
+        inputBox.className = "input-box"; // Add class for styling
+        inputBox.rows = 1; // Start small
+        inputBox.style.padding = "4px 6px";
         inputBox.style.outline = "none";
-        inputBox.style.backgroundColor = "inherit";
+        inputBox.style.backgroundColor = "purple";
         inputBox.style.color = "black";
+        inputBox.style.width = "100%";
+        inputBox.style.maxWidth = "100%";
         inputBox.style.resize = "none";
         inputBox.style.overflow = "hidden";
-        inputBox.rows = 1;
         inputBox.style.boxSizing = "border-box";
-        inputBox.style.display = "inline-block";
-        inputBox.style.minWidth = "50px";
-        inputBox.style.maxWidth = "450px";
+        inputBox.style.whiteSpace = "pre-wrap";
+        inputBox.style.wordWrap = "break-word";
 
-        // Auto height and width
+        // Optional: auto-grow textarea height as user types
         inputBox.addEventListener("input", () => {
           inputBox.style.height = "auto";
           inputBox.style.height = inputBox.scrollHeight + "px";
-
-          // Set width based on characters but limited by parent width
-          const length = inputBox.value.length || 1;
-          inputBox.style.width = `${length + 1}ch`;
         });
 
-        // Append label and input box
+        // Append label and input box to inputPromptDiv
         inputPromptDiv.appendChild(promptLabel);
         inputPromptDiv.appendChild(inputBox);
 
-        // Append inputPromptDiv to the outputDiv
+        // Append inputPromptDiv to the appropriate section in the grid layout
         appendToOutputDivs(inputPromptDiv);
 
         // Focus on the input box
@@ -178,6 +194,8 @@ function PythonIDE() {
           }
         });
       });
+
+    
     }
 
     return () => {
@@ -308,7 +326,7 @@ function PythonIDE() {
           types: [
             {
               accept: {
-                "text/plain": [".txt", ".sql"],
+                "text/plain": [".txt", ".py"],
               },
             },
           ],
@@ -451,18 +469,22 @@ function PythonIDE() {
 
   return (
     <>
-      <div className="flex flex-col h-screen w-screen overflow-hidden relative ">
-        <div className="w-full h-12 text-center p-2">
+      <div className="grid grid-rows-[3rem_1fr_4rem] h-screen w-screen overflow-hidden">
+        
+        <div className="w-full text-center p-2">
           <div className="h-full w-full"></div>
         </div>
-        <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
-          <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+
+        <div className="grid grid-cols-[1fr_7fr_1fr] w-full h-full overflow-hidden">
+       
+          <div className="p-2 flex items-center justify-center min-h-[120px]">
+            <Ads />
           </div>
+
           <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
             <div
-              className={`flex lg:flex-row md:flex-row flex-col lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-x-2 lg:gap-y-0 md:gap-y-0 gap-y-2 ${
+              className={`grid grid-cols-2 lg:grid-cols-[1fr_16fr] md:grid-cols-[1fr_6fr] grid-rows-1 lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
                 darkTheme ? "bg-gray-800" : "bg-gray-50"
               } p-2 rounded-lg`}
             >
@@ -474,103 +496,107 @@ function PythonIDE() {
                 TableDetail={null}
                 details={null}
               />
-              <div
-                className={`border-2 ${
-                  darkTheme ? "border-blue-600" : "border-sky-700"
-                } lg:w-[55%] md:w-[55%] h-full rounded-lg flex flex-col items-center  justify-start p-2 gap-y-1 ${
-                  darkTheme ? "bg-gray-800" : "bg-white"
-                }`}
-              >
+
+              <div className="flex items-center justify-center gap-x-2  w-full">
+                
                 <div
-                  className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
-                    darkTheme ? "bg-gray-700" : "bg-gray-200"
-                  } px-2 py-7`}
+                  className={`border-2 w-[60%] h-full ${
+                    darkTheme ? "border-blue-600" : "border-sky-700"
+                  } rounded-lg flex flex-col items-center justify-start p-2 gap-y-1 ${
+                    darkTheme ? "bg-gray-800" : "bg-white"
+                  }`}
                 >
-                  <div className="flex items-center justify-center gap-x-1 px-2">
-                    <img src={py} alt="python" className="w-8 h-8" />
+                  
+                  <div
+                    className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
+                      darkTheme ? "bg-gray-700" : "bg-gray-200"
+                    } px-2 py-7`}
+                  >
+                    <div className="flex items-center justify-center gap-x-1 px-2">
+                      <img src={py} alt="python" className="w-8 h-8" />
+                      <p
+                        className={`font-black ${
+                          darkTheme ? "text-white" : "text-black"
+                        }`}
+                      >
+                        Python
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-x-2">
+                      {editorBtns.map((btn, index) => (
+                        <Button
+                          key={index}
+                          classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
+                            btn.text === "Execute"
+                              ? "bg-[#10B335] hover:bg-green-600"
+                              : "bg-[#FB2E38] hover:bg-[#FB2E10]"
+                          } px-4 rounded-lg`}
+                          action={btn.action}
+                          text={btn.text}
+                          icon={btn.icon}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                 
+                  <div className="lg:h-[475px] md:h-[475px] h-full w-full flex items-start justify-center overflow-auto rounded-lg">
+                    <CodeMirror
+                      defaultValue={editorContent}
+                      className="w-[750px] h-full text-[1rem] scrollbar-custom overflow-hidden"
+                      theme={darkTheme ? oneDark : "light"}
+                      extensions={[
+                        fullHeightEditor,
+                        customScrollbar,
+                        highlightActiveLineGutter(),
+                        lineNumbers(),
+                        keymap.of(defaultKeymap),
+                        indentOnInput(),
+                      ]}
+                      onChange={setEditorContent}
+                      onCreateEditor={(editor) => {
+                        editorRef.current = editor;
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className={`lg:flex md:flex border-2 w-[40%] h-full ${
+                    darkTheme ? "border-blue-600" : "border-sky-700"
+                  } rounded-lg p-2 hidden flex-col gap-y-1 ${
+                    darkTheme ? "bg-gray-800" : "bg-white"
+                  }`}
+                >
+                  <div
+                    className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
+                      darkTheme ? "bg-gray-700" : "bg-gray-200"
+                    } px-2`}
+                    onClick={clearOutput}
+                  >
                     <p
-                      className={`font-black ${
+                      className={`font-black px-1 ${
                         darkTheme ? "text-white" : "text-black"
                       }`}
                     >
-                      Python
+                      Output
                     </p>
+                    <Button
+                      classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs`}
+                      text={editorBtns[0].text}
+                      icon={editorBtns[0].icon}
+                    />
                   </div>
-                  <div className="flex items-center justify-center gap-x-2">
-                    {editorBtns.map((btn, index) => (
-                      <Button
-                        key={index}
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
-                          btn.text === "Execute"
-                            ? "bg-[#10B335] hover:bg-green-600"
-                            : "bg-[#FB2E38] hover:bg-[#FB2E10]"
-                        } px-4 rounded-lg`}
-                        action={btn.action}
-                        text={btn.text}
-                        icon={btn.icon}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="lg:h-[475px] md:h-[475px] h-full w-full flex items-start justify-center overflow-auto rounded-lg">
-                  <CodeMirror
-                    defaultValue={editorContent}
-                    className="w-[750px] h-full text-[1rem] scrollbar-custom overflow-hidden"
-                    theme={darkTheme ? oneDark : "light"}
-                    extensions={[
-                      // python(),
-                      fullHeightEditor,
-                      customScrollbar,
-                      highlightActiveLineGutter(),
-                      lineNumbers(),
-                      keymap.of(defaultKeymap),
-                      indentOnInput(),
-                    ]}
-                    onChange={(newContent) => {
-                      setEditorContent(newContent);
-                    }}
-                    onCreateEditor={(editor) => {
-                      editorRef.current = editor;
-                    }}
-                  />
-                </div>
-              </div>
-              <div
-                className={`lg:flex md:flex border-2 ${
-                  darkTheme ? "border-blue-600" : "border-sky-700"
-                } w-[45%] h-full rounded-lg p-2 hidden flex-col gap-y-1 ${
-                  darkTheme ? "bg-gray-800" : "bg-white"
-                }`}
-              >
-                <div
-                  className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
-                    darkTheme ? "bg-gray-700" : "bg-gray-200"
-                  } px-2`}
-                  onClick={clearOutput}
-                >
-                  <p
-                    className={`font-black px-1 ${
-                      darkTheme ? "text-white" : "text-black"
+                  <div
+                    id="outputDivDesktop"
+                    className={`h-[450px] w-full overflow-y-auto ${
+                      darkTheme
+                        ? "text-gray-200 bg-gray-800"
+                        : "text-black bg-white"
                     }`}
-                  >
-                    Output
-                  </p>
-                  <Button
-                    classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs`}
-                    text={editorBtns[0].text}
-                    icon={editorBtns[0].icon}
-                  />
+                  ></div>
                 </div>
-                <div
-                  id="outputDivDesktop"
-                  className={`h-[450px] w-full overflow-auto ${
-                    darkTheme
-                      ? "text-gray-200 bg-gray-800"
-                      : "text-black bg-white"
-                  }`}
-                ></div>
               </div>
-
               {showOutput && (
                 <div
                   className={`lg:hidden md:hidden border-2 ${
@@ -623,14 +649,19 @@ function PythonIDE() {
               )}
             </div>
           </div>
-          <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+
+          <div className="p-2 flex items-center justify-center min-h-[120px]">
+            <Ads />
           </div>
         </div>
-        <div className="w-full h-10 text-center p-2">
+
+        <div className="w-full text-center p-2">
           <div className="h-full w-full"></div>
         </div>
       </div>
+
+      {/* <div ></div> */}
+
     </>
   );
 }

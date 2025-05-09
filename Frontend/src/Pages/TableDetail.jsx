@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Minus, Plus } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 function TableDetail({ tables = [], views = [] }) {
@@ -11,8 +11,6 @@ function TableDetail({ tables = [], views = [] }) {
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-
-
 
   const toggleVisibility = (index) => {
     setVisibleRows((prev) => ({
@@ -37,7 +35,6 @@ function TableDetail({ tables = [], views = [] }) {
   const renderDetails = (data, offset = 0) =>
     data.map((detail, index) => (
       <div key={index + offset} className="flex flex-col items-end w-full mb-1 ms-3">
-        {/* Table/View Name */}
         <div
           className={`w-full flex items-center gap-x-2 cursor-pointer select-none py-3 px-3 rounded-md hover:bg-opacity-80 transition duration-200 ${
             darkTheme
@@ -56,17 +53,15 @@ function TableDetail({ tables = [], views = [] }) {
               darkTheme ? "text-blue-300" : "text-[#194cd8]"
             }`}
           >
-            
             {capitalizeFirstLetter(detail.table)}
           </p>
         </div>
 
-        {/* Columns */}
         {visibleRows[index + offset] &&
           detail.columns.map((col, colIndex) => (
             <div
               key={colIndex}
-              className={`w-[95%] flex items-center gap-x-1 pl-3 overflow-auto py-2 border-l-4 rounded-r-md mt-1 scrollbar-hide ${
+              className={`w-[95%] flex items-center gap-x-1 pl-3 py-2 border-l-4 rounded-r-md mt-1 ${
                 darkTheme
                   ? "border-blue-400 bg-gray-700 text-gray-300"
                   : "border-[#194cd8] bg-[#E5E7EB] text-gray-500"
@@ -83,21 +78,19 @@ function TableDetail({ tables = [], views = [] }) {
 
   return (
     <div
-      className={`w-full h-full border-2 px-2 py-1 rounded-lg overflow-auto ${
+      className={`w-full h-full overflow-auto rounded-lg border-2 px-2 py-1 ${
         darkTheme
           ? "border-blue-500 bg-gray-800 text-gray-200"
           : "border-sky-700 bg-gray-100 text-gray-800"
       }`}
     >
-      <div className="overflow-auto max-h-[75vh] scrollbar-hide py-1">
-        {/* Tables Section */}
-        {sectionHeader("Tables", showTables, () => setShowTables((prev) => !prev))}
-        {showTables && renderDetails(tables, 0)}
+      {/* Tables Section */}
+      {sectionHeader("Tables", showTables, () => setShowTables((prev) => !prev))}
+      {showTables && renderDetails(tables, 0)}
 
-        {/* Views Section */}
-        {sectionHeader("Views", showViews, () => setShowViews((prev) => !prev))}
-        {showViews && renderDetails(views, tables.length)}
-      </div>
+      {/* Views Section */}
+      {sectionHeader("Views", showViews, () => setShowViews((prev) => !prev))}
+      {showViews && renderDetails(views, tables.length)}
     </div>
   );
 }
