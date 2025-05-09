@@ -18,6 +18,7 @@ import py from "../assets/py.svg";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
+import Ads from "../components/Ads";
 
 function PythonIDE() {
   const { darkTheme } = useTheme();
@@ -53,12 +54,12 @@ function PythonIDE() {
 
   useEffect(() => {
     if (!socket.current) {
-      //   socket.current = io("https://igniup.com", {
-      //     path: "/socket.io/",
-      //     transports: ["websocket", "polling"],
-      //     withCredentials: true,
-      //   });
-      socket.current = io("http://localhost:9000");
+        socket.current = io("https://igniup.com", {
+          path: "/socket.io/",
+          transports: ["websocket", "polling"],
+          withCredentials: true,
+        });
+      // socket.current = io("http://localhost:9000");
 
       const handlePyResponse = (message) => {
         setDisable(false);
@@ -440,8 +441,8 @@ function PythonIDE() {
           <div className="h-full w-full"></div>
         </div>
         <div className="flex flex-row items-center justify-center h-full w-full overflow-hidden">
-          <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+          <div className="h-full w-50 text-center p-2">
+            <div className="h-full w-full"><Ads/></div>
           </div>
           <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
@@ -607,8 +608,8 @@ function PythonIDE() {
               )}
             </div>
           </div>
-          <div className="h-full w-30 text-center p-2">
-            <div className="h-full w-full"></div>
+          <div className="h-full w-50 text-center p-2">
+            <div className="h-full w-full"><Ads/></div>
           </div>
         </div>
         <div className="w-full h-10 text-center p-2">
