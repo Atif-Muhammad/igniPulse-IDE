@@ -131,19 +131,17 @@ function PythonIDE() {
           appendToGrid(lineDiv);
         });
 
-     
         const existingContentSpan = document.createElement("span");
         existingContentSpan.className = "existing-content";
         existingContentSpan.textContent = lines[lines.length - 1];
-        existingContentSpan.setAttribute("contenteditable", "false"); 
+        existingContentSpan.setAttribute("contenteditable", "false");
         existingContentSpan.style.backgroundColor = "transparent";
         existingContentSpan.style.whiteSpace = "pre-wrap";
         existingContentSpan.style.wordBreak = "break-word";
         existingContentSpan.style.overflowWrap = "break-word";
         existingContentSpan.style.boxSizing = "border-box";
-        existingContentSpan.style.display = "inline"; 
+        existingContentSpan.style.display = "inline";
 
-      
         const promptLabel = document.createElement("span");
         promptLabel.className = "prompt-label";
         promptLabel.style.color = "black";
@@ -152,44 +150,40 @@ function PythonIDE() {
         promptLabel.style.overflowWrap = "break-word";
         promptLabel.style.boxSizing = "border-box";
         promptLabel.setAttribute("contenteditable", "true");
-        promptLabel.style.display = "inline"; 
+        promptLabel.style.display = "inline";
         promptLabel.style.backgroundColor = "transparent";
         promptLabel.innerHTML = " ";
 
         promptLabel.style.outline = "none";
         promptLabel.style.border = "none";
 
-        
         const inputPromptDiv = document.createElement("div");
         inputPromptDiv.id = "inputPromptDiv";
         inputPromptDiv.style.padding = "10px";
         inputPromptDiv.style.width = "100%";
         inputPromptDiv.appendChild(existingContentSpan);
-        inputPromptDiv.appendChild(promptLabel); 
+        inputPromptDiv.appendChild(promptLabel);
 
-     
         appendToOutputDivs(inputPromptDiv);
 
         promptLabel.focus();
         const range = document.createRange();
         const selection = window.getSelection();
         range.selectNodeContents(promptLabel);
-        range.collapse(false); 
+        range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
 
-   
         promptLabel.addEventListener("keydown", (event) => {
           if (event.key === "Enter") {
-            event.preventDefault(); 
+            event.preventDefault();
 
             const userInput = promptLabel.textContent.trim();
 
             if (userInput) {
-              socket.current.emit("userEntry", userInput); 
+              socket.current.emit("userEntry", userInput);
 
               promptLabel.setAttribute("contenteditable", "false");
-
             }
           }
         });
@@ -467,209 +461,20 @@ function PythonIDE() {
 
   return (
     <>
-      {/* <div className="grid grid-rows-[3rem_1fr_4rem] h-screen w-screen overflow-hidden">
-        
-        <div className="w-full text-center p-2">
-          <div className="h-full w-full"></div>
-        </div>
-
-        <div className="grid grid-cols-[1fr_7fr_1fr] w-full h-full overflow-hidden">
-       
-          <div className="p-2 flex items-center justify-center min-h-[120px]">
-            <Ads />
-          </div>
-
-          <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
-            <NavBar handleDownload={handleDownload} openFile={openFile} />
-            <div
-              className={`grid grid-cols-2 lg:grid-cols-[1fr_16fr] md:grid-cols-[1fr_6fr] grid-rows-1 lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
-                darkTheme ? "bg-gray-800" : "bg-gray-50"
-              } p-2 rounded-lg`}
-            >
-              <LeftMenu
-                handleCopy={handleCopy}
-                handlePaste={handlePaste}
-                copyDone={copyDone}
-                pasteDone={pasteDone}
-                TableDetail={null}
-                details={null}
-              />
-
-              <div className="flex items-center justify-center gap-x-2  w-full">
-                
-                <div
-                  className={`border-2 w-[60%] h-full ${
-                    darkTheme ? "border-blue-600" : "border-sky-700"
-                  } rounded-lg flex flex-col items-center justify-start p-2 gap-y-1 ${
-                    darkTheme ? "bg-gray-800" : "bg-white"
-                  }`}
-                >
-                  
-                  <div
-                    className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
-                      darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2 py-7`}
-                  >
-                    <div className="flex items-center justify-center gap-x-1 px-2">
-                      <img src={py} alt="python" className="w-8 h-8" />
-                      <p
-                        className={`font-black ${
-                          darkTheme ? "text-white" : "text-black"
-                        }`}
-                      >
-                        Python
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-x-2">
-                      {editorBtns.map((btn, index) => (
-                        <Button
-                          key={index}
-                          classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
-                            btn.text === "Execute"
-                              ? "bg-[#10B335] hover:bg-green-600"
-                              : "bg-[#FB2E38] hover:bg-[#FB2E10]"
-                          } px-4 rounded-lg`}
-                          action={btn.action}
-                          text={btn.text}
-                          icon={btn.icon}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                 
-                  <div className="lg:h-[475px] md:h-[475px] h-full w-full flex items-start justify-center overflow-auto rounded-lg">
-                    <CodeMirror
-                      defaultValue={editorContent}
-                      className="w-[750px] h-full text-[1rem] scrollbar-custom overflow-hidden"
-                      theme={darkTheme ? oneDark : "light"}
-                      extensions={[
-                        fullHeightEditor,
-                        customScrollbar,
-                        highlightActiveLineGutter(),
-                        lineNumbers(),
-                        keymap.of(defaultKeymap),
-                        indentOnInput(),
-                      ]}
-                      onChange={setEditorContent}
-                      onCreateEditor={(editor) => {
-                        editorRef.current = editor;
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div
-                  className={`lg:flex md:flex border-2 w-[40%] h-full ${
-                    darkTheme ? "border-blue-600" : "border-sky-700"
-                  } rounded-lg p-2 hidden flex-col gap-y-1 ${
-                    darkTheme ? "bg-gray-800" : "bg-white"
-                  }`}
-                >
-                  <div
-                    className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
-                      darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2`}
-                    onClick={clearOutput}
-                  >
-                    <p
-                      className={`font-black px-1 ${
-                        darkTheme ? "text-white" : "text-black"
-                      }`}
-                    >
-                      Output
-                    </p>
-                    <Button
-                      classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs`}
-                      text={editorBtns[0].text}
-                      icon={editorBtns[0].icon}
-                    />
-                  </div>
-                  <div
-                    id="outputDivDesktop"
-                    className={`h-[450px] w-full overflow-y-auto ${
-                      darkTheme
-                        ? "text-gray-200 bg-gray-800"
-                        : "text-black bg-white"
-                    }`}
-                  ></div>
-                </div>
-              </div>
-              {showOutput && (
-                <div
-                  className={`lg:hidden md:hidden border-2 ${
-                    darkTheme ? "border-blue-600" : "border-sky-700"
-                  } w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 ${
-                    darkTheme ? "bg-gray-800" : "bg-gray-100"
-                  } -translate-x-1/2 bottom-0`}
-                >
-                  <div
-                    className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
-                      darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2 py-1`}
-                  >
-                    <p
-                      className={`font-black px-1 ${
-                        darkTheme ? "text-white" : "text-black"
-                      }`}
-                    >
-                      Output
-                    </p>
-                    <div className="flex items-center gap-x-2">
-                      <Button
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
-                        text={editorBtns[0].text}
-                        icon={editorBtns[0].icon}
-                        action={clearOutput}
-                      />
-                      <button
-                        onClick={handleClose}
-                        className={`p-2 rounded-full ${
-                          darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
-                        }`}
-                      >
-                        <X
-                          size={20}
-                          className={darkTheme ? "text-white" : "text-black"}
-                        />
-                      </button>
-                    </div>
-                  </div>
-                  <div
-                    id="outputDivMobile"
-                    className={`h-[450px] w-full overflow-auto ${
-                      darkTheme
-                        ? "text-gray-200 bg-gray-800"
-                        : "text-black bg-white"
-                    }`}
-                  ></div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-2 flex items-center justify-center min-h-[120px]">
-            <Ads />
-          </div>
-        </div>
-
-        <div className="w-full text-center p-2">
-          <div className="h-full w-full"></div>
-        </div>
-      </div> */}
-
-      <div className="bg-red-400 h-screen w-screen grid grid-cols-[10rem_2fr_10rem] ">
-        <div className="p-2 flex items-center justify-center min-h-[120px]">
+      <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[10%_80%_10%]">
+        <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
           <Ads />
         </div>
 
         <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
           <NavBar handleDownload={handleDownload} openFile={openFile} />
+
           <div
-            className={`grid grid-cols-2 lg:grid-cols-[1fr_16fr] md:grid-cols-[1fr_6fr] grid-rows-1 lg:h-[85%] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
+            className={`grid grid-cols-1 md:grid-cols-[auto_1fr] grid-rows-1 md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
               darkTheme ? "bg-gray-800" : "bg-gray-50"
             } p-2 rounded-lg`}
           >
+            {/* Left Menu */}
             <LeftMenu
               handleCopy={handleCopy}
               handlePaste={handlePaste}
@@ -679,14 +484,17 @@ function PythonIDE() {
               details={null}
             />
 
-            <div className="flex items-center justify-center gap-x-2  w-full">
+            {/* Editor and Output */}
+            <div className="w-full h-full flex flex-row gap-2">
+              {/* Editor */}
               <div
-                className={`border-2 w-2/3 h-full ${
+                className={`border-2 w-full h-full ${
                   darkTheme ? "border-blue-600" : "border-sky-700"
                 } rounded-lg flex flex-col items-center justify-start p-2 gap-y-1 ${
                   darkTheme ? "bg-gray-800" : "bg-white"
                 }`}
               >
+                {/* Top bar */}
                 <div
                   className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
                     darkTheme ? "bg-gray-700" : "bg-gray-200"
@@ -719,10 +527,11 @@ function PythonIDE() {
                   </div>
                 </div>
 
-                <div className="lg:h-[475px] md:h-[475px] h-full w-full flex items-start justify-center overflow-auto rounded-lg">
+                {/* Code editor */}
+                <div className="h-full w-full flex items-start justify-center overflow-auto rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
-                    className="w-[750px] h-full text-[1rem] scrollbar-custom overflow-hidden"
+                    className="w-full text-[1rem] scrollbar-custom overflow-hidden"
                     theme={darkTheme ? oneDark : "light"}
                     extensions={[
                       fullHeightEditor,
@@ -740,10 +549,11 @@ function PythonIDE() {
                 </div>
               </div>
 
+              {/* Output (Desktop only) */}
               <div
-                className={`lg:flex md:flex border-2 w-1/3 h-full ${
+                className={`hidden md:flex border-2 w-full h-full ${
                   darkTheme ? "border-blue-600" : "border-sky-700"
-                } rounded-lg p-2 hidden flex-col gap-y-1 ${
+                } rounded-lg p-2 flex-col gap-y-1 ${
                   darkTheme ? "bg-gray-800" : "bg-white"
                 }`}
               >
@@ -768,7 +578,7 @@ function PythonIDE() {
                 </div>
                 <div
                   id="outputDivDesktop"
-                  className={`h-[450px] w-full  overflow-y-auto ${
+                  className={`flex-1 w-full overflow-y-auto ${
                     darkTheme
                       ? "text-gray-200 bg-gray-800"
                       : "text-black bg-white"
@@ -776,6 +586,8 @@ function PythonIDE() {
                 ></div>
               </div>
             </div>
+
+            {/* Output (Mobile only) */}
             {showOutput && (
               <div
                 className={`lg:hidden md:hidden border-2 ${
@@ -818,7 +630,7 @@ function PythonIDE() {
                 </div>
                 <div
                   id="outputDivMobile"
-                  className={`h-[450px] w-full overflow-auto ${
+                  className={`flex-1 w-full overflow-auto ${
                     darkTheme
                       ? "text-gray-200 bg-gray-800"
                       : "text-black bg-white"
@@ -829,7 +641,7 @@ function PythonIDE() {
           </div>
         </div>
 
-        <div className="p-2 flex items-center justify-center min-h-[120px]">
+        <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
           <Ads />
         </div>
       </div>
