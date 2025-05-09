@@ -34,7 +34,7 @@ const Ads = () => {
   }, [scriptLoaded]);
 
   return (
-    <div className="w-full h-full overflow-hidden flex items-center justify-center bg-red-500">
+    <div className="w-full h-full overflow-hidden flex items-center justify-center ">
       <ins
         className="adsbygoogle "
         style={{

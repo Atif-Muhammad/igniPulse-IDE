@@ -56,12 +56,12 @@ function PythonIDE() {
 
   useEffect(() => {
     if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true,
-      // });
-      socket.current = io("http://localhost:9000");
+      socket.current = io("https://igniup.com", {
+        path: "/socket.io/",
+        transports: ["websocket", "polling"],
+        withCredentials: true,
+      });
+      // socket.current = io("http://localhost:9000");
 
       const handlePyResponse = (message) => {
         setDisable(false);
@@ -461,7 +461,7 @@ function PythonIDE() {
 
   return (
     <>
-      <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[10%_80%_10%]">
+      <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[10%_80%_10%] py-15">
         <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
           <Ads />
         </div>
@@ -485,16 +485,15 @@ function PythonIDE() {
             />
 
             {/* Editor and Output */}
-            <div className="w-full h-full flex flex-row gap-2">
-              {/* Editor */}
+            <div className="w-full h-full flex flex-row gap-2 overflow-hidden">
+            
               <div
-                className={`border-2 w-full h-full ${
-                  darkTheme ? "border-blue-600" : "border-sky-700"
-                } rounded-lg flex flex-col items-center justify-start p-2 gap-y-1 ${
-                  darkTheme ? "bg-gray-800" : "bg-white"
-                }`}
+                className={`flex flex-col h-full flex-[7] min-w-0 overflow-hidden border-2 ${
+                  darkTheme
+                    ? "border-blue-600 bg-gray-800"
+                    : "border-sky-700 bg-white"
+                } rounded-lg p-2 gap-y-1`}
               >
-                {/* Top bar */}
                 <div
                   className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
                     darkTheme ? "bg-gray-700" : "bg-gray-200"
@@ -527,11 +526,10 @@ function PythonIDE() {
                   </div>
                 </div>
 
-                {/* Code editor */}
-                <div className="h-full w-full flex items-start justify-center overflow-auto rounded-lg">
+                <div className="flex-1 min-h-0 w-full overflow-hidden rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
-                    className="w-full text-[1rem] scrollbar-custom overflow-hidden"
+                    className="w-full h-full text-[1rem] scrollbar-custom"
                     theme={darkTheme ? oneDark : "light"}
                     extensions={[
                       fullHeightEditor,
@@ -549,13 +547,12 @@ function PythonIDE() {
                 </div>
               </div>
 
-              {/* Output (Desktop only) */}
               <div
-                className={`hidden md:flex border-2 w-full h-full ${
-                  darkTheme ? "border-blue-600" : "border-sky-700"
-                } rounded-lg p-2 flex-col gap-y-1 ${
-                  darkTheme ? "bg-gray-800" : "bg-white"
-                }`}
+                className={`hidden md:flex flex-col h-full flex-[3] min-w-0 border-2 ${
+                  darkTheme
+                    ? "border-blue-600 bg-gray-800"
+                    : "border-sky-700 bg-white"
+                } rounded-lg p-2 gap-y-1`}
               >
                 <div
                   className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
@@ -570,7 +567,7 @@ function PythonIDE() {
                     Output
                   </p>
                   <Button
-                    classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs`}
+                    classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs"
                     text={editorBtns[0].text}
                     icon={editorBtns[0].icon}
                     action={clearOutput}
