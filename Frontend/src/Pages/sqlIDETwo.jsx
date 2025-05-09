@@ -433,9 +433,8 @@ function sqlIDETwo() {
       )}
 
       <div className="flex items-center justify-center w-screen h-screen py-18">
-        <div className="w-screen grid grid-cols-[10rem_2fr_10rem] grid-rows-[80vh] gap-x-4 overflow-hidden">
-          <div className="flex items-center justify-center overflow-hidden h-full">
-          
+        <div className="w-full grid grid-cols-1 md:grid-cols-[9.5%_82%_9.5%] grid-rows-[80vh]  overflow-hidden">
+          <div className="md:flex items-center justify-center hidden overflow-hidden h-full">
             <Ads />
           </div>
 
@@ -500,7 +499,7 @@ function sqlIDETwo() {
                       </div>
                     </div>
 
-                    <div className="lg:max-w-[1020px] min-w-[335px] w-full lg:w-full md:w-[500px] flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="lg:max-w-[1000px] min-w-[335px] w-full lg:w-full md:w-[480px] flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
                         className={`text-[1rem] w-full scrollbar-custom rounded-lg ${
@@ -540,11 +539,11 @@ function sqlIDETwo() {
             </div>
           </div>
 
-          <div className="flex items-center justify-center overflow-hidden h-full">
+          <div className="md:flex items-center justify-center hidden overflow-hidden h-full">
             <Ads />
           </div>
         </div>
-        </div>
+      </div>
 
       <Toaster
         position="top-center"
