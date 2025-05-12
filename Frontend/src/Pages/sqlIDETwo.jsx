@@ -95,6 +95,44 @@ function sqlIDETwo() {
     },
   });
 
+  const dispTables = (tables, views) => {
+    // Process tables
+    const tableDetails = Object.values(
+      tables
+        ? Object.entries(tables).reduce((acc, [tableName, tableData]) => {
+            acc[tableName] = {
+              table: tableName,
+              columns: tableData.columns.map((col) => ({
+                column: col.columnName,
+                type: col.dataType,
+              })),
+            };
+            return acc;
+          }, {})
+        : {}
+    );
+
+    // Process views
+    const viewDetails = Object.values(
+      views
+        ? Object.entries(views).reduce((acc, [viewName, viewData]) => {
+            acc[viewName] = {
+              table: viewName,
+              columns: viewData.columns.map((col) => ({
+                column: col.columnName,
+                type: col.dataType,
+              })),
+            };
+            return acc;
+          }, {})
+        : {}
+    );
+
+    // console.log(tableDetails)
+    setTables(tableDetails);
+    setViews(viewDetails);
+  };
+
   const getTables = (database) => {
     // console.log(db);
     Config.getTables(database)
@@ -103,45 +141,13 @@ function sqlIDETwo() {
           const { tables, views } = res.data;
           // console.log("tables:",tables);
 
-          // Process tables
-          const tableDetails = Object.values(
-            tables
-              ? Object.entries(tables).reduce((acc, [tableName, tableData]) => {
-                  acc[tableName] = {
-                    table: tableName,
-                    columns: tableData.columns.map((col) => ({
-                      column: col.columnName,
-                      type: col.dataType,
-                    })),
-                  };
-                  return acc;
-                }, {})
-              : {}
-          );
-
-          // Process views
-          const viewDetails = Object.values(
-            views
-              ? Object.entries(views).reduce((acc, [viewName, viewData]) => {
-                  acc[viewName] = {
-                    table: viewName,
-                    columns: viewData.columns.map((col) => ({
-                      column: col.columnName,
-                      type: col.dataType,
-                    })),
-                  };
-                  return acc;
-                }, {})
-              : {}
-          );
-
-          // console.log(tableDetails)
-          setTables(tableDetails);
-          setViews(viewDetails);
+          dispTables(tables, views);
+          setLoadingDB(false)
         }
       })
       .catch((err) => {
         console.log(err);
+        setLoadingDB(false)
       });
   };
   const createDB = async () => {
@@ -453,6 +459,8 @@ function sqlIDETwo() {
                 TableDetail={TableDetail}
                 tables={tables}
                 views={views}
+                getTables={getTables}
+                setLoadingDB={setLoadingDB}
               />
               <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
                 <div className="hidden md:block lg:block w-full md:w-[23%] h-full overflow-hidden">

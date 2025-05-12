@@ -7,10 +7,12 @@ import {
   XIcon,
   MenuIcon,
   HomeIcon,
+  RefreshCcw,
 } from "lucide-react";
 import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { NavLink } from "react-router-dom";
+import config from "../../Config/config";
 
 function LeftMenuSQL({
   handleCopy,
@@ -18,11 +20,25 @@ function LeftMenuSQL({
   pasteDone,
   copyDone,
   tables,
+  getTables,
   views,
   TableDetail,
+  setLoadingDB
 }) {
   const [showTable, setShowTable] = useState(false);
   const { darkTheme, toggleTheme } = useTheme();
+
+  const handleRefresh = ()=>{
+    setLoadingDB(true)
+    const unq_id = window.localStorage.unique_id;
+    // console.log(unq_id)
+    config.refreshTables(unq_id).then(res=>{
+      // console.log(res)
+      getTables(res.data)
+    }).catch(err=>{
+      console.log(err)
+    }) 
+  }
 
   return (
     <>
@@ -91,6 +107,22 @@ function LeftMenuSQL({
               }`}
             >
               {pasteDone ? "Pasted" : "Paste"}
+            </p>
+          </div>
+
+          
+          <div
+            className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
+            onClick={handleRefresh}
+          >
+            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+              <RefreshCcw  className="text-white" size={16} />
+            </div>
+            <p
+              className={`text-sm select-none hidden lg:block ${
+                darkTheme ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
             </p>
           </div>
         </div>

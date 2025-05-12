@@ -1,15 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const { createDB } = require('../../controllers/sqlControllers')
-const {postData} = require('../../controllers/sqlControllers')
-const {getDBS} = require('../../controllers/sqlControllers')
-const {getTables} = require('../../controllers/sqlControllers')
-const {switchDB} = require('../../controllers/sqlControllers')
+const { createDB, switchDB, postData, getDBS, getTables, refTabs } = require('../../controllers/sqlControllers')
+
 
 
 
 router.post('/createDB', createDB)
+
+router.get(`/ref_tabs`, refTabs)
 
 
 router.post('/postData', postData)

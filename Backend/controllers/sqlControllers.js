@@ -2062,7 +2062,33 @@ INSERT INTO Students (registration, name, marks, college, nationality) VALUES (9
     })
 }
 
+exports.refTabs = async (req, res) => {
+    // console.log("first")
+    const { db_id } = req.query;
+    connection.query(`use ${db_id};`, (err) => {
+        if (err) return res.send(err);
+        connection.query('drop view if exists ukEmployee;', (err) => {
+            if (err) return res.send(err);
+            connection.query('drop table if exists employees;', (err) => {
+                if (err) return res.send(err);
+                connection.query('drop view if exists StudentsData;', (err) => {
+                    if (err) return res.send(err);
+                    connection.query('drop table if exists students;', (err) => {
+                        if (err) return res.send(err);
+                        createTablesAndSeedData(db_id, (err) => {
+                            if (err) return res.status(500).send("Table creation error: " + err.message);
+                            // console.log("first")
+                            return res.send(db_id);
+                        });
+                    });
+                });
+            });
+        });
+    });
 
+
+
+}
 
 exports.deleteDDBSES = async (req, res) => {
     const systemDatabases = ["information_schema", "mysql", "performance_schema", "sys"];
@@ -2092,7 +2118,7 @@ exports.createDB = async (req, res) => {
     const unq_id = req.body.id;
     const generateHash = () => crypto.createHash("md5").update(crypto.randomUUID()).digest("hex").slice(0, 8);
 
-    
+
 
     const createAndSeed = (hash) => {
         connection.query(`CREATE DATABASE IF NOT EXISTS \`${hash}\``, (err) => {

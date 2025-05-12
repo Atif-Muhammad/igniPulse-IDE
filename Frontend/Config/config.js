@@ -4,24 +4,36 @@ const BASE_URL = "https://igniup.com/api";
 // const BASE_URL = "http://localhost:9000/api";
 
 const ENDPOINTS = {
-    create_db : `${BASE_URL}/sql/createDB`,
-    delete_db : `${BASE_URL}/sql/DDBSES`,
-    post_data : `${BASE_URL}/sql/postData`,
-    get_data : `${BASE_URL}/sql/getDataBases`,
+    create_db: `${BASE_URL}/sql/createDB`,
+    refresh_tbs: `${BASE_URL}/sql/ref_tabs`,
+    delete_db: `${BASE_URL}/sql/DDBSES`,
+    post_data: `${BASE_URL}/sql/postData`,
+    get_data: `${BASE_URL}/sql/getDataBases`,
     get_tables: `${BASE_URL}/sql/getTables`,
     switch_db: `${BASE_URL}/sql/switchDB`
 }
 
-const createDB = async (id)=>{
+const createDB = async (id) => {
     try {
-        const response = await axios.post(ENDPOINTS.create_db, {id});
+        const response = await axios.post(ENDPOINTS.create_db, { id });
         return response
     } catch (error) {
         return error
     }
 }
 
-const dropDbs = async ()=>{
+const refreshTables = async (db_id) => {
+    try {
+        const response = await axios.get(ENDPOINTS.refresh_tbs, {params: {db_id}});
+        return response
+    } catch (error) {
+        return error
+    }
+
+
+}
+
+const dropDbs = async () => {
     try {
         const response = await axios.get(ENDPOINTS.delete_db)
         return response
@@ -30,11 +42,11 @@ const dropDbs = async ()=>{
     }
 }
 
-const postData = async (data, db)=>{
+const postData = async (data, db) => {
     // console.log(data, db)
     try {
-        const response = await axios.post(ENDPOINTS.post_data, {data, db});
-        if(response){
+        const response = await axios.post(ENDPOINTS.post_data, { data, db });
+        if (response) {
             return response
         }
     } catch (error) {
@@ -53,10 +65,10 @@ const postData = async (data, db)=>{
 //     }
 // }
 
-const getTables = async (db)=>{
+const getTables = async (db) => {
     try {
-        const response = await axios.get(ENDPOINTS.get_tables, {params: {db}})
-        if(response){
+        const response = await axios.get(ENDPOINTS.get_tables, { params: { db } })
+        if (response) {
             return response
         }
     } catch (error) {
@@ -75,4 +87,4 @@ const getTables = async (db)=>{
 //     }
 // }
 
-export default {createDB, dropDbs, postData, getTables}
+export default { createDB, dropDbs, postData, getTables, refreshTables }
