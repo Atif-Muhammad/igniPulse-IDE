@@ -142,12 +142,12 @@ function sqlIDETwo() {
           // console.log("tables:",tables);
 
           dispTables(tables, views);
-          setLoadingDB(false)
+          setLoadingDB(false);
         }
       })
       .catch((err) => {
         console.log(err);
-        setLoadingDB(false)
+        setLoadingDB(false);
       });
   };
   const createDB = async () => {
@@ -189,7 +189,7 @@ function sqlIDETwo() {
       Config.postData(currentContent, db)
         .then((res) => {
           if (res.data.success) {
-            toast.success("success");
+            toast.success("Query run successfully");
             setResDb(res.data.result);
             getTables(db);
           } else {
@@ -451,7 +451,9 @@ function sqlIDETwo() {
                 darkTheme ? "bg-gray-800" : "bg-gray-50"
               } p-2 rounded-lg`}
             >
+              {/* <div className=" "> */}
               <LeftMenuSQL
+                className="lg:w-[6%] w-full "
                 handleCopy={handleCopy}
                 handlePaste={handlePaste}
                 copyDone={copyDone}
@@ -462,12 +464,13 @@ function sqlIDETwo() {
                 getTables={getTables}
                 setLoadingDB={setLoadingDB}
               />
-              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full w-full">
-                <div className="hidden md:block lg:block w-full md:w-[23%] h-full overflow-hidden">
+              {/* </div> */}
+              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full lg:w-[94%] w-full ">
+                <div className="hidden md:block lg:block w-full md:w-[18%] h-full overflow-hidden">
                   <TableDetail tables={tables} views={views} />
                 </div>
 
-                <div className="w-full md:w-[77%] flex flex-col gap-y-2 h-full">
+                <div className="w-full md:w-[82%] flex flex-col gap-y-2 h-full">
                   <div
                     className={`border-2 ${
                       darkTheme ? "border-blue-600" : "border-sky-700"
@@ -507,7 +510,7 @@ function sqlIDETwo() {
                       </div>
                     </div>
 
-                    <div className="lg:max-w-[1000px] min-w-[335px] w-full lg:w-full md:w-[480px] flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="w-full flex-1 flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
                         className={`text-[1rem] w-full scrollbar-custom rounded-lg ${
@@ -584,6 +587,15 @@ function sqlIDETwo() {
               primary: "white",
               secondary: darkTheme ? "#7F1D1D" : "#EF4444",
             },
+            icon: "✕",
+            icon: (
+              <button
+                className=" p-1 text-black  rounded-full bg-white  "
+                onClick={() => toast.dismiss()}
+              >
+                <X size={16} />
+              </button>
+            ),
           },
         }}
       />

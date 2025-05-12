@@ -24,7 +24,7 @@ const Data = ({ res }) => {
                   {Object.keys(res[0]).map((key) => (
                     <th
                       key={key}
-                      className={`px-3 py-3 text-sm tracking-wider text-left uppercase ${
+                      className={`px-3 py-3 text-sm tracking-wider text-start uppercase ${
                         darkTheme ? "text-gray-200" : "text-white"
                       }`}
                     >
