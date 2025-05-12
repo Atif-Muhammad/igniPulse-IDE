@@ -27,6 +27,8 @@ ${data}
       let errorOutput = "";
       let expectingEntry = false;
 
+      socket.removeAllListeners("userEntry");
+
       // Handle Python stdout
       pyProcess.stdout.on("data", (data) => {
         const outputCheck = data.toString();
@@ -45,7 +47,7 @@ ${data}
       const handleUserEntry = (userInput) => {
         if (expectingEntry) {
           console.log("Received input from user:", userInput);
-          pyProcess.stdin.write(userInput + "\n"); // Send input to Python
+          pyProcess.stdin.write(userInput + "\n"); 
           expectingEntry = false;
         }
       };

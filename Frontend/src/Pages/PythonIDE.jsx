@@ -19,6 +19,7 @@ import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
 import Ads from "../components/Ads";
+import SpinnerIcon from "../components/SpinnerIcon";
 
 function PythonIDE() {
   const { darkTheme } = useTheme();
@@ -34,15 +35,15 @@ function PythonIDE() {
   const [showOutput, setShowOutput] = useState(false);
   const [shouldRunCode, setShouldRunCode] = useState(false);
   const socket = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const clearOutput = () => {
-    document.getElementById("outputDivDesktop").innerText = "";
-    document.getElementById("outputDivMobile").innerText = "";
+    const desktopOutput = document.getElementById("outputDivDesktop");
+    const mobileOutput = document.getElementById("outputDivMobile");
+
+    if (desktopOutput) desktopOutput.innerText = "";
+    if (mobileOutput) mobileOutput.innerText = "";
   };
-
-  // const [shouldRunCode, setShouldRunCode] = useState(false);
-
-  // const socket = useRef(null);
 
   const appendToOutputDivs = (el) => {
     if (!el) return;
@@ -55,6 +56,131 @@ function PythonIDE() {
   };
 
   useEffect(() => {
+
+    const handlePyResponse = (message) => {
+      setDisable(false);
+      setLoading(false);
+
+      let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
+
+      if (formattedMessage.startsWith("\n")) {
+        formattedMessage = "<br>" + formattedMessage.trimStart();
+      }
+      if (formattedMessage.endsWith("\n")) {
+        formattedMessage = formattedMessage.trimEnd() + "<br>";
+      }
+      formattedMessage = formattedMessage.replace(/\n/g, "<br>");
+
+      const res = document.createElement("div");
+      res.innerHTML = formattedMessage;
+      res.style.paddingBottom = "6px";
+      res.style.padding = "5px";
+      res.style.wordWrap = "break-word";
+      res.style.overflowWrap = "break-word";
+      res.style.whiteSpace = "pre-wrap";
+      res.style.wordBreak = "break-word";
+      res.style.width = "100%";
+      res.style.maxWidth = "100%";
+
+      // document.getElementById("outputDiv").appendChild(res);
+      appendToOutputDivs(res);
+    };
+
+    const handleExitSuccess = () => {
+      setLoading(false);
+      const exitMsg = document.createElement("p");
+      exitMsg.innerText = "--- Program Exited Successfully ---";
+      exitMsg.style.fontWeight = "bold";
+      exitMsg.style.marginTop = "10px";
+      exitMsg.style.textAlign = "start";
+      exitMsg.style.wordWrap = "break-word";
+      exitMsg.style.overflowWrap = "break-word";
+      exitMsg.style.whiteSpace = "normal";
+      exitMsg.style.width = "100%";
+
+      // document.getElementById("outputDiv").appendChild(exitMsg);
+      appendToOutputDivs(exitMsg);
+    };
+
+    const handleUser = (message) => {
+      setDisable(false);
+      setLoading(false);
+
+      // Normalize newlines to ensure consistency
+      let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
+
+      // Extract lines while preserving newlines
+      const lines = formattedMessage
+        .match(/[^\n]*(\n|$)/g)
+        .filter((line) => line !== "");
+
+      // Process all lines except the last one
+      lines.slice(0, -1).forEach((line) => {
+        const lineDiv = document.createElement("div");
+        lineDiv.innerHTML = line.replace(/\n/g, "<br>");
+        lineDiv.style.color = "black";
+        lineDiv.style.marginBottom = "5px";
+        lineDiv.style.backgroundColor = "pink";
+        appendToGrid(lineDiv);
+      });
+
+      const existingContentSpan = document.createElement("span");
+      existingContentSpan.className = "existing-content";
+      existingContentSpan.textContent = lines[lines.length - 1];
+      existingContentSpan.setAttribute("contenteditable", "false");
+      existingContentSpan.style.backgroundColor = "transparent";
+      existingContentSpan.style.whiteSpace = "pre-wrap";
+      existingContentSpan.style.wordBreak = "break-word";
+      existingContentSpan.style.overflowWrap = "break-word";
+      existingContentSpan.style.boxSizing = "border-box";
+      existingContentSpan.style.display = "inline";
+
+      const promptLabel = document.createElement("span");
+      promptLabel.className = "prompt-label";
+      promptLabel.style.whiteSpace = "pre-wrap";
+      promptLabel.style.wordBreak = "break-word";
+      promptLabel.style.overflowWrap = "break-word";
+      promptLabel.style.boxSizing = "border-box";
+      promptLabel.setAttribute("contenteditable", "true");
+      promptLabel.style.display = "inline";
+      promptLabel.style.backgroundColor = "transparent";
+      promptLabel.innerHTML = " ";
+
+      promptLabel.style.outline = "none";
+      promptLabel.style.border = "none";
+
+      const inputPromptDiv = document.createElement("div");
+      inputPromptDiv.id = "inputPromptDiv";
+      inputPromptDiv.style.padding = "2px";
+      inputPromptDiv.style.width = "100%";
+      inputPromptDiv.appendChild(existingContentSpan);
+      inputPromptDiv.appendChild(promptLabel);
+
+      appendToOutputDivs(inputPromptDiv);
+
+      promptLabel.focus();
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(promptLabel);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      promptLabel.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+
+          const userInput = promptLabel.textContent.trim();
+
+          if (userInput) {
+            socket.current.emit("userEntry", userInput);
+
+            promptLabel.setAttribute("contenteditable", "false");
+          }
+        }
+      });
+    };
+
     if (!socket.current) {
       socket.current = io("https://igniup.com", {
         path: "/socket.io/",
@@ -62,174 +188,36 @@ function PythonIDE() {
         withCredentials: true,
       });
       // socket.current = io("http://localhost:9000");
-
-      const handlePyResponse = (message) => {
-        setDisable(false);
-
-        let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
-
-        if (formattedMessage.startsWith("\n")) {
-          formattedMessage = "<br>" + formattedMessage.trimStart();
-        }
-        if (formattedMessage.endsWith("\n")) {
-          formattedMessage = formattedMessage.trimEnd() + "<br>";
-        }
-        formattedMessage = formattedMessage.replace(/\n/g, "<br>");
-
-        const res = document.createElement("div");
-        res.innerHTML = formattedMessage;
-        res.style.paddingBottom = "6px";
-        res.style.padding = "5px";
-        res.style.wordWrap = "break-word";
-        res.style.overflowWrap = "break-word";
-        res.style.whiteSpace = "pre-wrap";
-        res.style.wordBreak = "break-word";
-        res.style.width = "100%";
-        res.style.maxWidth = "100%";
-
-        // document.getElementById("outputDiv").appendChild(res);
-        appendToOutputDivs(res);
-      };
-
-      const handleExitSuccess = () => {
-        const exitMsg = document.createElement("p");
-        exitMsg.innerText = "--- Program Exited Successfully ---";
-        exitMsg.style.color = "black";
-        exitMsg.style.fontWeight = "bold";
-        exitMsg.style.marginTop = "10px";
-        exitMsg.style.textAlign = "start";
-        exitMsg.style.wordWrap = "break-word";
-        exitMsg.style.overflowWrap = "break-word";
-        exitMsg.style.whiteSpace = "normal";
-        exitMsg.style.width = "100%";
-
-        // document.getElementById("outputDiv").appendChild(exitMsg);
-        appendToOutputDivs(exitMsg);
-      };
-
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
-
-      socket.current.on("userInput", (message) => {
-        setDisable(false);
-
-        // Normalize newlines to ensure consistency
-        let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
-
-        // Extract lines while preserving newlines
-        const lines = formattedMessage
-          .match(/[^\n]*(\n|$)/g)
-          .filter((line) => line !== "");
-
-        // Process all lines except the last one
-        lines.slice(0, -1).forEach((line) => {
-          const lineDiv = document.createElement("div");
-          lineDiv.innerHTML = line.replace(/\n/g, "<br>");
-          lineDiv.style.color = "black";
-          lineDiv.style.marginBottom = "5px";
-          lineDiv.style.backgroundColor = "pink";
-          appendToGrid(lineDiv);
-        });
-
-        const existingContentSpan = document.createElement("span");
-        existingContentSpan.className = "existing-content";
-        existingContentSpan.textContent = lines[lines.length - 1];
-        existingContentSpan.setAttribute("contenteditable", "false");
-        existingContentSpan.style.backgroundColor = "transparent";
-        existingContentSpan.style.whiteSpace = "pre-wrap";
-        existingContentSpan.style.wordBreak = "break-word";
-        existingContentSpan.style.overflowWrap = "break-word";
-        existingContentSpan.style.boxSizing = "border-box";
-        existingContentSpan.style.display = "inline";
-
-        const promptLabel = document.createElement("span");
-        promptLabel.className = "prompt-label";
-        promptLabel.style.color = "black";
-        promptLabel.style.whiteSpace = "pre-wrap";
-        promptLabel.style.wordBreak = "break-word";
-        promptLabel.style.overflowWrap = "break-word";
-        promptLabel.style.boxSizing = "border-box";
-        promptLabel.setAttribute("contenteditable", "true");
-        promptLabel.style.display = "inline";
-        promptLabel.style.backgroundColor = "transparent";
-        promptLabel.innerHTML = " ";
-
-        promptLabel.style.outline = "none";
-        promptLabel.style.border = "none";
-
-        const inputPromptDiv = document.createElement("div");
-        inputPromptDiv.id = "inputPromptDiv";
-        inputPromptDiv.style.padding = "10px";
-        inputPromptDiv.style.width = "100%";
-        inputPromptDiv.appendChild(existingContentSpan);
-        inputPromptDiv.appendChild(promptLabel);
-
-        appendToOutputDivs(inputPromptDiv);
-
-        promptLabel.focus();
-        const range = document.createRange();
-        const selection = window.getSelection();
-        range.selectNodeContents(promptLabel);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        promptLabel.addEventListener("keydown", (event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-
-            const userInput = promptLabel.textContent.trim();
-
-            if (userInput) {
-              socket.current.emit("userEntry", userInput);
-
-              promptLabel.setAttribute("contenteditable", "false");
-            }
-          }
-        });
-      });
+      socket.current.on("userInput", handleUser);
     }
 
     return () => {
       if (socket.current) {
-        socket.current.disconnect();
-        socket.current.close();
-        socket.current = null;
         socket.current?.off("pyResponse", handlePyResponse);
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
+        socket.current?.off("userInput", handleUser);
+        socket.current?.disconnect();
+        socket.current?.close();
+        socket.current = null;
       }
     };
   }, []);
 
-  // const handleRun = async () => {
-  //   // console.log("first")
-  //   if (editorContent != "") {
-  //     setShowOutput(true);
-  //     setDisable(true);
-  //     clearOutput();
-  //     // socket.current.close();
-  //     socket.current.connect();
-  //     // Emit the input data to the server using Socket.IO
-  //     socket.current.emit("runPy", editorContent);
-  //   }
-  // };
-
   const handleRun = async () => {
     if (editorContent !== "") {
+      clearOutput();
+      setDisable(true);
+      setLoading(true);
       setShowOutput(true);
       setShouldRunCode(true);
-      setDisable(true);
-      clearOutput();
+      if(socket.current){
+        socket.current.connect();
+        socket.current.emit("runPy", editorContent);
+      }
     }
   };
-
-  useEffect(() => {
-    if (showOutput && shouldRunCode && socket.current) {
-      socket.current.connect();
-      socket.current.emit("runPy", editorContent);
-      setShouldRunCode(false); // Reset the trigger
-    }
-  }, [showOutput, shouldRunCode]);
 
   const handleClose = () => {
     setShowOutput(false);
@@ -486,7 +474,6 @@ function PythonIDE() {
 
             {/* Editor and Output */}
             <div className="w-full h-full flex flex-row gap-2 overflow-hidden">
-            
               <div
                 className={`flex flex-col h-full flex-[7] min-w-0 overflow-hidden border-2 ${
                   darkTheme
@@ -517,10 +504,26 @@ function PythonIDE() {
                           btn.text === "Execute"
                             ? "bg-[#10B335] hover:bg-green-600"
                             : "bg-[#FB2E38] hover:bg-[#FB2E10]"
-                        } px-4 rounded-lg`}
-                        action={btn.action}
-                        text={btn.text}
-                        icon={btn.icon}
+                        } px-4 rounded-lg ${
+                          loading && btn.text === "Execute"
+                            ? "opacity-60 cursor-not-allowed"
+                            : ""
+                        }`}
+                        action={
+                          loading && btn.text === "Execute" ? null : btn.action
+                        }
+                        text={
+                          loading && btn.text === "Execute"
+                            ? "Running..."
+                            : btn.text
+                        }
+                        icon={
+                          loading && btn.text === "Execute" ? (
+                            <SpinnerIcon />
+                          ) : (
+                            btn.icon
+                          )
+                        }
                       />
                     ))}
                   </div>
