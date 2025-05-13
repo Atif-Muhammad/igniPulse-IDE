@@ -32,7 +32,7 @@ function NavBar({ openFile, handleDownload }) {
           size={28}
         />
         <p
-          className={`text-3xl font-black ${
+          className={`text-2xl font-black ${
             darkTheme ? "text-white" : "text-black"
           }`}
         >

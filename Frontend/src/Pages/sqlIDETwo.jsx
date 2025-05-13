@@ -587,7 +587,7 @@ function sqlIDETwo() {
               primary: "white",
               secondary: darkTheme ? "#7F1D1D" : "#EF4444",
             },
-            icon: "✕",
+            // icon: "✕",
             icon: (
               <button
                 className=" p-1 text-black  rounded-full bg-white  "

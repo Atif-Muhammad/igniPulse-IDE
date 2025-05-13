@@ -59,13 +59,14 @@ function TableDetail({ tables = [], views = [] }) {
               />
             )}
           </div>
-          <p
-            className={`text-sm tracking-widest font-bold truncate overflow-hidden whitespace-nowrap ${
+          <div
+            className={`text-sm tracking-widest font-bold overflow-x-auto whitespace-nowrap max-w-full no-scrollbar ${
               darkTheme ? "text-blue-300" : "text-[#194cd8]"
             }`}
+            style={{ scrollbarWidth: "none" }}
           >
             {capitalizeFirstLetter(detail.table)}
-          </p>
+          </div>
         </div>
 
         {visibleRows[index + offset] &&
@@ -95,14 +96,16 @@ function TableDetail({ tables = [], views = [] }) {
 
   return (
     <div
-      className={`w-full h-full overflow-auto rounded-lg border-2 px-2 py-1 ${
+      className={`w-full h-full overflow-y-auto overflow-x-hidden rounded-lg border-2 px-2 py-1 ${
         darkTheme
           ? "border-blue-500 bg-gray-800 text-gray-200"
           : "border-sky-700 bg-gray-100 text-gray-800"
       }`}
     >
       {/* Tables Section */}
-      {sectionHeader("Tables", showTables, () => setShowTables((prev) => !prev))}
+      {sectionHeader("Tables", showTables, () =>
+        setShowTables((prev) => !prev)
+      )}
       {showTables && renderDetails(tables, 0)}
 
       {/* Views Section */}
