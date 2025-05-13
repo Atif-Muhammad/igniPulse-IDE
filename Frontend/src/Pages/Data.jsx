@@ -12,9 +12,8 @@ const Data = ({ res }) => {
             darkTheme ? "bg-gray-800" : "bg-gray-50"
           }`}
         >
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-auto w-full flex-1">
             <table className="w-full table-auto border-collapse">
-              {/* Table Header */}
               <thead
                 className={`sticky top-0 z-10 ${
                   darkTheme ? "bg-blue-900" : "bg-[#194cd8]"
@@ -33,12 +32,6 @@ const Data = ({ res }) => {
                   ))}
                 </tr>
               </thead>
-            </table>
-          </div>
-
-          {/* Scrollable Table Body */}
-          <div className="overflow-auto w-full flex-1 max-h-[calc(100%-3rem)]">
-            <table className="w-full table-auto border-collapse">
               <tbody>
                 {res.map((row, rowIndex) => (
                   <tr

@@ -120,7 +120,7 @@ function PythonIDE() {
         lineDiv.style.color = "black";
         lineDiv.style.marginBottom = "5px";
         lineDiv.style.backgroundColor = "pink";
-        appendToGrid(lineDiv);
+        appendToOutputDivs(lineDiv);
       });
 
       const existingContentSpan = document.createElement("span");
@@ -181,12 +181,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true,
-      // });
-      socket.current = io("http://localhost:9000");
+      socket.current = io("https://igniup.com", {
+        path: "/socket.io/",
+        transports: ["websocket", "polling"],
+        withCredentials: true,
+      });
+      // socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("userInput", handleUser);

@@ -34,7 +34,10 @@ function TableDetail({ tables = [], views = [] }) {
 
   const renderDetails = (data, offset = 0) =>
     data.map((detail, index) => (
-      <div key={index + offset} className="flex flex-col items-end w-full mb-1 ms-3">
+      <div
+        key={index + offset}
+        className="flex flex-col items-end w-full mb-1 ms-3"
+      >
         <div
           className={`w-full flex items-center gap-x-2 cursor-pointer select-none py-3 px-3 rounded-md hover:bg-opacity-80 transition duration-200 ${
             darkTheme
@@ -43,13 +46,21 @@ function TableDetail({ tables = [], views = [] }) {
           }`}
           onClick={() => toggleVisibility(index + offset)}
         >
-          {visibleRows[index + offset] ? (
-            <Minus size={15} className={darkTheme ? "text-blue-300" : "text-[#0741df]"} />
-          ) : (
-            <Plus size={15} className={darkTheme ? "text-blue-300" : "text-[#0741df]"} />
-          )}
+          <div className="flex-shrink-0">
+            {visibleRows[index + offset] ? (
+              <Minus
+                size={15}
+                className={darkTheme ? "text-blue-300" : "text-[#0741df]"}
+              />
+            ) : (
+              <Plus
+                size={15}
+                className={darkTheme ? "text-blue-300" : "text-[#0741df]"}
+              />
+            )}
+          </div>
           <p
-            className={`text-sm tracking-widest font-bold ${
+            className={`text-sm tracking-widest font-bold truncate overflow-hidden whitespace-nowrap ${
               darkTheme ? "text-blue-300" : "text-[#194cd8]"
             }`}
           >
@@ -67,8 +78,14 @@ function TableDetail({ tables = [], views = [] }) {
                   : "border-[#194cd8] bg-[#E5E7EB] text-gray-500"
               }`}
             >
-              <span className="font-semibold text-sm tracking-wide">{col.column}</span>
-              <span className={`text-xs ${darkTheme ? "text-gray-400" : "text-gray-500"}`}>
+              <span className="font-semibold text-sm tracking-wide">
+                {col.column}
+              </span>
+              <span
+                className={`text-xs ${
+                  darkTheme ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
                 {`(${col.type})`}
               </span>
             </div>
