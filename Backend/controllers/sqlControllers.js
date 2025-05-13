@@ -2031,7 +2031,7 @@ INSERT INTO Students (registration, name, marks, college, nationality) VALUES (9
     `;
 
     const empView = `
-        create view ukEmployee as select  firstname,lastname , salary*21/100 as Tax, salary-(salary*21/100) as "Net Salary", Country from Employees where country='UK'
+        create view ukEmployees as select  firstname,lastname , salary*21/100 as Tax, salary-(salary*21/100) as "Net Salary", Country from Employees where country='UK'
     `
 
     const stuView = `

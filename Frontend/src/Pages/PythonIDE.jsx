@@ -119,7 +119,6 @@ function PythonIDE() {
         lineDiv.innerHTML = line.replace(/\n/g, "<br>");
         lineDiv.style.color = "black";
         lineDiv.style.marginBottom = "5px";
-        lineDiv.style.backgroundColor = "pink";
         appendToOutputDivs(lineDiv);
       });
 

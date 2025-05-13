@@ -13,6 +13,7 @@ import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { NavLink } from "react-router-dom";
 import config from "../../Config/config";
+import RefreshIcon from "../../public/RefreshIcon.svg";
 
 function LeftMenuSQL({
   handleCopy,
@@ -116,18 +117,15 @@ function LeftMenuSQL({
           >
             <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               <RefreshCcw className="text-white w-4 h-4 md:w-[16px] md:h-[16px]" />
+              {/* <img
+                src={RefreshIcon}
+                alt="RFERSH icon"
+                className=" w-full h-full"
+              /> */}
+              
             </div>
 
-            {/* Tooltip */}
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full rounded-t-lg hidden group-hover:block bg-[#2E60EB]  text-white text-sm px-2 py-0.5  shadow-md whitespace-nowrap z-50  text-center">
-              Refreshing <br /> tables
-            </div>
-
-            <p
-              className={`text-sm select-none hidden lg:block ${
-                darkTheme ? "text-gray-300" : "text-gray-700"
-              }`}
-            ></p>
+            
           </div>
         </div>
         {/* Bottom Section */}
