@@ -15,7 +15,7 @@ function createTablesAndSeedData(dbName, callback) {
     `;
 
     const employeeInserts = `
-        INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1001, 'Daniel', 'Wilson', 'IT', 75253, 'Liverpool', 'UK');
+INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1001, 'Daniel', 'Wilson', 'IT', 75253, 'Liverpool', 'UK');
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1002, 'James', 'Smith', 'IT', 70744, 'Los Angeles', 'USA');
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1003, 'Daniel', 'Smith', 'Marketing', 110898, 'London', 'UK');
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1004, 'James', 'Brown', 'Marketing', 77133, 'Munich', 'Germany');
@@ -2035,7 +2035,7 @@ INSERT INTO Students (registration, name, marks, college, nationality) VALUES (9
     `
 
     const stuView = `
-        create view StudentsData  as select registration as Regno,name,marks*100/150 as Percentage,nationality  from students
+        create view AustralianStudents as select registration as Regno,name,marks*100/150 as Percentage,nationality  from students where nationality = 'Australian';
     `
 
     // Execute all queries in sequence
