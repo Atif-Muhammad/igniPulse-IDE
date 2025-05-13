@@ -120,7 +120,7 @@ function PythonIDE() {
         lineDiv.style.color = "black";
         lineDiv.style.marginBottom = "5px";
         lineDiv.style.backgroundColor = "pink";
-        appendToGrid(lineDiv);
+        appendToOutputDivs(lineDiv);
       });
 
       const existingContentSpan = document.createElement("span");

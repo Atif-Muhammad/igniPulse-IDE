@@ -466,11 +466,11 @@ function sqlIDETwo() {
               />
               {/* </div> */}
               <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full lg:w-[94%] w-full ">
-                <div className="hidden md:block lg:block w-full md:w-[18%] h-full overflow-hidden">
+                <div className="hidden md:block lg:block w-full md:w-[25%] lg:w-[18%]  h-full overflow-hidden">
                   <TableDetail tables={tables} views={views} />
                 </div>
 
-                <div className="w-full md:w-[82%] flex flex-col gap-y-2 h-full">
+                <div className="w-full md:w-[75%] lg:w-[82%]  flex flex-col gap-y-2 h-full">
                   <div
                     className={`border-2 ${
                       darkTheme ? "border-blue-600" : "border-sky-700"
