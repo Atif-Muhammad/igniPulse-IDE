@@ -43,13 +43,13 @@ function LeftMenuSQL({
   return (
     <>
       <div
-        className={`border-2 w-full lg:w-16 h-13  md:h-16 lg:h-full rounded-lg md:flex-row-reverse overflow-hidden flex lg:flex-col items-center lg:justify-center justify-between lg:py-2  py-7 lg:px-0  px-3 gap-y-0 gap-x-2 lg:gap-y-3 ${
+        className={`border-2 w-full lg:w-16 h-13  md:h-16 lg:h-full rounded-lg md:flex-row-reverse overflow-hidden flex lg:flex-col items-center lg:justify-center justify-between lg:py-2  py-7 lg:px-0  px-2 gap-y-0 gap-x-2 lg:gap-y-2 ${
           darkTheme
             ? "border-blue-500 bg-gray-800"
             : "border-sky-700 bg-gray-100"
         }`}
       >
-        <div className="flex lg:flex-col justify-between  gap-4 flex-row ">
+        <div className="flex lg:flex-col justify-between gap-2   md:gap-3 flex-row ">
           {/* Home Button */}
           <NavLink
             to="/"
@@ -110,25 +110,29 @@ function LeftMenuSQL({
             </p>
           </div>
 
-          
           <div
-            className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
+            className="relative group flex flex-col items-center justify-center gap-y-1 cursor-pointer"
             onClick={handleRefresh}
           >
             <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
-              <RefreshCcw  className="text-white" size={16} />
+              <RefreshCcw className="text-white w-4 h-4 md:w-[16px] md:h-[16px]" />
             </div>
+
+            {/* Tooltip */}
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-full rounded-t-lg hidden group-hover:block bg-[#2E60EB]  text-white text-sm px-2 py-0.5  shadow-md whitespace-nowrap z-50  text-center">
+              Refreshing <br /> tables
+            </div>
+
             <p
               className={`text-sm select-none hidden lg:block ${
                 darkTheme ? "text-gray-300" : "text-gray-700"
               }`}
-            >
-            </p>
+            ></p>
           </div>
         </div>
         {/* Bottom Section */}
         <div className="flex  items-center  justify-center gap-x-2 lg:mt-auto  ml-auto lg:ml-0 md:ml-0">
-          {(TableDetail && tables && views) && (
+          {TableDetail && tables && views && (
             <>
               <div className="md:hidden lg:hidden flex">
                 <button
@@ -201,6 +205,7 @@ function LeftMenuSQL({
               Home
             </p>
           </NavLink>
+
           {/* Theme Toggle */}
           <div className="flex flex-col items-center justify-center lg:gap-y-1 cursor-pointer">
             <div

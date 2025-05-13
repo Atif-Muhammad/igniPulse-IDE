@@ -56,7 +56,6 @@ function PythonIDE() {
   };
 
   useEffect(() => {
-
     const handlePyResponse = (message) => {
       setDisable(false);
       setLoading(false);
@@ -182,12 +181,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("userInput", handleUser);
@@ -212,7 +211,7 @@ function PythonIDE() {
       setLoading(true);
       setShowOutput(true);
       setShouldRunCode(true);
-      if(socket.current){
+      if (socket.current) {
         socket.current.connect();
         socket.current.emit("runPy", editorContent);
       }
@@ -386,30 +385,21 @@ function PythonIDE() {
   };
 
   const fullHeightEditor = EditorView.theme({
+    "&": {
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+    },
     ".cm-scroller": {
-      maxHeight: "440px !important",
-      overflow: "auto !important",
+      flexGrow: 1,
+      overflow: "auto",
     },
     ".cm-content": {
-      minHeight: "440px !important",
+      minHeight: "100%",
       whiteSpace: "pre",
     },
     ".cm-gutter": {
-      minHeight: "440px !important",
-    },
-    ".cm-gutters": {
-      backgroundColor: darkTheme ? "#1E293B" : "#F1F5F9",
-      color: darkTheme ? "#94A3B8" : "#64748B",
-      borderRight: darkTheme ? "1px solid #334155" : "1px solid #E5E7EB",
-    },
-    ".cm-lineNumbers": {
-      fontSize: "0.875rem",
-      fontFamily: "monospace",
-    },
-    ".cm-activeLineGutter": {
-      backgroundColor: darkTheme ? "#3B82F6" : "#3B82F6",
-      color: "white !important",
-      padding: "2px 0px",
+      height: "100%",
     },
   });
 
@@ -454,7 +444,7 @@ function PythonIDE() {
           <Ads />
         </div>
 
-        <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1">
+        <div className="flex flex-col items-center justify-center h-full  min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
           <NavBar handleDownload={handleDownload} openFile={openFile} />
 
           <div
@@ -500,7 +490,7 @@ function PythonIDE() {
                     {editorBtns.map((btn, index) => (
                       <Button
                         key={index}
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold ${
+                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold ${
                           btn.text === "Execute"
                             ? "bg-[#10B335] hover:bg-green-600"
                             : "bg-[#FB2E38] hover:bg-[#FB2E10]"
@@ -529,7 +519,7 @@ function PythonIDE() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0 w-full overflow-hidden rounded-lg">
+                <div className="flex-1 min-h-[300px] sm:min-h-0 w-full overflow-hidden rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
                     className="w-full h-full text-[1rem] scrollbar-custom"
@@ -551,7 +541,7 @@ function PythonIDE() {
               </div>
 
               <div
-                className={`hidden md:flex flex-col h-full flex-[3] min-w-0 border-2 ${
+                className={`hidden md:flex flex-col h-full flex-[4] min-w-0 border-2 ${
                   darkTheme
                     ? "border-blue-600 bg-gray-800"
                     : "border-sky-700 bg-white"
@@ -578,7 +568,7 @@ function PythonIDE() {
                 </div>
                 <div
                   id="outputDivDesktop"
-                  className={`flex-1 w-full overflow-y-auto ${
+                  className={`flex-1  w-full overflow-y-auto ${
                     darkTheme
                       ? "text-gray-200 bg-gray-800"
                       : "text-black bg-white"
