@@ -13,7 +13,7 @@ import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { NavLink } from "react-router-dom";
 import config from "../../Config/config";
-import RefreshIcon from "../../public/icon4.svg";
+import RefreshIcon from "../../public/icon5.svg";
 
 function LeftMenuSQL({
   handleCopy,

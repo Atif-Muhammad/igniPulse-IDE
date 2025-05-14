@@ -51,8 +51,13 @@ function PythonIDE() {
     const desktop = document.getElementById("outputDivDesktop");
     const mobile = document.getElementById("outputDivMobile");
 
+    
     if (desktop) desktop.appendChild(el);
     if (mobile) mobile.appendChild(clone);
+    // Add styling to ensure proper display
+    el.style.display = "block";
+    el.style.width = "100%";
+    el.style.wordBreak = "break-word";
   };
 
   useEffect(() => {
@@ -74,12 +79,12 @@ function PythonIDE() {
       res.innerHTML = formattedMessage;
       res.style.paddingBottom = "6px";
       res.style.padding = "5px";
-      res.style.wordWrap = "break-word";
-      res.style.overflowWrap = "break-word";
-      res.style.whiteSpace = "pre-wrap";
-      res.style.wordBreak = "break-word";
-      res.style.width = "100%";
-      res.style.maxWidth = "100%";
+      // res.style.whiteSpace = "pre";
+      // res.style.wordBreak = "normal";
+      // res.style.overflowWrap = "break-word";// disable word breaking
+      res.style.width = "100%"; // make div as wide as content
+      // res.style.maxWidth = "100%";
+
 
       // document.getElementById("outputDiv").appendChild(res);
       appendToOutputDivs(res);
@@ -127,16 +132,16 @@ function PythonIDE() {
       existingContentSpan.textContent = lines[lines.length - 1];
       existingContentSpan.setAttribute("contenteditable", "false");
       existingContentSpan.style.backgroundColor = "transparent";
-      existingContentSpan.style.whiteSpace = "pre-wrap";
-      existingContentSpan.style.wordBreak = "break-word";
+      existingContentSpan.style.whiteSpace = "pre";
+      existingContentSpan.style.wordBreak = "normal";
       existingContentSpan.style.overflowWrap = "break-word";
       existingContentSpan.style.boxSizing = "border-box";
       existingContentSpan.style.display = "inline";
 
       const promptLabel = document.createElement("span");
       promptLabel.className = "prompt-label";
-      promptLabel.style.whiteSpace = "pre-wrap";
-      promptLabel.style.wordBreak = "break-word";
+      promptLabel.style.whiteSpace = "pre";
+      promptLabel.style.wordBreak = "normal";
       promptLabel.style.overflowWrap = "break-word";
       promptLabel.style.boxSizing = "border-box";
       promptLabel.setAttribute("contenteditable", "true");
@@ -567,11 +572,18 @@ function PythonIDE() {
                 </div>
                 <div
                   id="outputDivDesktop"
-                  className={`flex-1  w-full overflow-y-auto ${
+                  className={`flex-1 w-full overflow-auto ${
                     darkTheme
                       ? "text-gray-200 bg-gray-800"
                       : "text-black bg-white"
                   }`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    whiteSpace: "pre",
+                    wordBreak: "break-word",
+                    overflow: "auto",
+                  }}
                 ></div>
               </div>
             </div>
@@ -617,6 +629,7 @@ function PythonIDE() {
                     </button>
                   </div>
                 </div>
+
                 <div
                   id="outputDivMobile"
                   className={`flex-1 w-full overflow-auto ${
@@ -624,6 +637,13 @@ function PythonIDE() {
                       ? "text-gray-200 bg-gray-800"
                       : "text-black bg-white"
                   }`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    whiteSpace: "pre",
+                    wordBreak: "break-word",
+                    // overflow: "auto",
+                  }}
                 ></div>
               </div>
             )}
