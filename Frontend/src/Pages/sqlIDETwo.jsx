@@ -459,7 +459,7 @@ function sqlIDETwo() {
                 handlePaste={handlePaste}
                 copyDone={copyDone}
                 pasteDone={pasteDone}
-                TableDetail={TableDetail}
+                // TableDetail={TableDetail}
                 tables={tables}
                 views={views}
                 getTables={getTables}

@@ -14,6 +14,8 @@ import { useTheme } from "../context/ThemeContext";
 import { NavLink } from "react-router-dom";
 import config from "../../Config/config";
 import RefreshIcon from "../../public/icon5.svg";
+import TableDetail from "../Pages/TableDetail";
+import db_icon from "../assets/new_db.png";
 
 function LeftMenuSQL({
   handleCopy,
@@ -21,19 +23,18 @@ function LeftMenuSQL({
   pasteDone,
   copyDone,
   tables,
-  getTables,
   views,
-  TableDetail,
+  getTables,
   setLoadingDB
 }) {
   const [showTable, setShowTable] = useState(false);
   const { darkTheme, toggleTheme } = useTheme();
 
-  const handleRefresh = ()=>{
+  const handleRefresh = async ()=>{
     setLoadingDB(true)
     const unq_id = window.localStorage.unique_id;
     // console.log(unq_id)
-    config.refreshTables(unq_id).then(res=>{
+    await config.refreshTables(unq_id).then(res=>{
       // console.log(res)
       getTables(res.data)
     }).catch(err=>{
@@ -117,7 +118,7 @@ function LeftMenuSQL({
           >
             <div className="flex items-center justify-center p-2 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               {/* <RefreshCcw className="text-white w-4 h-4 md:w-[16px] md:h-[16px]" /> */}
-              <img src={RefreshIcon} alt="Refresh icon" className="w-8 h-8 " />
+              <img src={db_icon} alt="Refresh icon" className="w-8 h-7" />
             </div>
             <p
               className={`text-sm text-center select-none hidden lg:block ${
