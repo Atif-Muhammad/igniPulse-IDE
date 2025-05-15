@@ -134,12 +134,13 @@ function sqlIDETwo() {
   };
 
   const getTables = (database) => {
-    // console.log(db);
+    // console.log(database);
     Config.getTables(database)
       .then((res) => {
         if (res.status === 200) {
           const { tables, views } = res.data;
           // console.log("tables:",tables);
+          // console.log("views:",views);
 
           dispTables(tables, views);
           setLoadingDB(false);

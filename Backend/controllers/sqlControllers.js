@@ -2067,11 +2067,11 @@ exports.refTabs = async (req, res) => {
     const { db_id } = req.query;
     connection.query(`use ${db_id};`, (err) => {
         if (err) return res.send(err);
-        connection.query('drop view if exists ukEmployee;', (err) => {
+        connection.query('drop view if exists ukEmployees;', (err) => {
             if (err) return res.send(err);
             connection.query('drop table if exists employees;', (err) => {
                 if (err) return res.send(err);
-                connection.query('drop view if exists StudentsData;', (err) => {
+                connection.query('drop view if exists australianstudents;', (err) => {
                     if (err) return res.send(err);
                     connection.query('drop table if exists students;', (err) => {
                         if (err) return res.send(err);
