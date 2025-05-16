@@ -8,10 +8,9 @@ import {
   EditorView,
   highlightActiveLineGutter,
   lineNumbers,
-  keymap,
+  keymap
 } from "@codemirror/view";
-import { defaultKeymap } from "@codemirror/commands";
-import { indentOnInput } from "@codemirror/language";
+import { EditorSelection } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 
 import py from "../assets/py.svg";
@@ -20,6 +19,44 @@ import NavBar from "../components/NavBar";
 import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
+
+
+
+
+const insertSpacesAtCursor = keymap.of([
+  {
+    key: "Tab",
+    preventDefault: true,
+    run(view) {
+      console.log("first")
+      const indent = "    "; 
+
+      const { state } = view;
+
+      const transaction = state.changeByRange((range) => {
+        if (range.empty) {
+          // Insert indent at the cursor position
+          return {
+            changes: { from: range.from, insert: indent },
+            range: EditorSelection.cursor(range.from + indent.length),
+          };
+        } else {
+          // Replace selected text with indent
+          return {
+            changes: { from: range.from, to: range.to, insert: indent },
+            range: EditorSelection.cursor(range.from + indent.length),
+          };
+        }
+      });
+
+      view.dispatch(transaction);
+      return true;
+    },
+  },
+]);
+
+
+
 
 function PythonIDE() {
   const { darkTheme } = useTheme();
@@ -51,7 +88,6 @@ function PythonIDE() {
     const desktop = document.getElementById("outputDivDesktop");
     const mobile = document.getElementById("outputDivMobile");
 
-    
     if (desktop) desktop.appendChild(el);
     if (mobile) mobile.appendChild(clone);
     // Add styling to ensure proper display
@@ -84,7 +120,6 @@ function PythonIDE() {
       // res.style.overflowWrap = "break-word";// disable word breaking
       res.style.width = "100%"; // make div as wide as content
       // res.style.maxWidth = "100%";
-
 
       // document.getElementById("outputDiv").appendChild(res);
       appendToOutputDivs(res);
@@ -122,7 +157,6 @@ function PythonIDE() {
       lines.slice(0, -1).forEach((line) => {
         const lineDiv = document.createElement("div");
         lineDiv.innerHTML = line.replace(/\n/g, "<br>");
-        lineDiv.style.color = "black";
         lineDiv.style.marginBottom = "5px";
         appendToOutputDivs(lineDiv);
       });
@@ -185,12 +219,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("userInput", handleUser);
@@ -523,7 +557,7 @@ function PythonIDE() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-[300px] sm:min-h-0 w-full overflow-hidden rounded-lg">
+                <div className="flex-1 min-h-[300px] sm:min-h-0 h-full w-full overflow-hidden rounded-lg">
                   <CodeMirror
                     defaultValue={editorContent}
                     className="w-full h-full text-[1rem] scrollbar-custom"
@@ -533,8 +567,8 @@ function PythonIDE() {
                       customScrollbar,
                       highlightActiveLineGutter(),
                       lineNumbers(),
-                      keymap.of(defaultKeymap),
-                      indentOnInput(),
+                      insertSpacesAtCursor,
+                      
                     ]}
                     onChange={setEditorContent}
                     onCreateEditor={(editor) => {
@@ -572,7 +606,7 @@ function PythonIDE() {
                 </div>
                 <div
                   id="outputDivDesktop"
-                  className={`flex-1 w-full overflow-auto ${
+                  className={`flex-1 w-full h-full overflow-auto ${
                     darkTheme
                       ? "text-gray-200 bg-gray-800"
                       : "text-black bg-white"

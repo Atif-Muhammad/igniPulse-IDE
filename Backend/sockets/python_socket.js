@@ -19,7 +19,7 @@ ${data}
     });
 
     const execPy = (socket, code) => {
-      const pyProcess = spawn("python3", ["-u", "-c", code], {
+      const pyProcess = spawn("python", ["-u", "-c", code], {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
@@ -39,7 +39,14 @@ ${data}
             outputCheck.replace("INPUT_REQUEST", "").trim()
           );
         } else {
-          fullOutput += data.toString();
+          // fullOutput += data.toString();
+          const lines = data.toString().split(/\r?\n/);
+          lines.forEach((line) => {
+            if (line.trim()) {
+              socket.emit("pyResponse", line);
+            }
+          });
+
         }
       });
 
@@ -47,7 +54,7 @@ ${data}
       const handleUserEntry = (userInput) => {
         if (expectingEntry) {
           console.log("Received input from user:", userInput);
-          pyProcess.stdin.write(userInput + "\n"); 
+          pyProcess.stdin.write(userInput + "\n");
           expectingEntry = false;
         }
       };
@@ -68,16 +75,17 @@ ${data}
 
       // Handle process exit
       pyProcess.on("close", (code) => {
-        if (errorOutput.trim() && fullOutput.trim()) {
-          socket.emit("pyResponse", fullOutput.trim());
+        if (errorOutput.trim()) {
+        //   socket.emit("pyResponse", fullOutput.trim());
           socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
-        } else {
-          if (errorOutput.trim()) {
-            socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
-          } else if (fullOutput.trim()) {
-            socket.emit("pyResponse", fullOutput.trim());
-          }
-        }
+        } 
+        // else {
+        //   if (errorOutput.trim()) {
+        //     socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
+        //   } else if (fullOutput.trim()) {
+        //     socket.emit("pyResponse", fullOutput.trim());
+        //   }
+        // }
 
         socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
       });

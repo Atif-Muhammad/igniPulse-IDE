@@ -11,7 +11,9 @@
 
 
 
-
+.cm-content {
+  tab-size: 2;
+}
 
 /* Custom scrollbar styles */
 .scrollbar-custom::-webkit-scrollbar {
