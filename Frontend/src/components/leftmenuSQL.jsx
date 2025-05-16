@@ -13,7 +13,6 @@ import { React, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { NavLink } from "react-router-dom";
 import config from "../../Config/config";
-import RefreshIcon from "../../public/icon5.svg";
 import TableDetail from "../Pages/TableDetail";
 import db_icon from "../assets/new_db.png";
 
@@ -25,40 +24,43 @@ function LeftMenuSQL({
   tables,
   views,
   getTables,
-  setLoadingDB
+  setLoadingDB,
 }) {
   const [showTable, setShowTable] = useState(false);
   const { darkTheme, toggleTheme } = useTheme();
 
-  const handleRefresh = async ()=>{
-    setLoadingDB(true)
+  const handleRefresh = async () => {
+    setLoadingDB(true);
     const unq_id = window.localStorage.unique_id;
     // console.log(unq_id)
-    await config.refreshTables(unq_id).then(res=>{
-      // console.log(res)
-      getTables(res.data)
-    }).catch(err=>{
-      console.log(err)
-    }) 
-  }
+    await config
+      .refreshTables(unq_id)
+      .then((res) => {
+        // console.log(res)
+        getTables(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <>
       <div
-        className={`border-2 w-full lg:w-16 h-13  md:h-16 lg:h-full rounded-lg md:flex-row-reverse overflow-hidden flex lg:flex-col items-center lg:justify-center justify-between lg:py-2  py-7 lg:px-0  px-2 gap-y-0 gap-x-2 lg:gap-y-2 ${
+        className={`border-2 w-full lg:w-16 h-13  md:h-16 lg:h-full rounded-lg md:flex-row-reverse overflow-hidden flex lg:flex-col items-center lg:justify-between justify-between lg:py-2  py-7 lg:px-0  px-2 gap-y-0 gap-x-2 lg:gap-y-2 ${
           darkTheme
             ? "border-blue-500 bg-gray-800"
             : "border-sky-700 bg-gray-100"
         }`}
       >
-        <div className="flex lg:flex-col justify-between gap-2   md:gap-3 flex-row ">
+        <div className="flex lg:flex-col justify-between gap-1 md:gap-3 flex-row ">
           {/* Home Button */}
           <NavLink
             to="/"
             className=" flex-col lg:flex hidden items-center justify-center gap-y-1 cursor-pointer"
             data-aos="fade-up"
           >
-            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            <div className="flex items-center justify-center md:p-3.5 p-3 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               <HomeIcon className="text-white" size={16} />
             </div>
             <p
@@ -75,7 +77,7 @@ function LeftMenuSQL({
             className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
             onClick={handleCopy}
           >
-            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            <div className="flex items-center justify-center md:p-3.5 p-3 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               {copyDone ? (
                 <CheckCheckIcon className="text-white" size={16} />
               ) : (
@@ -96,7 +98,7 @@ function LeftMenuSQL({
             className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
             onClick={handlePaste}
           >
-            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            <div className="flex items-center justify-center md:p-3.5 p-3 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               {pasteDone ? (
                 <CheckCheckIcon className="text-white" size={16} />
               ) : (
@@ -118,7 +120,7 @@ function LeftMenuSQL({
           >
             <div className="flex items-center justify-center p-2 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               {/* <RefreshCcw className="text-white w-4 h-4 md:w-[16px] md:h-[16px]" /> */}
-              <img src={db_icon} alt="Refresh icon" className="w-8 h-7" />
+              <img src={db_icon} alt="Refresh icon" className="md:w-8 md:h-7  w-7 h-6  " />
             </div>
             <p
               className={`text-sm text-center select-none hidden lg:block ${
@@ -130,7 +132,7 @@ function LeftMenuSQL({
           </div>
         </div>
         {/* Bottom Section */}
-        <div className="flex  items-center  justify-center gap-x-2 lg:mt-auto  ml-auto lg:ml-0 md:ml-0">
+        <div className="flex  items-center  justify-center gap-x-1 md:gap-x-2 ">
           {TableDetail && tables && views && (
             <>
               <div className="md:hidden lg:hidden flex">
@@ -193,7 +195,7 @@ function LeftMenuSQL({
             className="flex flex-col  lg:hidden items-center justify-center gap-y-1 cursor-pointer"
             data-aos="fade-up"
           >
-            <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            <div className="flex items-center justify-center md:p-3.5 p-3 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               <HomeIcon className="text-white" size={16} />
             </div>
             <p
@@ -208,7 +210,7 @@ function LeftMenuSQL({
           {/* Theme Toggle */}
           <div className="flex flex-col items-center justify-center lg:gap-y-1 cursor-pointer">
             <div
-              className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full cursor-pointer"
+              className="flex items-center justify-center md:p-3.5 p-3 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full cursor-pointer"
               onClick={toggleTheme}
             >
               {darkTheme ? (
