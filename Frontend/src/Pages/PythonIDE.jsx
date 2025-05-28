@@ -19,6 +19,7 @@ import NavBar from "../components/NavBar";
 import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
+import { useLocation } from "react-router-dom";
 
 const insertSpacesAtCursor = keymap.of([
   {
@@ -53,6 +54,9 @@ const insertSpacesAtCursor = keymap.of([
 ]);
 
 function PythonIDE() {
+  const location = useLocation();
+  const editorType = location.state || "gen";
+
   const { darkTheme } = useTheme();
   const editorRef = useRef(null);
   const [tickerSuccess, setTickerSuccess] = useState({
@@ -67,7 +71,7 @@ function PythonIDE() {
   const [shouldRunCode, setShouldRunCode] = useState(false);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [showGraph, setShowGraph] = useState(true);
+  const [showGraph, setShowGraph] = useState(false);
   const [graphData, setGraphData] = useState(null);
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
 
@@ -255,7 +259,7 @@ function PythonIDE() {
       setShouldRunCode(true);
       if (socket.current) {
         socket.current.connect();
-        socket.current.emit("runPy", editorContent, "ds");
+        socket.current.emit("runPy", editorContent, editorType);
       }
     }
   };
@@ -525,7 +529,7 @@ function PythonIDE() {
                         darkTheme ? "text-white" : "text-black"
                       }`}
                     >
-                      Python
+                      {editorType === "ds" ? "Python Data Science" : "Python"}
                     </p>
                   </div>
                   <div className="flex items-center justify-center gap-x-2">

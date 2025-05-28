@@ -20,7 +20,6 @@ function Model() {
   const [lastMouseX, setLastMouseX] = useState(null);
   const [rotationSpeed, setRotationSpeed] = useState(0.09); // default slow spin
   const friction = 0.98; // decays swipe spin slowly
-  
 
   useFrame(() => {
     if (ref.current) {
@@ -70,18 +69,21 @@ const LandingPage = () => {
 
   const cards = [
     {
+      id: "gen",
       name: "Python for Beginners",
       desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
       link: "/python",
       logo: py,
     },
     {
+      id: "sql",
       name: "SQL",
       desc: "A simple tool to learn how to work with databases. Practice writing queries, explore tables, and understand how data is stored and managed.",
       link: "/sql",
       logo: sql,
     },
     {
+      id: "ds",
       name: "Python for Data Science",
       desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
       link: "/python",
@@ -182,17 +184,23 @@ const LandingPage = () => {
                       darkTheme ? "bg-gray-700" : "bg-gray-300"
                     }`}
                   >
-                    {card.name.toLowerCase() === "python for beginners" ? (
+                    {card.id.toLowerCase() === "gen" ? (
                       <img
                         src={pyVid}
                         alt="Python tutorial"
                         className="w-full h-full "
                       />
-                    ) : card.name.toLowerCase() === "sql" ? (
+                    ) : card.id.toLowerCase() === "sql" ? (
                       <img
                         src={sqlVid}
                         alt="SQL tutorial"
                         className="w-full h-full "
+                      />
+                    ) : card.id.toLowerCase() === "ds" ? (
+                      <img
+                        src=""
+                        alt="python datascience video"
+                        className="w-full h-full"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -219,6 +227,7 @@ const LandingPage = () => {
                   </p>
                   <NavLink
                     to={card.link}
+                    state={card.id === "ds" ? "ds" : "gen"}
                     className="bg-blue-600 text-white text-center w-full py-2 rounded-md hover:bg-blue-700 transition"
                   >
                     <p>Get Started</p>
@@ -228,9 +237,8 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      
+              
+      </div>
     </>
   );
 };
