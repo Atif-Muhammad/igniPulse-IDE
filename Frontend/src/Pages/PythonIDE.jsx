@@ -1,5 +1,5 @@
 import { React, useState, useRef, useEffect } from "react";
-import { CirclePlay, Eraser, X } from "lucide-react";
+import { CirclePlay, Eraser, X, Maximize2, Minimize2 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useTheme } from "../context/ThemeContext";
 import CodeMirror from "@uiw/react-codemirror";
@@ -8,7 +8,7 @@ import {
   EditorView,
   highlightActiveLineGutter,
   lineNumbers,
-  keymap
+  keymap,
 } from "@codemirror/view";
 import { EditorSelection } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -20,16 +20,13 @@ import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
 
-
-
-
 const insertSpacesAtCursor = keymap.of([
   {
     key: "Tab",
     preventDefault: true,
     run(view) {
-      console.log("first")
-      const indent = "    "; 
+      console.log("first");
+      const indent = "    ";
 
       const { state } = view;
 
@@ -70,8 +67,9 @@ function PythonIDE() {
   const [shouldRunCode, setShouldRunCode] = useState(false);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [showGraph, setShowGraph] = useState(false);
+  const [showGraph, setShowGraph] = useState(true);
   const [graphData, setGraphData] = useState(null);
+  const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
 
   const clearOutput = () => {
     const desktopOutput = document.getElementById("outputDivDesktop");
@@ -127,7 +125,7 @@ function PythonIDE() {
     const handleExitSuccess = () => {
       setLoading(false);
       const exitMsg = document.createElement("p");
-      exitMsg.innerText = "--- Program Exited Successfully ---";
+      exitMsg.innerText = "--- Program Executed Successfully ---";
       exitMsg.style.fontWeight = "bold";
       exitMsg.style.marginTop = "10px";
       exitMsg.style.textAlign = "start";
@@ -218,9 +216,9 @@ function PythonIDE() {
     };
 
     const handleGraphOutput = (imageData) => {
-      setShowGraph(true)
+      setShowGraph(true);
       setGraphData(imageData);
-    }
+    };
 
     if (!socket.current) {
       // socket.current = io("https://igniup.com", {
@@ -574,7 +572,6 @@ function PythonIDE() {
                       highlightActiveLineGutter(),
                       lineNumbers(),
                       insertSpacesAtCursor,
-                      
                     ]}
                     onChange={setEditorContent}
                     onCreateEditor={(editor) => {
@@ -592,9 +589,9 @@ function PythonIDE() {
                 } rounded-lg p-2 gap-y-1`}
               >
                 <div
-                  className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
+                  className={`h-14 w-full flex items-center justify-between gap-x-2 rounded-lg ${
                     darkTheme ? "bg-gray-700" : "bg-gray-200"
-                  } px-2`}
+                  } px-2 `}
                 >
                   <p
                     className={`font-black px-1 ${
@@ -694,9 +691,100 @@ function PythonIDE() {
           <Ads />
         </div>
       </div>
-      {showGraph && <div className="bg-red-300 absolute top-0 w-fit h-fit flex items-center justify-center">
-        <img src={graphData} alt="cannot display the graph" />
-      </div>}
+
+      {showGraph && (
+        <div
+          className={`fixed ${
+            isGraphFullscreen
+              ? "inset-0"
+              : "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          } 
+        ${darkTheme ? "bg-gray-800" : "bg-white"} 
+        ${isGraphFullscreen ? "w-full h-full" : "w-1/2 h-2/3"} 
+        shadow-2xl rounded-lg z-50 flex flex-col`}
+          style={!isGraphFullscreen ? { cursor: "move" } : {}}
+          onMouseDown={
+            !isGraphFullscreen
+              ? (e) => {
+                  if (
+                    e.target === e.currentTarget ||
+                    e.target.className.includes("flex justify-between")
+                  ) {
+                    const modal = e.currentTarget;
+                    let offsetX =
+                      e.clientX - modal.getBoundingClientRect().left;
+                    let offsetY = e.clientY - modal.getBoundingClientRect().top;
+
+                    function moveModal(e) {
+                      modal.style.left = `${e.clientX - offsetX}px`;
+                      modal.style.top = `${e.clientY - offsetY}px`;
+                      modal.style.transform = "none";
+                    }
+
+                    function stopMove() {
+                      document.removeEventListener("mousemove", moveModal);
+                      document.removeEventListener("mouseup", stopMove);
+                    }
+
+                    document.addEventListener("mousemove", moveModal);
+                    document.addEventListener("mouseup", stopMove);
+                  }
+                }
+              : undefined
+          }
+        >
+          <div
+            className={`flex justify-between items-center p-2 ${
+              darkTheme ? "bg-gray-700" : "bg-gray-200"
+            } rounded-t-lg cursor-move`}
+          >
+            <h3
+              className={`font-bold ${darkTheme ? "text-white" : "text-black"}`}
+            >
+              Graph Output
+            </h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsGraphFullscreen(!isGraphFullscreen)}
+                className="p-1 rounded hover:bg-gray-600"
+              >
+                {isGraphFullscreen ? (
+                  <Minimize2
+                    size={20}
+                    className={darkTheme ? "text-white" : "text-black"}
+                  />
+                ) : (
+                  <Maximize2
+                    size={20}
+                    className={darkTheme ? "text-white" : "text-black"}
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setShowGraph(false);
+                  setIsGraphFullscreen(false);
+                }}
+                className="p-1 rounded hover:bg-gray-600"
+              >
+                <X
+                  size={20}
+                  className={darkTheme ? "text-white" : "text-black"}
+                />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+            <img
+              src={graphData}
+              alt="Graph output"
+              className={`${
+                isGraphFullscreen ? "max-h-[90vh]" : "max-h-full"
+              } max-w-full object-contain`}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

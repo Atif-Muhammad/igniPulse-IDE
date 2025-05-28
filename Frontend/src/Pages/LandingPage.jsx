@@ -70,7 +70,7 @@ const LandingPage = () => {
 
   const cards = [
     {
-      name: "Python",
+      name: "Python for Beginners",
       desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
       link: "/python",
       logo: py,
@@ -80,6 +80,12 @@ const LandingPage = () => {
       desc: "A simple tool to learn how to work with databases. Practice writing queries, explore tables, and understand how data is stored and managed.",
       link: "/sql",
       logo: sql,
+    },
+    {
+      name: "Python for Data Science",
+      desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
+      link: "/python",
+      logo: py,
     },
   ];
 
@@ -176,7 +182,7 @@ const LandingPage = () => {
                       darkTheme ? "bg-gray-700" : "bg-gray-300"
                     }`}
                   >
-                    {card.name.toLowerCase() === "python" ? (
+                    {card.name.toLowerCase() === "python for beginners" ? (
                       <img
                         src={pyVid}
                         alt="Python tutorial"
