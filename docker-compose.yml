@@ -9,7 +9,7 @@ services:
     container_name: backend_container
     build: 
       context: ./Backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.node
     ports:
       - "9000:9000"
     depends_on:
@@ -32,6 +32,25 @@ services:
       - ./mysql-conf.d:/etc/mysql/conf.d
       - sql_volume:/var/lib/mysql
     command: --lower_case_table_names=1
+
+  python-gen:
+    image: python-gen
+    build: 
+      context: .
+      dockerfile: Dockerfile.gen
+      stdin_open: true
+      tty: true
+
+  python-ds:
+    image: python-ds
+    build:
+      context: .
+      dockerfile: Dockerfile.ds
+    stdin_open: true
+    tty: true
+  volumes:
+    - ./Backend/temps:/app/temps
+
 
 volumes:
   sql_volume:

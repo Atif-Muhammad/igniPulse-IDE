@@ -13,7 +13,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useState } from "react";
 
 function Model() {
-  const fbx = useLoader(FBXLoader, "/rocket.fbx");
+  const fbx = useLoader(FBXLoader, "/rocket2.fbx");
   const ref = useRef();
 
   const [isHovered, setIsHovered] = useState(false);
@@ -51,7 +51,7 @@ function Model() {
   return (
     <group
       ref={ref}
-      scale={0.012}
+      scale={0.009}
       position={[0, 0, 0]}
       onPointerOver={() => setIsHovered(true)}
       onPointerOut={() => {
@@ -89,7 +89,7 @@ const LandingPage = () => {
       <div className="md:block md:w-1/2   md:h-1/2   h-1/3 absolute lg:top-3 md:top-5 top-28  md:right-20 -right-10  z-10 pointer-events-none">
         <Canvas
           className="absolute inset-0   z-0"
-          camera={{ position: [5, -2, 1] }}
+          camera={{ position: [3, -2, 1] }}
         >
           <ambientLight intensity={1} />
           <directionalLight position={[0, 0, 3]} intensity={2} />

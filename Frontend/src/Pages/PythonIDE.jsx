@@ -55,9 +55,6 @@ const insertSpacesAtCursor = keymap.of([
   },
 ]);
 
-
-
-
 function PythonIDE() {
   const { darkTheme } = useTheme();
   const editorRef = useRef(null);
@@ -73,6 +70,8 @@ function PythonIDE() {
   const [shouldRunCode, setShouldRunCode] = useState(false);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [showGraph, setShowGraph] = useState(false);
+  const [graphData, setGraphData] = useState(null);
 
   const clearOutput = () => {
     const desktopOutput = document.getElementById("outputDivDesktop");
@@ -218,14 +217,20 @@ function PythonIDE() {
       });
     };
 
+    const handleGraphOutput = (imageData) => {
+      setShowGraph(true)
+      setGraphData(imageData);
+    }
+
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
+      socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("userInput", handleUser);
     }
@@ -233,6 +238,7 @@ function PythonIDE() {
     return () => {
       if (socket.current) {
         socket.current?.off("pyResponse", handlePyResponse);
+        socket.current?.off("graphOutput", handleGraphOutput);
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
         socket.current?.off("userInput", handleUser);
         socket.current?.disconnect();
@@ -251,7 +257,7 @@ function PythonIDE() {
       setShouldRunCode(true);
       if (socket.current) {
         socket.current.connect();
-        socket.current.emit("runPy", editorContent);
+        socket.current.emit("runPy", editorContent, "ds");
       }
     }
   };
@@ -688,6 +694,9 @@ function PythonIDE() {
           <Ads />
         </div>
       </div>
+      {showGraph && <div className="bg-red-300 absolute top-0 w-fit h-fit flex items-center justify-center">
+        <img src={graphData} alt="cannot display the graph" />
+      </div>}
     </>
   );
 }
