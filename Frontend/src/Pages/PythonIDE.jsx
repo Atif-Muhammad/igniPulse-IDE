@@ -433,25 +433,33 @@ function PythonIDE() {
   const fullHeightEditor = EditorView.theme({
     "&": {
       height: "100%",
+      maxHeight: "100%",
       display: "flex",
       flexDirection: "column",
     },
     ".cm-scroller": {
-      flexGrow: 1,
+      flex: 1,
       overflow: "auto",
+      minHeight: "0",
     },
     ".cm-content": {
-      minHeight: "100%",
-      whiteSpace: "pre",
+      flex: 1,
+      minHeight: "0",
     },
-    ".cm-gutter": {
+    ".cm-gutters": {
       height: "100%",
     },
   });
 
   const customScrollbar = EditorView.theme({
+    "&.cm-editor": {
+      height: "100%",
+      maxHeight: "100%",
+    },
     ".cm-scroller": {
-      scrollbarWidth: "thin",
+      overflow: "auto",
+      flex: "1 1 auto",
+      minHeight: "0",
     },
     "::-webkit-scrollbar": {
       width: "8px",
@@ -489,7 +497,6 @@ function PythonIDE() {
         <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
           <Ads />
         </div>
-
         <div className="flex flex-col items-center justify-center h-full  min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
           <NavBar handleDownload={handleDownload} openFile={openFile} />
 
@@ -569,6 +576,10 @@ function PythonIDE() {
                   <CodeMirror
                     defaultValue={editorContent}
                     className="w-full h-full text-[1rem] scrollbar-custom"
+                    style={{
+                      height: "100%",
+                      overflow: "auto",
+                    }}
                     theme={darkTheme ? oneDark : "light"}
                     extensions={[
                       fullHeightEditor,
@@ -706,41 +717,11 @@ function PythonIDE() {
         ${darkTheme ? "bg-gray-800" : "bg-white"} 
         ${isGraphFullscreen ? "w-full h-full" : "w-1/2 h-2/3"} 
         shadow-2xl rounded-lg z-50 flex flex-col`}
-          style={!isGraphFullscreen ? { cursor: "move" } : {}}
-          onMouseDown={
-            !isGraphFullscreen
-              ? (e) => {
-                  if (
-                    e.target === e.currentTarget ||
-                    e.target.className.includes("flex justify-between")
-                  ) {
-                    const modal = e.currentTarget;
-                    let offsetX =
-                      e.clientX - modal.getBoundingClientRect().left;
-                    let offsetY = e.clientY - modal.getBoundingClientRect().top;
-
-                    function moveModal(e) {
-                      modal.style.left = `${e.clientX - offsetX}px`;
-                      modal.style.top = `${e.clientY - offsetY}px`;
-                      modal.style.transform = "none";
-                    }
-
-                    function stopMove() {
-                      document.removeEventListener("mousemove", moveModal);
-                      document.removeEventListener("mouseup", stopMove);
-                    }
-
-                    document.addEventListener("mousemove", moveModal);
-                    document.addEventListener("mouseup", stopMove);
-                  }
-                }
-              : undefined
-          }
         >
           <div
             className={`flex justify-between items-center p-2 ${
               darkTheme ? "bg-gray-700" : "bg-gray-200"
-            } rounded-t-lg cursor-move`}
+            } rounded-t-lg `}
           >
             <h3
               className={`font-bold ${darkTheme ? "text-white" : "text-black"}`}
