@@ -11,6 +11,7 @@ import { FBXLoader } from "three-stdlib";
 import { useLoader, useFrame } from "@react-three/fiber";
 import { useTheme } from "../context/ThemeContext";
 import { useState } from "react";
+import DataScience from "../assets/DataScience.webp";
 
 function Model() {
   const fbx = useLoader(FBXLoader, "/rocket2.fbx");
@@ -198,7 +199,7 @@ const LandingPage = () => {
                       />
                     ) : card.id.toLowerCase() === "ds" ? (
                       <img
-                        src=""
+                        src={DataScience}
                         alt="python datascience video"
                         className="w-full h-full"
                       />

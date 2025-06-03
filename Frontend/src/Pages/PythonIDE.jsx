@@ -493,220 +493,227 @@ function PythonIDE() {
 
   return (
     <>
-      <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[10%_80%_10%] py-15">
-        <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
-          <Ads />
-        </div>
-        <div className="flex flex-col items-center justify-center h-full  min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
-          <NavBar handleDownload={handleDownload} openFile={openFile} />
+      <div
+        className={`${
+          showGraph ? "blur-sm pointer-events-none select-none" : ""
+        }`}
+      >
+        <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[10%_80%_10%] py-15">
+          <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
+            <Ads />
+          </div>
+          <div className="flex flex-col items-center justify-center h-full  min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
+            <NavBar handleDownload={handleDownload} openFile={openFile} />
 
-          <div
-            className={`grid grid-cols-1 md:grid-cols-[auto_1fr] grid-rows-1 md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
-              darkTheme ? "bg-gray-800" : "bg-gray-50"
-            } p-2 rounded-lg`}
-          >
-            {/* Left Menu */}
-            <LeftMenu
-              handleCopy={handleCopy}
-              handlePaste={handlePaste}
-              copyDone={copyDone}
-              pasteDone={pasteDone}
-              TableDetail={null}
-              details={null}
-            />
+            <div
+              className={`grid grid-cols-1 md:grid-cols-[auto_1fr] grid-rows-1 md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
+                darkTheme ? "bg-gray-800" : "bg-gray-50"
+              } p-2 rounded-lg`}
+            >
+              {/* Left Menu */}
+              <LeftMenu
+                handleCopy={handleCopy}
+                handlePaste={handlePaste}
+                copyDone={copyDone}
+                pasteDone={pasteDone}
+                TableDetail={null}
+                details={null}
+              />
 
-            {/* Editor and Output */}
-            <div className="w-full h-full flex flex-row gap-2 overflow-hidden">
-              <div
-                className={`flex flex-col h-full flex-[7] min-w-0 overflow-hidden border-2 ${
-                  darkTheme
-                    ? "border-blue-600 bg-gray-800"
-                    : "border-sky-700 bg-white"
-                } rounded-lg p-2 gap-y-1`}
-              >
+              {/* Editor and Output */}
+              <div className="w-full h-full flex flex-row gap-2 overflow-hidden">
                 <div
-                  className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
-                    darkTheme ? "bg-gray-700" : "bg-gray-200"
-                  } px-2 py-7`}
+                  className={`flex flex-col h-full flex-[7] min-w-0 overflow-hidden border-2 ${
+                    darkTheme
+                      ? "border-blue-600 bg-gray-800"
+                      : "border-sky-700 bg-white"
+                  } rounded-lg p-2 gap-y-1`}
                 >
-                  <div className="flex items-center justify-center gap-x-1 px-2">
-                    <img src={py} alt="python" className="w-8 h-8" />
+                  <div
+                    className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
+                      darkTheme ? "bg-gray-700" : "bg-gray-200"
+                    } px-2 py-7`}
+                  >
+                    <div className="flex items-center justify-center gap-x-1 px-2">
+                      <img src={py} alt="python" className="w-8 h-8" />
+                      <p
+                        className={`font-black ${
+                          darkTheme ? "text-white" : "text-black"
+                        }`}
+                      >
+                        {editorType === "ds" ? "Python Data Science" : "Python"}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-x-2">
+                      {editorBtns.map((btn, index) => (
+                        <Button
+                          key={index}
+                          classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold ${
+                            btn.text === "Execute"
+                              ? "bg-[#10B335] hover:bg-green-600"
+                              : "bg-[#FB2E38] hover:bg-[#FB2E10]"
+                          } px-4 rounded-lg ${
+                            loading && btn.text === "Execute"
+                              ? "opacity-60 cursor-not-allowed"
+                              : ""
+                          }`}
+                          action={
+                            loading && btn.text === "Execute"
+                              ? null
+                              : btn.action
+                          }
+                          text={
+                            loading && btn.text === "Execute"
+                              ? "Running..."
+                              : btn.text
+                          }
+                          icon={
+                            loading && btn.text === "Execute" ? (
+                              <SpinnerIcon />
+                            ) : (
+                              btn.icon
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 min-h-[300px] sm:min-h-0 h-full w-full overflow-hidden rounded-lg">
+                    <CodeMirror
+                      defaultValue={editorContent}
+                      className="w-full h-full text-[1rem] scrollbar-custom"
+                      style={{
+                        height: "100%",
+                        overflow: "auto",
+                      }}
+                      theme={darkTheme ? oneDark : "light"}
+                      extensions={[
+                        fullHeightEditor,
+                        customScrollbar,
+                        highlightActiveLineGutter(),
+                        lineNumbers(),
+                        insertSpacesAtCursor,
+                      ]}
+                      onChange={setEditorContent}
+                      onCreateEditor={(editor) => {
+                        editorRef.current = editor;
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className={`hidden md:flex flex-col h-full flex-[4] min-w-0 border-2 ${
+                    darkTheme
+                      ? "border-blue-600 bg-gray-800"
+                      : "border-sky-700 bg-white"
+                  } rounded-lg p-2 gap-y-1`}
+                >
+                  <div
+                    className={`h-14 w-full flex items-center justify-between gap-x-2 rounded-lg ${
+                      darkTheme ? "bg-gray-700" : "bg-gray-200"
+                    } px-2 `}
+                  >
                     <p
-                      className={`font-black ${
+                      className={`font-black px-1 ${
                         darkTheme ? "text-white" : "text-black"
                       }`}
                     >
-                      {editorType === "ds" ? "Python Data Science" : "Python"}
+                      Output
                     </p>
-                  </div>
-                  <div className="flex items-center justify-center gap-x-2">
-                    {editorBtns.map((btn, index) => (
-                      <Button
-                        key={index}
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold ${
-                          btn.text === "Execute"
-                            ? "bg-[#10B335] hover:bg-green-600"
-                            : "bg-[#FB2E38] hover:bg-[#FB2E10]"
-                        } px-4 rounded-lg ${
-                          loading && btn.text === "Execute"
-                            ? "opacity-60 cursor-not-allowed"
-                            : ""
-                        }`}
-                        action={
-                          loading && btn.text === "Execute" ? null : btn.action
-                        }
-                        text={
-                          loading && btn.text === "Execute"
-                            ? "Running..."
-                            : btn.text
-                        }
-                        icon={
-                          loading && btn.text === "Execute" ? (
-                            <SpinnerIcon />
-                          ) : (
-                            btn.icon
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex-1 min-h-[300px] sm:min-h-0 h-full w-full overflow-hidden rounded-lg">
-                  <CodeMirror
-                    defaultValue={editorContent}
-                    className="w-full h-full text-[1rem] scrollbar-custom"
-                    style={{
-                      height: "100%",
-                      overflow: "auto",
-                    }}
-                    theme={darkTheme ? oneDark : "light"}
-                    extensions={[
-                      fullHeightEditor,
-                      customScrollbar,
-                      highlightActiveLineGutter(),
-                      lineNumbers(),
-                      insertSpacesAtCursor,
-                    ]}
-                    onChange={setEditorContent}
-                    onCreateEditor={(editor) => {
-                      editorRef.current = editor;
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div
-                className={`hidden md:flex flex-col h-full flex-[4] min-w-0 border-2 ${
-                  darkTheme
-                    ? "border-blue-600 bg-gray-800"
-                    : "border-sky-700 bg-white"
-                } rounded-lg p-2 gap-y-1`}
-              >
-                <div
-                  className={`h-14 w-full flex items-center justify-between gap-x-2 rounded-lg ${
-                    darkTheme ? "bg-gray-700" : "bg-gray-200"
-                  } px-2 `}
-                >
-                  <p
-                    className={`font-black px-1 ${
-                      darkTheme ? "text-white" : "text-black"
-                    }`}
-                  >
-                    Output
-                  </p>
-                  <Button
-                    classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs"
-                    text={editorBtns[0].text}
-                    icon={editorBtns[0].icon}
-                    action={clearOutput}
-                  />
-                </div>
-                <div
-                  id="outputDivDesktop"
-                  className={`flex-1 w-full h-full overflow-auto ${
-                    darkTheme
-                      ? "text-gray-200 bg-gray-800"
-                      : "text-black bg-white"
-                  }`}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    whiteSpace: "pre",
-                    wordBreak: "break-word",
-                    overflow: "auto",
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Output (Mobile only) */}
-            {showOutput && (
-              <div
-                className={`lg:hidden md:hidden border-2 ${
-                  darkTheme ? "border-blue-600" : "border-sky-700"
-                } w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 ${
-                  darkTheme ? "bg-gray-800" : "bg-gray-100"
-                } -translate-x-1/2 bottom-0`}
-              >
-                <div
-                  className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
-                    darkTheme ? "bg-gray-700" : "bg-gray-200"
-                  } px-2 py-1`}
-                >
-                  <p
-                    className={`font-black px-1 ${
-                      darkTheme ? "text-white" : "text-black"
-                    }`}
-                  >
-                    Output
-                  </p>
-                  <div className="flex items-center gap-x-2">
                     <Button
-                      classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                      classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs"
                       text={editorBtns[0].text}
                       icon={editorBtns[0].icon}
                       action={clearOutput}
                     />
-                    <button
-                      onClick={handleClose}
-                      className={`p-2 rounded-full ${
-                        darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
+                  </div>
+                  <div
+                    id="outputDivDesktop"
+                    className={`flex-1 w-full h-full overflow-auto ${
+                      darkTheme
+                        ? "text-gray-200 bg-gray-800"
+                        : "text-black bg-white"
+                    }`}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      whiteSpace: "pre",
+                      wordBreak: "break-word",
+                      overflow: "auto",
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Output (Mobile only) */}
+              {showOutput && (
+                <div
+                  className={`lg:hidden md:hidden border-2 ${
+                    darkTheme ? "border-blue-600" : "border-sky-700"
+                  } w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 ${
+                    darkTheme ? "bg-gray-800" : "bg-gray-100"
+                  } -translate-x-1/2 bottom-0`}
+                >
+                  <div
+                    className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
+                      darkTheme ? "bg-gray-700" : "bg-gray-200"
+                    } px-2 py-1`}
+                  >
+                    <p
+                      className={`font-black px-1 ${
+                        darkTheme ? "text-white" : "text-black"
                       }`}
                     >
-                      <X
-                        size={20}
-                        className={darkTheme ? "text-white" : "text-black"}
+                      Output
+                    </p>
+                    <div className="flex items-center gap-x-2">
+                      <Button
+                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                        text={editorBtns[0].text}
+                        icon={editorBtns[0].icon}
+                        action={clearOutput}
                       />
-                    </button>
+                      <button
+                        onClick={handleClose}
+                        className={`p-2 rounded-full ${
+                          darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
+                        }`}
+                      >
+                        <X
+                          size={20}
+                          className={darkTheme ? "text-white" : "text-black"}
+                        />
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div
-                  id="outputDivMobile"
-                  className={`flex-1 w-full overflow-auto ${
-                    darkTheme
-                      ? "text-gray-200 bg-gray-800"
-                      : "text-black bg-white"
-                  }`}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    whiteSpace: "pre",
-                    wordBreak: "break-word",
-                    // overflow: "auto",
-                  }}
-                ></div>
-              </div>
-            )}
+                  <div
+                    id="outputDivMobile"
+                    className={`flex-1 w-full overflow-auto ${
+                      darkTheme
+                        ? "text-gray-200 bg-gray-800"
+                        : "text-black bg-white"
+                    }`}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      whiteSpace: "pre",
+                      wordBreak: "break-word",
+                      // overflow: "auto",
+                    }}
+                  ></div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
+            <Ads />
           </div>
         </div>
-
-        <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
-          <Ads />
-        </div>
       </div>
-
       {showGraph && (
         <div
           className={`fixed ${
@@ -716,7 +723,7 @@ function PythonIDE() {
           } 
         ${darkTheme ? "bg-gray-800" : "bg-white"} 
         ${isGraphFullscreen ? "w-full h-full" : "w-1/2 h-2/3"} 
-        shadow-2xl rounded-lg z-50 flex flex-col`}
+        shadow-2xl shadow-black rounded-lg z-50 border flex flex-col bg-black/40  backdrop-blur-sm `}
         >
           <div
             className={`flex justify-between items-center p-2 ${
@@ -750,11 +757,11 @@ function PythonIDE() {
                   setShowGraph(false);
                   setIsGraphFullscreen(false);
                 }}
-                className="p-1 rounded hover:bg-gray-600"
+                className="p-1 rounded bg-red-600 hover:bg-red-500"
               >
                 <X
                   size={20}
-                  className={darkTheme ? "text-white" : "text-black"}
+                  className={darkTheme ? "text-white" : "text-white"}
                 />
               </button>
             </div>

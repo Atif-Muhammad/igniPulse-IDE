@@ -118,9 +118,13 @@ function LeftMenuSQL({
             className="relative group flex flex-col items-center justify-center gap-y-1 cursor-pointer"
             onClick={handleRefresh}
           >
-            <div className="flex items-center justify-center p-2 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
+            <div className="flex items-center justify-center  md:p-3 p-2.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               {/* <RefreshCcw className="text-white w-4 h-4 md:w-[16px] md:h-[16px]" /> */}
-              <img src={db_icon} alt="Refresh icon" className="md:w-8 md:h-8  w-7 h-6  " />
+              <img
+                src={db_icon}
+                alt="Refresh icon"
+                className="md:w-5 md:h-5  w-5 h-5  "
+              />
             </div>
             <p
               className={`text-sm text-center select-none hidden lg:block ${
