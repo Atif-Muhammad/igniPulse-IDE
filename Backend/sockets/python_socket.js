@@ -60,10 +60,6 @@ plt.show = safe_show
         code,
       ];
 
-      // const dockerPath = spawnSync("which", ["docker"]).stdout.toString().trim();
-      // console.log("docker path:", dockerPath)
-      // if (!dockerPath) throw new Error("Docker not found in PATH");
-      // const pyProcess = spawn(dockerPath, dockerArgs);
       const pyProcess = spawn("docker", dockerArgs);
 
       let errorOutput = "";
@@ -117,7 +113,7 @@ plt.show = safe_show
         if (type === "ds" && fs.existsSync(fullOutputPath)) {
           const buffer = fs.readFileSync(fullOutputPath);
           const base64Image = buffer.toString("base64");
-          console.log("sending graph:",base64Image)
+          console.log("sending graph:",base64Image);
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           fs.unlinkSync(fullOutputPath);
         }

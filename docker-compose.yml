@@ -55,6 +55,8 @@ services:
       dockerfile: Dockerfile.ds
     stdin_open: true
     tty: true
+    volumes:
+    - ./Backend/temps:/temps
 
 volumes:
   sql_volume:
