@@ -60,7 +60,7 @@ plt.show = safe_show
         code,
       ];
 
-      const pyProcess = require("child_process").spawn("/usr/bin/docker", dockerArgs);
+      const pyProcess = spawn("/usr/bin/docker", dockerArgs);
       // const pyProcess = require("child_process").spawn("docker", dockerArgs);
 
       let errorOutput = "";
