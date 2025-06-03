@@ -1,4 +1,4 @@
-const { spawn } = require("child_process");
+const { spawnSync, spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -60,7 +60,9 @@ plt.show = safe_show
         code,
       ];
 
-      const pyProcess = spawn("docker", dockerArgs);
+      const dockerPath = spawnSync("which", ["docker"]).stdout.toString().trim();
+      if (!dockerPath) throw new Error("Docker not found in PATH");
+      const pyProcess = spawn(dockerPath, dockerArgs);
       // const pyProcess = require("child_process").spawn("docker", dockerArgs);
 
       let errorOutput = "";

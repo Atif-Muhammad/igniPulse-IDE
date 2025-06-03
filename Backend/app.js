@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express');
 const cors = require('cors');
-const { spawn } = require('child_process');
+// const { spawnSync,spawn } = require('child_process');
 const http = require("http")
 const { Server } = require("socket.io")
 const app = express();
@@ -47,7 +47,7 @@ app.use(express.json());
 
 app.use("/temps", express.static(path.join(__dirname, "temps")));
 
-console.log(process.env.PATH);
+// console.log(process.env.PATH);
 
 require('./sockets/python_socket')(io)
 
