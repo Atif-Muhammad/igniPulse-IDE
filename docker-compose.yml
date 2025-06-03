@@ -48,8 +48,8 @@ services:
       dockerfile: Dockerfile.ds
     stdin_open: true
     tty: true
-  volumes:
-    - ./Backend/temps:/app/temps
+    volumes:
+      - ./Backend/temps:/app/temps
 
 
 volumes:
