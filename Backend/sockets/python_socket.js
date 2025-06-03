@@ -64,7 +64,7 @@ plt.show = safe_show
       // console.log("docker path:", dockerPath)
       // if (!dockerPath) throw new Error("Docker not found in PATH");
       // const pyProcess = spawn(dockerPath, dockerArgs);
-      const pyProcess = require("child_process").spawn("/usr/bin/docker", dockerArgs);
+      const pyProcess = spawn("/usr/bin/docker", dockerArgs);
 
       let errorOutput = "";
       let expectingEntry = false;
