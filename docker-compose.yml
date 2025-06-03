@@ -15,6 +15,8 @@ services:
       - "9000:9000"
     depends_on:
       - mysql
+      - python-gen
+      - python-ds
     environment:
       - PORT=9000
       - HOST=mysql
@@ -40,7 +42,7 @@ services:
   python-gen:
     image: python-gen
     build: 
-      context: .
+      context: ./Backend
       dockerfile: Dockerfile.gen
     stdin_open: true
     tty: true
@@ -48,7 +50,7 @@ services:
   python-ds:
     image: python-ds
     build:
-      context: .
+      context: ./Backend
       dockerfile: Dockerfile.ds
     stdin_open: true
     tty: true
