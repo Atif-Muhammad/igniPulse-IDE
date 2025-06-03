@@ -53,6 +53,7 @@ plt.show = safe_show
         "run",
         "--rm",
         "-i",
+        ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
         container,
         "python3",
         "-u",
