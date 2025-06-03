@@ -43,7 +43,7 @@ plt.show = safe_show
       const container = type === "ds" ? "python-ds" : "python-gen";
       const hostTmpDir = path.resolve("./temps");
       const fullOutputPath = path.join(hostTmpDir, outputFile);
-
+      console.log(fullOutputPath)
       // Ensure temps dir exists
       if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
 
