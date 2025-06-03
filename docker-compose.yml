@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:5000
+
   backend:
     container_name: backend_container
     build: 
@@ -20,6 +21,9 @@ services:
       - USER=root
       - PASSWORD=mySql123
     command: sh -c "sleep 20 && node app.js"
+    volumes:
+      - ./Backend/temps:/app/temps
+
   mysql:
     container_name: mysql-container
     image: mysql:latest
@@ -38,8 +42,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.gen
-      stdin_open: true
-      tty: true
+    stdin_open: true
+    tty: true
 
   python-ds:
     image: python-ds
@@ -48,9 +52,6 @@ services:
       dockerfile: Dockerfile.ds
     stdin_open: true
     tty: true
-    volumes:
-      - ./Backend/temps:/app/temps
-
 
 volumes:
   sql_volume:
