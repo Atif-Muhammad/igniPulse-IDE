@@ -41,7 +41,8 @@ plt.show = safe_show
 
     const execPy = (socket, code, type, outputFile) => {
       const container = type === "ds" ? "python-ds" : "python-gen";
-      const hostTmpDir = path.resolve("./temps");
+      // const hostTmpDir = path.resolve("./temps"); // for local
+      const hostTmpDir = "/app/temps";
       const fullOutputPath = path.join(hostTmpDir, outputFile);
       console.log(fullOutputPath)
       // Ensure temps dir exists
