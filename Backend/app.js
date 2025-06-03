@@ -47,6 +47,7 @@ app.use(express.json());
 
 app.use("/temps", express.static(path.join(__dirname, "temps")));
 
+console.log(process.env.PATH);
 
 require('./sockets/python_socket')(io)
 
