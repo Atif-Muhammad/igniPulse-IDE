@@ -60,11 +60,11 @@ plt.show = safe_show
         code,
       ];
 
-      const dockerPath = spawnSync("which", ["docker"]).stdout.toString().trim();
-      console.log("docker path:", dockerPath)
-      if (!dockerPath) throw new Error("Docker not found in PATH");
-      const pyProcess = spawn(dockerPath, dockerArgs);
-      // const pyProcess = require("child_process").spawn("docker", dockerArgs);
+      // const dockerPath = spawnSync("which", ["docker"]).stdout.toString().trim();
+      // console.log("docker path:", dockerPath)
+      // if (!dockerPath) throw new Error("Docker not found in PATH");
+      // const pyProcess = spawn(dockerPath, dockerArgs);
+      const pyProcess = require("child_process").spawn("/usr/bin/docker", dockerArgs);
 
       let errorOutput = "";
       let expectingEntry = false;
