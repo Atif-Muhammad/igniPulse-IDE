@@ -25,6 +25,7 @@ services:
     command: sh -c "sleep 20 && node app.js"
     volumes:
       - shared_temp:/app/temps
+      # - ./Backend/temps:/app/temps
       - /var/run/docker.sock:/var/run/docker.sock
 
   mysql:
@@ -57,6 +58,7 @@ services:
     tty: true
     volumes:
       - shared_temp:/temps
+      # - ./Backend/temps:/temps
 
 volumes:
   sql_volume:
