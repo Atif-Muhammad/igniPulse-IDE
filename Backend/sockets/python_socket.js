@@ -117,6 +117,8 @@ plt.show = safe_show
           console.log("sending graph:",base64Image);
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           fs.unlinkSync(fullOutputPath);
+        }else{
+          console.log(`file ${fullOutputPath} not found.`)
         }
 
         socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
