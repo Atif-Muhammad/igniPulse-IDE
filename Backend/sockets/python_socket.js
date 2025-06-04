@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 def safe_show():
     try:
         plt.savefig("/temps/${outputFile}")
+        print("saved to ", outputFile)
     except Exception as e:
         print("Could not save plot:", str(e))
 plt.show = safe_show
