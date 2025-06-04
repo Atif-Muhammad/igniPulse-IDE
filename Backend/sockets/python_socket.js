@@ -57,7 +57,7 @@ plt.show = safe_show
         "run",
         "--rm",
         "-i",
-        ...(type === "ds" ? ["-v", `${hostTmpDir}:/app/temps`] : []),
+        ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
         // ...(type === "ds" ? ["-v", dockerVolumeMount] : []),
         image,
         "python3",
