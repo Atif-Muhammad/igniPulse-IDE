@@ -26,8 +26,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
     try:
-        plt.savefig("/temps/${outputFile}")
-        print("file save to: /temps/${outputFile}")
+        plt.savefig("/app/temps/${outputFile}")
+        print("file save to: /app/temps/${outputFile}")
     except Exception as e:
         print("Could not save plot:", str(e), flush=True)
 plt.show = safe_show
@@ -57,7 +57,7 @@ plt.show = safe_show
         "run",
         "--rm",
         "-i",
-        ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
+        ...(type === "ds" ? ["-v", `${hostTmpDir}:/app/temps`] : []),
         // ...(type === "ds" ? ["-v", dockerVolumeMount] : []),
         image,
         "python3",
