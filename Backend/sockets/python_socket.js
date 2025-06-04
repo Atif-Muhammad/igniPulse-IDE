@@ -26,7 +26,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
     try:
-        plt.savefig("/app/temps/${outputFile}")
+        plt.savefig(f"/app/temps/{outputFile}")
         print("file save to: /app/temps/${outputFile}")
     except Exception as e:
         print("Could not save plot:", str(e), flush=True)
@@ -45,7 +45,7 @@ plt.show = safe_show
     const execPy = (socket, code, type, outputFile) => {
       const image = type === "ds" ? "python-ds" : "python-gen";
       const dockerVolumeMount = "shared_temp:/temps";
-      const hostTmpDir = path.resolve("./temps"); // for local
+      const hostTmpDir = path.resolve("./Backend/temps"); // for local
       // const hostTmpDir = "/app/temps";
       const fullOutputPath = path.join(hostTmpDir, outputFile);
       console.log(fullOutputPath)
