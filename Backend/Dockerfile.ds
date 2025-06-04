@@ -1,5 +1,6 @@
 FROM python:3.10-slim
 WORKDIR /app
 COPY . /app
+RUN mkdir -p /temps
 RUN pip install --no-cache-dir numpy pandas matplotlib scikit-learn seaborn
 CMD ["python3"]
