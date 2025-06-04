@@ -26,7 +26,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
     try:
-        plt.savefig(f"/app/temps/{outputFile}")
+        plt.savefig("/temps/${outputFile}")
         print("file save to: /app/temps/${outputFile}")
     except Exception as e:
         print("Could not save plot:", str(e), flush=True)
