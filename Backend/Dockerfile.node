@@ -1,6 +1,6 @@
 FROM node:22
 WORKDIR /app
-# RUN mkdir -p /app/temps
+RUN mkdir -p /app/temps
 
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
