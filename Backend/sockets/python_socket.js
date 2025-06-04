@@ -9,6 +9,7 @@ module.exports = function (io) {
     socket.on("runPy", (data, type) => {
       const fileId = socket.id.replace(/[^a-zA-Z0-9]/g, "");
       const outputFile = `${fileId}.png`;
+      console.log("outpufile: ", outputFile)
 
       const injectInputPatch = `
 import builtins
@@ -119,7 +120,7 @@ plt.show = safe_show
           // const buffer = fs.readFileSync(fullOutputPath);
           // const base64Image = buffer.toString("base64");
           // console.log("sending graph:",base64Image);
-          const localPath = `/temps/${outputFile}`;
+          const localPath = `/app/temps/${outputFile}`;
           const base64Image = fs.readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           // fs.unlinkSync(fullOutputPath);
