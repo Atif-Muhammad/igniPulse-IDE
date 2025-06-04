@@ -64,4 +64,5 @@ volumes:
   sql_volume:
     driver: local
   shared_temp:
+    name: shared_temp
     driver: local
