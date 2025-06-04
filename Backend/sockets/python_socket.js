@@ -26,7 +26,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
     try:
-        plt.savefig("/temps/${outputFile}")
+        plt.savefig("/app/temps/${outputFile}")
     except Exception as e:
         print("Could not save plot:", str(e), flush=True)
 plt.show = safe_show
@@ -45,7 +45,7 @@ plt.show = safe_show
       const image = type === "ds" ? "python-ds" : "python-gen";
       const dockerVolumeMount = "shared_temp:/temps";
       // const hostTmpDir = path.resolve("./temps"); // for local
-      // const hostTmpDir = "/app/temps";
+      const hostTmpDir = "/app/temps";
       // const fullOutputPath = path.join(hostTmpDir, outputFile);
       // console.log(fullOutputPath)
       // Ensure temps dir exists
@@ -56,8 +56,8 @@ plt.show = safe_show
         "run",
         "--rm",
         "-i",
-        // ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
-        ...(type === "ds" ? ["-v", dockerVolumeMount] : []),
+        ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
+        // ...(type === "ds" ? ["-v", dockerVolumeMount] : []),
         image,
         "python3",
         "-u",
@@ -120,7 +120,7 @@ plt.show = safe_show
           // const buffer = fs.readFileSync(fullOutputPath);
           // const base64Image = buffer.toString("base64");
           // console.log("sending graph:",base64Image);
-          const localPath = `/temps/${outputFile}`;
+          const localPath = `/app/temps/${outputFile}`;
           const base64Image = fs.readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           // fs.unlinkSync(fullOutputPath);
