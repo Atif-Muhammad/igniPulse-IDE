@@ -14,7 +14,7 @@ import { useState } from "react";
 import DataScience from "../assets/DataScience.webp";
 
 function Model() {
-  const fbx = useLoader(FBXLoader, "/rocket2.fbx");
+  const fbx = useLoader(FBXLoader, "/rocket.fbx");
   const ref = useRef();
 
   const [isHovered, setIsHovered] = useState(false);

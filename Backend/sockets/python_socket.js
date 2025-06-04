@@ -9,7 +9,7 @@ module.exports = function (io) {
     socket.on("runPy", (data, type) => {
       const fileId = socket.id.replace(/[^a-zA-Z0-9]/g, "");
       const outputFile = `${fileId}.png`;
-      console.log("outpufile: ", outputFile)
+      // console.log("outpufile: ", outputFile)
 
       const injectInputPatch = `
 import builtins
@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 def safe_show():
     try:
         plt.savefig("/temps/${outputFile}")
-        print("file save to: /temps/${outputFile}")
     except Exception as e:
         print("Could not save plot:", str(e), flush=True)
 plt.show = safe_show
@@ -43,7 +42,7 @@ plt.show = safe_show
     });
 
     const execPy = (socket, code, type, outputFile) => {
-      console.log("type:", type)
+      // console.log("type:", type)
       const image = type === "ds" ? "python-ds" : "python-gen";
       // const dockerVolumeMount = "shared_temp:/temps";
       // const hostTmpDir = path.resolve("./temps");
@@ -52,9 +51,9 @@ plt.show = safe_show
       // Ensure temps dir exists
       // if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
       const sharedVolumePath = "/temps";
-      console.log("Files currently in /temps:", fs.readdirSync(sharedVolumePath));
+      // console.log("Files currently in /temps:", fs.readdirSync(sharedVolumePath));
       const fullOutputPath = path.join(sharedVolumePath, outputFile);
-      console.log("Checking file at: ", fullOutputPath);
+      // console.log("Checking file at: ", fullOutputPath);
       // Build Docker args
       const dockerArgs = [
         "run",
@@ -123,13 +122,14 @@ plt.show = safe_show
             if (fs.existsSync(fullOutputPath)) {
               const buffer = fs.readFileSync(fullOutputPath);
               const base64Image = buffer.toString("base64");
-              console.log("sending graph:", base64Image.slice(0, 40), "...");
+              // console.log("sending graph:", base64Image.slice(0, 40), "...");
               socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
               fs.unlinkSync(fullOutputPath);
             } else {
               console.log(`file ${fullOutputPath} not found.`);
             }
           } catch (e) {
+            socket.emit("graphOutput", ``);
             console.error("Error reading or sending image file:", e);
           }
         }
@@ -148,16 +148,7 @@ plt.show = safe_show
       });
     };
 
-    // if (type === "ds" && fs.existsSync(fullOutputPath)) {
-    //   const buffer = fs.readFileSync(fullOutputPath);
-    //   const base64Image = buffer.toString("base64");
-    //   console.log("sending graph:",base64Image);
-    //   socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
-    //   fs.unlinkSync(fullOutputPath);
-    // } else {
-    //   console.log(`file ${fullOutputPath} not found.`)
-    // }
-
+    
 
 
   });
