@@ -35,26 +35,29 @@ plt.show = safe_show
         type === "ds"
           ? injectInputPatch + injectDsGraphPatch + "\n" + data
           : injectInputPatch + "\n" + data;
+          
 
       execPy(socket, modifiedCode, type, outputFile);
     });
 
     const execPy = (socket, code, type, outputFile) => {
-      const container = type === "ds" ? "python-ds" : "python-gen";
+      const image = type === "ds" ? "python-ds" : "python-gen";
+      const dockerVolumeMount = "shared_temp:/temps";
       // const hostTmpDir = path.resolve("./temps"); // for local
-      const hostTmpDir = "/app/temps";
-      const fullOutputPath = path.join(hostTmpDir, outputFile);
-      console.log(fullOutputPath)
+      // const hostTmpDir = "/app/temps";
+      // const fullOutputPath = path.join(hostTmpDir, outputFile);
+      // console.log(fullOutputPath)
       // Ensure temps dir exists
-      if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
+      // if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
 
       // Build Docker args
       const dockerArgs = [
         "run",
         "--rm",
         "-i",
-        ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
-        container,
+        // ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
+        ...(type === "ds" ? ["-v", dockerVolumeMount] : []),
+        image,
         "python3",
         "-u",
         "-c",
@@ -111,14 +114,19 @@ plt.show = safe_show
           socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
         }
 
-        if (type === "ds" && fs.existsSync(fullOutputPath)) {
-          const buffer = fs.readFileSync(fullOutputPath);
-          const base64Image = buffer.toString("base64");
-          console.log("sending graph:",base64Image);
+        // if (type === "ds" && fs.existsSync(fullOutputPath)) {
+        if (type === "ds") {
+          // const buffer = fs.readFileSync(fullOutputPath);
+          // const base64Image = buffer.toString("base64");
+          // console.log("sending graph:",base64Image);
+          const localPath = `/tmp/${outputFile}`;
+          const base64Image = require("fs").readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
-          fs.unlinkSync(fullOutputPath);
+          // fs.unlinkSync(fullOutputPath);
+          fs.unlinkSync(localPath);
         }else{
-          console.log(`file ${fullOutputPath} not found.`)
+          // console.log(`file ${fullOutputPath} not found.`)
+          console.log(`file not found`)
         }
 
         socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
