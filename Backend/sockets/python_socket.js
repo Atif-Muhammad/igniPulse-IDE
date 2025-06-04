@@ -26,14 +26,11 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
     try:
-        print("Attempting to save graph at: /temps/${outputFile}", flush=True)
         plt.savefig("/temps/${outputFile}")
-        print("Graph saved.", flush=True)
     except Exception as e:
         print("Could not save plot:", str(e), flush=True)
 plt.show = safe_show
 `;
-
 
       const modifiedCode =
         type === "ds"
@@ -127,7 +124,7 @@ plt.show = safe_show
           const base64Image = fs.readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           // fs.unlinkSync(fullOutputPath);
-          fs.unlinkSync(localPath);
+          // fs.unlinkSync(localPath);
         } else {
           // console.log(`file ${fullOutputPath} not found.`)
           // console.log(`file not found`)
