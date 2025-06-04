@@ -52,6 +52,7 @@ plt.show = safe_show
       // Ensure temps dir exists
       // if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
       const sharedVolumePath = "/temps";
+      console.log("Files currently in /temps:", fs.readdirSync(sharedVolumePath));
       const fullOutputPath = path.join(sharedVolumePath, outputFile);
       console.log("Checking file at: ", fullOutputPath);
       // Build Docker args
