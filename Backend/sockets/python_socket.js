@@ -119,7 +119,7 @@ plt.show = safe_show
           // const buffer = fs.readFileSync(fullOutputPath);
           // const base64Image = buffer.toString("base64");
           // console.log("sending graph:",base64Image);
-          const localPath = `/app/temps/${outputFile}`;
+          const localPath = `/temps/${outputFile}`;
           const base64Image = fs.readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           // fs.unlinkSync(fullOutputPath);
