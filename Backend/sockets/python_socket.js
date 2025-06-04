@@ -26,18 +26,20 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
     try:
+        print("Attempting to save graph at: /temps/${outputFile}", flush=True)
         plt.savefig("/temps/${outputFile}")
-        print("saved to ", outputFile)
+        print("Graph saved.", flush=True)
     except Exception as e:
-        print("Could not save plot:", str(e))
+        print("Could not save plot:", str(e), flush=True)
 plt.show = safe_show
 `;
+
 
       const modifiedCode =
         type === "ds"
           ? injectInputPatch + injectDsGraphPatch + "\n" + data
           : injectInputPatch + "\n" + data;
-          
+
 
       execPy(socket, modifiedCode, type, outputFile);
     });
@@ -126,7 +128,7 @@ plt.show = safe_show
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           // fs.unlinkSync(fullOutputPath);
           fs.unlinkSync(localPath);
-        }else{
+        } else {
           // console.log(`file ${fullOutputPath} not found.`)
           // console.log(`file not found`)
         }
