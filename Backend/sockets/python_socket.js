@@ -57,7 +57,7 @@ plt.show = safe_show
         "--rm",
         "-i",
         // ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
-        ...(type === "ds" ? ["-v", dockerVolumeMount] : []),
+        ...(type === "ds" ? ["--mount", "type=volume,source=shared_temp,target=/temps"] : []),
         image,
         "python3",
         "-u",
@@ -120,7 +120,7 @@ plt.show = safe_show
           // const buffer = fs.readFileSync(fullOutputPath);
           // const base64Image = buffer.toString("base64");
           // console.log("sending graph:",base64Image);
-          const localPath = `/temps/${outputFile}`;
+          const localPath = `/app/temps/${outputFile}`;
           const base64Image = fs.readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
           // fs.unlinkSync(fullOutputPath);
@@ -138,9 +138,9 @@ plt.show = safe_show
         if (!pyProcess.killed) {
           pyProcess.kill();
         }
-        if (type === "ds" && fs.existsSync(fullOutputPath)) {
-          fs.unlinkSync(fullOutputPath);
-        }
+        // if (type === "ds" && fs.existsSync(fullOutputPath)) {
+        //   fs.unlinkSync(fullOutputPath);
+        // }
       });
     };
 
