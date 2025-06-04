@@ -44,12 +44,12 @@ plt.show = safe_show
     const execPy = (socket, code, type, outputFile) => {
       const image = type === "ds" ? "python-ds" : "python-gen";
       const dockerVolumeMount = "shared_temp:/temps";
-      // const hostTmpDir = path.resolve("./temps"); // for local
-      const hostTmpDir = "/app/temps";
-      // const fullOutputPath = path.join(hostTmpDir, outputFile);
-      // console.log(fullOutputPath)
+      const hostTmpDir = path.resolve("./temps"); // for local
+      // const hostTmpDir = "/app/temps";
+      const fullOutputPath = path.join(hostTmpDir, outputFile);
+      console.log(fullOutputPath)
       // Ensure temps dir exists
-      // if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
+      if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
 
       // Build Docker args
       const dockerArgs = [
@@ -115,18 +115,18 @@ plt.show = safe_show
           socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
         }
 
-        // if (type === "ds" && fs.existsSync(fullOutputPath)) {
-        if (type === "ds") {
-          // const buffer = fs.readFileSync(fullOutputPath);
-          // const base64Image = buffer.toString("base64");
-          // console.log("sending graph:",base64Image);
-          const localPath = `/app/temps/${outputFile}`;
-          const base64Image = fs.readFileSync(localPath).toString("base64");
+        if (type === "ds" && fs.existsSync(fullOutputPath)) {
+        // if (type === "ds") {
+          const buffer = fs.readFileSync(fullOutputPath);
+          const base64Image = buffer.toString("base64");
+          console.log("sending graph:",base64Image);
+          // const localPath = `/app/temps/${outputFile}`;
+          // const base64Image = fs.readFileSync(localPath).toString("base64");
           socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
-          // fs.unlinkSync(fullOutputPath);
-          fs.unlinkSync(localPath); 
+          fs.unlinkSync(fullOutputPath);
+          // fs.unlinkSync(localPath); 
         } else {
-          // console.log(`file ${fullOutputPath} not found.`)
+          console.log(`file ${fullOutputPath} not found.`)
           // console.log(`file not found`)
         }
 
@@ -138,9 +138,9 @@ plt.show = safe_show
         if (!pyProcess.killed) {
           pyProcess.kill();
         }
-        // if (type === "ds" && fs.existsSync(fullOutputPath)) {
-        //   fs.unlinkSync(fullOutputPath);
-        // }
+        if (type === "ds" && fs.existsSync(fullOutputPath)) {
+          fs.unlinkSync(fullOutputPath);
+        }
       });
     };
 
