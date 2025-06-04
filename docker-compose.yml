@@ -58,7 +58,7 @@ services:
     tty: true
     volumes:
       # - shared_temp:/temps
-      - ./Backend/temps:/app/temps
+      - ./Backend/temps:/temps
 
 volumes:
   sql_volume:
