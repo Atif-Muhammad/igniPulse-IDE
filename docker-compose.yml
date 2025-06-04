@@ -24,8 +24,8 @@ services:
       - PASSWORD=mySql123
     command: sh -c "sleep 20 && node app.js"
     volumes:
-      # - shared_temp:/temps
-      - ./Backend/temps:/temps
+      - shared_temp:/temps
+      # - ./Backend/temps:/temps
       - /var/run/docker.sock:/var/run/docker.sock
 
   mysql:
@@ -57,11 +57,10 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      # - shared_temp:/temps
-      - ./Backend/temps:/temps
+      - shared_temp:/temps
+      # - ./Backend/temps:/temps
 
 volumes:
   sql_volume:
     driver: local
-  # shared_temp:
-  #   driver: local
+  shared_temp:

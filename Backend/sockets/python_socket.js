@@ -44,19 +44,21 @@ plt.show = safe_show
 
     const execPy = (socket, code, type, outputFile) => {
       const image = type === "ds" ? "python-ds" : "python-gen";
-      const dockerVolumeMount = "shared_temp:/temps";
-      const hostTmpDir = path.resolve("./temps");
-      const fullOutputPath = path.join(hostTmpDir, outputFile);
-      console.log(fullOutputPath)
+      // const dockerVolumeMount = "shared_temp:/temps";
+      // const hostTmpDir = path.resolve("./temps");
+      // const fullOutputPath = path.join(hostTmpDir, outputFile);
+      // console.log(fullOutputPath)
       // Ensure temps dir exists
-      if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
-
+      // if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
+      const sharedVolumePath = "/temps";
+      const fullOutputPath = path.join(sharedVolumePath, outputFile);
+      console.log("Checking file at: ", fullOutputPath);
       // Build Docker args
       const dockerArgs = [
         "run",
         "--rm",
         "-i",
-        ...(type === "ds" ? ["-v", `${hostTmpDir}:/temps`] : []),
+        ...(type === "ds" ? ["-v", `shared_temp:/temps`] : []),
         image,
         "python3",
         "-u",
@@ -114,14 +116,30 @@ plt.show = safe_show
           socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
         }
 
-        if (type === "ds" && fs.existsSync(fullOutputPath)) {
-          const buffer = fs.readFileSync(fullOutputPath);
-          const base64Image = buffer.toString("base64");
-          console.log("sending graph:",base64Image);
-          socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
-          fs.unlinkSync(fullOutputPath);
-        } else {
-          console.log(`file ${fullOutputPath} not found.`)
+        // if (type === "ds" && fs.existsSync(fullOutputPath)) {
+        //   const buffer = fs.readFileSync(fullOutputPath);
+        //   const base64Image = buffer.toString("base64");
+        //   console.log("sending graph:",base64Image);
+        //   socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
+        //   fs.unlinkSync(fullOutputPath);
+        // } else {
+        //   console.log(`file ${fullOutputPath} not found.`)
+        // }
+
+        if (type === "ds") {
+          try {
+            if (fs.existsSync(fullOutputPath)) {
+              const buffer = fs.readFileSync(fullOutputPath);
+              const base64Image = buffer.toString("base64");
+              console.log("sending graph:", base64Image.slice(0, 40), "...");
+              socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
+              fs.unlinkSync(fullOutputPath);
+            } else {
+              console.log(`file ${fullOutputPath} not found.`);
+            }
+          } catch (e) {
+            console.error("Error reading or sending image file:", e);
+          }
         }
 
         socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
