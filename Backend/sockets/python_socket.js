@@ -37,27 +37,19 @@ plt.show = safe_show
           ? injectInputPatch + injectDsGraphPatch + "\n" + data
           : injectInputPatch + "\n" + data;
 
-
       execPy(socket, modifiedCode, type, outputFile);
     });
 
     const execPy = (socket, code, type, outputFile) => {
-      // console.log("type:", type)
       const image = type === "ds" ? "python-ds" : "python-gen";
-      // const dockerVolumeMount = "shared_temp:/temps";
-      // const hostTmpDir = path.resolve("./temps");
-      // const fullOutputPath = path.join(hostTmpDir, outputFile);
-      // console.log(fullOutputPath)
-      // Ensure temps dir exists
-      // if (!fs.existsSync(hostTmpDir)) fs.mkdirSync(hostTmpDir);
       const sharedVolumePath = "/temps";
-      // console.log("Files currently in /temps:", fs.readdirSync(sharedVolumePath));
       const fullOutputPath = path.join(sharedVolumePath, outputFile);
-      // console.log("Checking file at: ", fullOutputPath);
-      // Build Docker args
+      const containerName = `py-${socket.id}`; 
       const dockerArgs = [
         "run",
         "--rm",
+        "--name",
+        containerName,
         "-i",
         ...(type === "ds" ? ["-v", `shared_temp:/temps`] : []),
         image,
@@ -68,11 +60,27 @@ plt.show = safe_show
       ];
 
       const pyProcess = spawn("docker", dockerArgs);
-
-      let errorOutput = "";
       let expectingEntry = false;
+      let errorOutput = "";
+      let wasCancelled = false; 
+
+      const killTimeout = setTimeout(() => {
+        if (!pyProcess.killed) {
+          pyProcess.kill("SIGTERM");
+          wasCancelled = true;
+          console.warn("Force killed hanging Docker container (timeout)");
+        }
+      }, 5 * 60 * 1000);
+
+      const handleUserEntry = (userInput) => {
+        if (expectingEntry) {
+          pyProcess.stdin.write(userInput + "\n");
+          expectingEntry = false;
+        }
+      };
 
       socket.removeAllListeners("userEntry");
+      socket.on("userEntry", handleUserEntry);
 
       pyProcess.stdout.on("data", (data) => {
         const outputCheck = data.toString();
@@ -83,36 +91,26 @@ plt.show = safe_show
             outputCheck.replace("INPUT_REQUEST", "").trim()
           );
         } else {
-          const lines = outputCheck.split(/\r?\n/);
-          lines.forEach((line) => {
-            if (line.trim()) {
-              socket.emit("pyResponse", line);
-            }
-          });
+          outputCheck
+            .split(/\r?\n/)
+            .filter((line) => line.trim())
+            .forEach((line) => socket.emit("pyResponse", line));
         }
       });
-
-      const handleUserEntry = (userInput) => {
-        if (expectingEntry) {
-          pyProcess.stdin.write(userInput + "\n");
-          expectingEntry = false;
-        }
-      };
-      socket.on("userEntry", handleUserEntry);
 
       pyProcess.stderr.on("data", (data) => {
         let errorMsg = data.toString();
         errorMsg = errorMsg.replace(
           /File "<string>", line (\d+)/g,
-          (match, lineNum) => {
-            const adjustedLine = Math.max(1, lineNum - 7);
-            return `line ${adjustedLine}`;
-          }
+          (_, lineNum) => `line ${Math.max(1, lineNum - 7)}`
         );
         errorOutput += errorMsg;
       });
 
       pyProcess.on("close", () => {
+        clearTimeout(killTimeout);
+        socket.removeListener("userEntry", handleUserEntry);
+
         if (errorOutput.trim()) {
           socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
         }
@@ -122,34 +120,43 @@ plt.show = safe_show
             if (fs.existsSync(fullOutputPath)) {
               const buffer = fs.readFileSync(fullOutputPath);
               const base64Image = buffer.toString("base64");
-              // console.log("sending graph:", base64Image.slice(0, 40), "...");
-              socket.emit("graphOutput", `data:image/png;base64,${base64Image}`);
+              socket.emit(
+                "graphOutput",
+                `data:image/png;base64,${base64Image}`
+              );
               fs.unlinkSync(fullOutputPath);
             } else {
               console.log(`file ${fullOutputPath} not found.`);
             }
           } catch (e) {
             socket.emit("graphOutput", ``);
-            console.error("Error reading or sending image file:", e);
+            console.error("Error reading/sending image file:", e);
           }
         }
 
-        socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
+        if (!wasCancelled) {
+          socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
+        }
+      });
+
+      socket.on("cancle", () => {
+        if (pyProcess && !pyProcess.killed) {
+          wasCancelled = true;
+          // console.log("Cancelling process...");
+          spawn("docker", ["kill", containerName]);
+        }
       });
 
       socket.on("disconnect", () => {
         socket.removeListener("userEntry", handleUserEntry);
         if (!pyProcess.killed) {
-          pyProcess.kill();
+          wasCancelled = true;
+          spawn("docker", ["kill", containerName]);
         }
         if (type === "ds" && fs.existsSync(fullOutputPath)) {
           fs.unlinkSync(fullOutputPath);
         }
       });
     };
-
-    
-
-
   });
 };

@@ -1,5 +1,5 @@
 import { React, useState, useRef, useEffect } from "react";
-import { CirclePlay, Eraser, X, Maximize2, Minimize2 } from "lucide-react";
+import { CirclePlay, Eraser, X, Maximize2, Minimize2, StopCircleIcon } from "lucide-react";
 import { io } from "socket.io-client";
 import { useTheme } from "../context/ThemeContext";
 import CodeMirror from "@uiw/react-codemirror";
@@ -100,7 +100,7 @@ function PythonIDE() {
   useEffect(() => {
     const handlePyResponse = (message) => {
       setDisable(false);
-      setLoading(false);
+      // setLoading(false);
 
       let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
 
@@ -144,7 +144,7 @@ function PythonIDE() {
 
     const handleUser = (message) => {
       setDisable(false);
-      setLoading(false);
+      // setLoading(false);
 
       // Normalize newlines to ensure consistency
       let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -249,6 +249,17 @@ function PythonIDE() {
       }
     };
   }, []);
+
+  const handleCancel = () => {
+    if (socket.current) {
+      socket.current.emit("cancle");
+      setLoading(false);
+      setDisable(false);
+      appendToOutputDivs(
+        document.createTextNode(">>> Execution Cancelled <<<")
+      );
+    }
+  };
 
   const handleRun = async () => {
     if (editorContent !== "") {
@@ -545,46 +556,47 @@ function PythonIDE() {
                       </p>
                     </div>
                     <div className="flex items-center justify-center gap-x-2">
-                      {editorBtns.map((btn, index) => (
-                        <Button
-                          key={index}
-                          classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold ${
-                            btn.text === "Execute"
-                              ? "bg-[#10B335] hover:bg-green-600"
-                              : "bg-[#FB2E38] hover:bg-[#FB2E10]"
-                          } px-4 rounded-lg ${
-                            loading && btn.text === "Execute"
-                              ? "opacity-60 cursor-not-allowed"
-                              : ""
-                          }`}
-                          action={
-                            loading && btn.text === "Execute"
-                              ? null
-                              : btn.action
-                          }
-                          text={
-                            loading && btn.text === "Execute"
-                              ? "Running..."
-                              : btn.text
-                          }
-                          icon={
-                            loading && btn.text === "Execute" ? (
-                              <SpinnerIcon />
-                            ) : (
-                              btn.icon
-                            )
-                          }
-                        />
-                      ))}
+                      {editorBtns.map((btn, index) => {
+                        if (loading && btn.text === "Execute") {
+                          // Show Cancel button instead of Execute while loading
+                          return (
+                            <Button
+                              key={index}
+                              classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg"
+                              action={handleCancel}
+                              text="Cancel"
+                              icon={<StopCircleIcon />} 
+                            />
+                          );
+                        }
+
+                        return (
+                          <Button
+                            key={index}
+                            classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold ${
+                              btn.text === "Execute"
+                                ? "bg-[#10B335] hover:bg-green-600"
+                                : "bg-[#FB2E38] hover:bg-[#FB2E10]"
+                            } px-4 rounded-lg`}
+                            action={btn.action}
+                            text={btn.text}
+                            icon={btn.icon}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="flex-1 min-h-[300px] sm:min-h-0 h-full w-full overflow-hidden rounded-lg">
+                  <div
+                    className="w-full rounded-lg overflow-hidden"
+                    style={{ height: "70vh" }}
+                  >
                     <CodeMirror
                       defaultValue={editorContent}
                       className="w-full h-full text-[1rem] scrollbar-custom"
                       style={{
                         height: "100%",
+                        maxHeight: "100%",
                         overflow: "auto",
                       }}
                       theme={darkTheme ? oneDark : "light"}
@@ -631,12 +643,13 @@ function PythonIDE() {
                   </div>
                   <div
                     id="outputDivDesktop"
-                    className={`flex-1 w-full h-full overflow-auto ${
+                    className={`w-full overflow-auto rounded-lg ${
                       darkTheme
                         ? "text-gray-200 bg-gray-800"
                         : "text-black bg-white"
                     }`}
                     style={{
+                      height: "70vh",
                       display: "flex",
                       flexDirection: "column",
                       whiteSpace: "pre",
