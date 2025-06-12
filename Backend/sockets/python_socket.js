@@ -64,13 +64,7 @@ plt.show = safe_show
       let errorOutput = "";
       let wasCancelled = false; 
 
-      const killTimeout = setTimeout(() => {
-        if (!pyProcess.killed) {
-          pyProcess.kill("SIGTERM");
-          wasCancelled = true;
-          console.warn("Force killed hanging Docker container (timeout)");
-        }
-      }, 5 * 60 * 1000);
+     
 
       const handleUserEntry = (userInput) => {
         if (expectingEntry) {
@@ -102,13 +96,13 @@ plt.show = safe_show
         let errorMsg = data.toString();
         errorMsg = errorMsg.replace(
           /File "<string>", line (\d+)/g,
-          (_, lineNum) => `line ${Math.max(1, lineNum - 7)}`
+          (_, lineNum) => `line ${Math.max(1, lineNum - (type === "ds" ? 18: 8))}`
         );
         errorOutput += errorMsg;
       });
 
       pyProcess.on("close", () => {
-        clearTimeout(killTimeout);
+        // clearTimeout(killTimeout);
         socket.removeListener("userEntry", handleUserEntry);
 
         if (errorOutput.trim()) {
@@ -146,7 +140,7 @@ plt.show = safe_show
           spawn("docker", ["kill", containerName]);
         }
       });
-
+      
       socket.on("disconnect", () => {
         socket.removeListener("userEntry", handleUserEntry);
         if (!pyProcess.killed) {
