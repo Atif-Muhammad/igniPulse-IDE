@@ -158,7 +158,7 @@ function PythonIDE() {
       lines.slice(0, -1).forEach((line) => {
         const lineDiv = document.createElement("div");
         lineDiv.innerHTML = line.replace(/\n/g, "<br>");
-        lineDiv.style.marginBottom = "5px";
+        lineDiv.style.marginBottom = "2px";
         appendToOutputDivs(lineDiv);
       });
 
