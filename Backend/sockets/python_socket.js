@@ -76,21 +76,32 @@ plt.show = safe_show
       socket.removeAllListeners("userEntry");
       socket.on("userEntry", handleUserEntry);
 
+      let stdoutBuffer = ""; // keep outside the listener
+
       pyProcess.stdout.on("data", (data) => {
-        const outputCheck = data.toString();
-        if (outputCheck.includes("INPUT_REQUEST")) {
-          expectingEntry = true;
-          socket.emit(
-            "userInput",
-            outputCheck.replace("INPUT_REQUEST", "").trim()
-          );
-        } else {
-          outputCheck
-            .split(/\r?\n/)
-            .filter((line) => line.trim())
-            .forEach((line) => socket.emit("pyResponse", line));
-        }
+        stdoutBuffer += data.toString();
+
+        // Split into lines
+        const lines = stdoutBuffer.split(/\r?\n/);
+
+        // Keep the last part in buffer if it's not a complete line
+        stdoutBuffer = lines.pop(); // Save incomplete last line (if any)
+
+        lines
+          .filter((line) => line.trim())
+          .forEach((line) => {
+            if (line.includes("INPUT_REQUEST")) {
+              expectingEntry = true;
+              socket.emit(
+                "userInput",
+                line.replace("INPUT_REQUEST", "").trim()
+              );
+            } else {
+              socket.emit("pyResponse", line);
+            }
+          });
       });
+
 
       pyProcess.stderr.on("data", (data) => {
         let errorMsg = data.toString();
