@@ -1,5 +1,12 @@
 import { React, useState, useRef, useEffect } from "react";
-import { CirclePlay, Eraser, X, Maximize2, Minimize2, StopCircleIcon } from "lucide-react";
+import {
+  CirclePlay,
+  Eraser,
+  X,
+  Maximize2,
+  Minimize2,
+  StopCircleIcon,
+} from "lucide-react";
 import { io } from "socket.io-client";
 import { useTheme } from "../context/ThemeContext";
 import CodeMirror from "@uiw/react-codemirror";
@@ -115,7 +122,7 @@ function PythonIDE() {
       const res = document.createElement("div");
       res.innerHTML = formattedMessage;
       // res.style.paddingBottom = "6px";
-      res.style.padding = "5px";
+      // res.style.padding = "2px";
       // res.style.whiteSpace = "pre";
       // res.style.wordBreak = "normal";
       // res.style.overflowWrap = "break-word";// disable word breaking
@@ -144,17 +151,12 @@ function PythonIDE() {
 
     const handleUser = (message) => {
       setDisable(false);
-      // setLoading(false);
 
-      // Normalize newlines to ensure consistency
       let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
-
-      // Extract lines while preserving newlines
       const lines = formattedMessage
         .match(/[^\n]*(\n|$)/g)
         .filter((line) => line !== "");
 
-      // Process all lines except the last one
       lines.slice(0, -1).forEach((line) => {
         const lineDiv = document.createElement("div");
         lineDiv.innerHTML = line.replace(/\n/g, "<br>");
@@ -204,19 +206,54 @@ function PythonIDE() {
       selection.removeAllRanges();
       selection.addRange(range);
 
-      promptLabel.addEventListener("keydown", (event) => {
+      const handleKeyDown = (event) => {
         if (event.key === "Enter") {
           event.preventDefault();
-
           const userInput = promptLabel.textContent.trim();
 
           if (userInput) {
             socket.current.emit("userEntry", userInput);
-
             promptLabel.setAttribute("contenteditable", "false");
+
+            // Remove the event listener after submission
+            promptLabel.removeEventListener("keydown", handleKeyDown);
+
+            // For mobile, ensure the virtual keyboard doesn't interfere
+            if (window.innerWidth <= 768) {
+              promptLabel.blur();
+            }
           }
         }
-      });
+      };
+
+      promptLabel.addEventListener("keydown", handleKeyDown);
+
+      // Additional handling for mobile devices
+      if (window.innerWidth <= 768) {
+        // Ensure the modal is open
+        setShowOutput(true);
+
+        // Add a submit button for mobile users
+        const mobileSubmitButton = document.createElement("button");
+        mobileSubmitButton.textContent = "Submit";
+        mobileSubmitButton.style.marginTop = "10px";
+        mobileSubmitButton.style.padding = "5px 10px";
+        mobileSubmitButton.style.backgroundColor = "#10B335";
+        mobileSubmitButton.style.color = "white";
+        mobileSubmitButton.style.border = "none";
+        mobileSubmitButton.style.borderRadius = "5px";
+
+        mobileSubmitButton.addEventListener("click", () => {
+          const userInput = promptLabel.textContent.trim();
+          if (userInput) {
+            socket.current.emit("userEntry", userInput);
+            promptLabel.setAttribute("contenteditable", "false");
+            inputPromptDiv.removeChild(mobileSubmitButton);
+          }
+        });
+
+        inputPromptDiv.appendChild(mobileSubmitButton);
+      }
     };
 
     const handleGraphOutput = (imageData) => {
@@ -225,12 +262,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
@@ -517,19 +554,21 @@ function PythonIDE() {
             <NavBar handleDownload={handleDownload} openFile={openFile} />
 
             <div
-              className={`grid grid-cols-1 md:grid-cols-[auto_1fr] grid-rows-1 md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
+              className={`flex flex-col md:grid md:grid-cols-[auto_1fr] md:h-[85%] h-[90%] w-full overflow-hidden px-2 gap-2 ${
                 darkTheme ? "bg-gray-800" : "bg-gray-50"
               } p-2 rounded-lg`}
             >
-              {/* Left Menu */}
-              <LeftMenu
-                handleCopy={handleCopy}
-                handlePaste={handlePaste}
-                copyDone={copyDone}
-                pasteDone={pasteDone}
-                TableDetail={null}
-                details={null}
-              />
+              <div className="w-full md:w-auto">
+                {/* Left Menu */}
+                <LeftMenu
+                  handleCopy={handleCopy}
+                  handlePaste={handlePaste}
+                  copyDone={copyDone}
+                  pasteDone={pasteDone}
+                  TableDetail={null}
+                  details={null}
+                />
+              </div>
 
               {/* Editor and Output */}
               <div className="w-full h-full flex flex-row gap-2 overflow-hidden">
@@ -565,7 +604,7 @@ function PythonIDE() {
                               classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg"
                               action={handleCancel}
                               text="Cancel"
-                              icon={<StopCircleIcon />} 
+                              icon={<StopCircleIcon />}
                             />
                           );
                         }
@@ -588,7 +627,7 @@ function PythonIDE() {
                   </div>
 
                   <div
-                    className="w-full rounded-lg overflow-hidden"
+                    className="flex flex-col w-full h-full overflow-hidden"
                     style={{ height: "70vh" }}
                   >
                     <CodeMirror
