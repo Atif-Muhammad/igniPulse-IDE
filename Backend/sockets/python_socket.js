@@ -97,7 +97,9 @@ plt.show = safe_show
                 line.replace("INPUT_REQUEST", "").trim()
               );
             } else {
-              socket.emit("pyResponse", line);
+              // console.log(line)
+              // console.log(typeof(line))
+              socket.emit("pyResponse", '"'+ line.toString() + '"');
             }
           });
       });
@@ -117,7 +119,7 @@ plt.show = safe_show
         socket.removeListener("userEntry", handleUserEntry);
 
         if (errorOutput.trim()) {
-          socket.emit("pyResponse", "<b>Error!\n</b>" + errorOutput.trim());
+          socket.emit("pyResponse", "<b>Error!</b>\n" + errorOutput.trim());
         }
 
         if (type === "ds") {

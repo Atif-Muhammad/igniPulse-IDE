@@ -27,6 +27,7 @@ import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
 import { useLocation } from "react-router-dom";
+import escapeHtml from "../../Functions/escapeHtml";
 
 const insertSpacesAtCursor = keymap.of([
   {
@@ -106,10 +107,18 @@ function PythonIDE() {
 
   useEffect(() => {
     const handlePyResponse = (message) => {
+      // console.log(message)
+      var escapedMsgs = ""
+      if(message.startsWith('"') && message.endsWith('"')){
+        escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
+      }else{
+        escapedMsgs = message;
+      }
+      // console.log(escapedMsgs)
       setDisable(false);
       // setLoading(false);
 
-      let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
+      let formattedMessage = escapedMsgs.replace(/\r\n|\r|\n/g, "\n");
 
       if (formattedMessage.startsWith("\n")) {
         formattedMessage = "<br>" + formattedMessage.trimStart();
@@ -118,6 +127,7 @@ function PythonIDE() {
         formattedMessage = formattedMessage.trimEnd() + "<br>";
       }
       formattedMessage = formattedMessage.replace(/\n/g, "<br>");
+      // console.log(formattedMessage)
 
       const res = document.createElement("div");
       res.innerHTML = formattedMessage;
@@ -262,12 +272,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
