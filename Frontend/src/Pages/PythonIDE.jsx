@@ -6,6 +6,8 @@ import {
   Maximize2,
   Minimize2,
   StopCircleIcon,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useTheme } from "../context/ThemeContext";
@@ -27,9 +29,6 @@ import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
 import { useLocation } from "react-router-dom";
-import escapeHtml from "../../Functions/escapeHtml";
-
-
 
 const insertSpacesAtCursor = keymap.of([
   {
@@ -84,6 +83,16 @@ function PythonIDE() {
   const [showGraph, setShowGraph] = useState(false);
   const [graphData, setGraphData] = useState(null);
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  // / Add these zoom functions:
+  const handleZoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + 0.1, 2)); // Max zoom 200%
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
+  };
 
   const clearOutput = () => {
     const desktopOutput = document.getElementById("outputDivDesktop");
@@ -109,18 +118,10 @@ function PythonIDE() {
 
   useEffect(() => {
     const handlePyResponse = (message) => {
-      // console.log(message)
-      var escapedMsgs = ""
-      if(message.startsWith('"') && message.endsWith('"')){
-        escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
-      }else{
-        escapedMsgs = message;
-      }
-      // console.log(escapedMsgs)
       setDisable(false);
       // setLoading(false);
 
-      let formattedMessage = escapedMsgs.replace(/\r\n|\r|\n/g, "\n");
+      let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
 
       if (formattedMessage.startsWith("\n")) {
         formattedMessage = "<br>" + formattedMessage.trimStart();
@@ -129,7 +130,6 @@ function PythonIDE() {
         formattedMessage = formattedMessage.trimEnd() + "<br>";
       }
       formattedMessage = formattedMessage.replace(/\n/g, "<br>");
-      // console.log(formattedMessage)
 
       const res = document.createElement("div");
       res.innerHTML = formattedMessage;
@@ -551,6 +551,50 @@ function PythonIDE() {
     },
   ];
 
+  // zoom theme extension
+  const zoomTheme = EditorView.theme({
+    "&": {
+      fontSize: `${zoomLevel * 100}%`,
+    },
+    ".cm-content": {
+      fontSize: `${zoomLevel * 100}%`,
+    },
+    ".cm-gutterElement": {
+      fontSize: `${zoomLevel * 100}%`,
+    },
+  });
+
+  // Create a custom theme extension that respects the zoom level
+  const zoomButtons = EditorView.theme({
+    ".cm-editor": {
+      position: "relative",
+    },
+    ".cm-zoom-buttons": {
+      position: "absolute",
+      bottom: "3px",
+      right: "3px",
+      display: "flex",
+      gap: "5px",
+      zIndex: "100",
+    },
+    ".cm-zoom-button": {
+      width: "28px",
+      height: "28px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "4px",
+      backgroundColor: darkTheme ? "#475569" : "#D1D5DB",
+      color: darkTheme ? "white" : "black",
+      cursor: "pointer",
+      border: "none",
+      fontSize: "12px",
+      "&:hover": {
+        backgroundColor: darkTheme ? "#64748B" : "#9CA3AF",
+      },
+    },
+  });
+
   return (
     <>
       <div
@@ -649,7 +693,6 @@ function PythonIDE() {
                         height: "100%",
                         maxHeight: "100%",
                         overflow: "auto",
-                        // fontFamily: "consolas-font"
                       }}
                       theme={darkTheme ? oneDark : "light"}
                       extensions={[
@@ -658,10 +701,50 @@ function PythonIDE() {
                         highlightActiveLineGutter(),
                         lineNumbers(),
                         insertSpacesAtCursor,
+                        zoomTheme,
+                        zoomButtons,
                       ]}
                       onChange={setEditorContent}
                       onCreateEditor={(editor) => {
                         editorRef.current = editor;
+                        const zoomContainer = document.createElement("div");
+                        zoomContainer.className = "cm-zoom-buttons";
+
+                        // Zoom Out Button with Magnifying Glass and Minus icon
+                        const zoomOutButton = document.createElement("button");
+                        zoomOutButton.className = "cm-zoom-button";
+                        zoomOutButton.title = "Zoom Out (Ctrl+-)";
+                        zoomOutButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>`;
+                        zoomOutButton.onclick = (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleZoomOut();
+                        };
+
+                        // Zoom In Button with Magnifying Glass and Plus icon
+                        const zoomInButton = document.createElement("button");
+                        zoomInButton.className = "cm-zoom-button";
+                        zoomInButton.title = "Zoom In (Ctrl++)";
+                        zoomInButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>`;
+                        zoomInButton.onclick = (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleZoomIn();
+                        };
+
+                        zoomContainer.appendChild(zoomOutButton);
+                        zoomContainer.appendChild(zoomInButton);
+
+                        editor.dom.appendChild(zoomContainer);
                       }}
                     />
                   </div>
@@ -735,7 +818,7 @@ function PythonIDE() {
                     </p>
                     <div className="flex items-center gap-x-2">
                       <Button
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#F7665D] px-4 hover:bg-[#f7766d] rounded-lg text-xs`}
+                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#FB2E38] hover:bg-[#FB2E10] px-4  rounded-lg text-xs`}
                         text={editorBtns[0].text}
                         icon={editorBtns[0].icon}
                         action={clearOutput}
