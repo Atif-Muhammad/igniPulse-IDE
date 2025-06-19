@@ -440,9 +440,9 @@ function sqlIDETwo() {
       )}
 
       <div className="flex items-center justify-center w-screen h-screen py-18">
-        <div className="w-full grid grid-cols-1 md:grid-cols-[9.5%_82%_9.5%] grid-rows-[80vh]  overflow-hidden">
+        <div className="w-full grid grid-cols-1 md:grid-cols-[5%_90%_5%] grid-rows-[80vh]  overflow-hidden">
           <div className="md:flex items-center justify-center hidden overflow-hidden h-full">
-            <Ads />
+            {/* <Ads /> */}
           </div>
 
           <div className="flex flex-col items-center justify-center h-full w-full lg:gap-y-1 md:gap-y-1 px-1 overflow-hidden">
@@ -466,7 +466,7 @@ function sqlIDETwo() {
                 setLoadingDB={setLoadingDB}
               />
               {/* </div> */}
-              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full lg:w-[94%] w-full ">
+              <div className="lg:py-0 md:py-0 py-2 relative flex flex-col md:flex-row lg:flex-row gap-2 items-start justify-center h-full lg:w-[95%] w-full ">
                 <div className="hidden md:block lg:block w-full md:w-[25%] lg:w-[18%]  h-full overflow-hidden">
                   <TableDetail tables={tables} views={views} />
                 </div>
@@ -552,7 +552,7 @@ function sqlIDETwo() {
           </div>
 
           <div className="md:flex items-center justify-center hidden overflow-hidden h-full">
-            <Ads />
+            {/* <Ads /> */}
           </div>
         </div>
       </div>

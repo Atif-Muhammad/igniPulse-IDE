@@ -29,6 +29,8 @@ import SpinnerIcon from "../components/SpinnerIcon";
 import { useLocation } from "react-router-dom";
 import escapeHtml from "../../Functions/escapeHtml";
 
+
+
 const insertSpacesAtCursor = keymap.of([
   {
     key: "Tab",
@@ -556,9 +558,9 @@ function PythonIDE() {
           showGraph ? "blur-sm pointer-events-none select-none" : ""
         }`}
       >
-        <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[10%_80%_10%] py-15">
+        <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-[5%_90%_5%] py-15">
           <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
-            <Ads />
+            {/* <Ads /> */}
           </div>
           <div className="flex flex-col items-center justify-center h-full  min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
@@ -647,6 +649,7 @@ function PythonIDE() {
                         height: "100%",
                         maxHeight: "100%",
                         overflow: "auto",
+                        // fontFamily: "consolas-font"
                       }}
                       theme={darkTheme ? oneDark : "light"}
                       extensions={[
@@ -772,7 +775,7 @@ function PythonIDE() {
           </div>
 
           <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
-            <Ads />
+            {/* <Ads /> */}
           </div>
         </div>
       </div>
