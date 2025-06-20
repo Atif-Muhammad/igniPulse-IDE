@@ -85,6 +85,7 @@ function PythonIDE() {
   const [graphData, setGraphData] = useState(null);
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [outputZoomLevel, setOutputZoomLevel] = useState(1);
 
   // / Add these zoom functions:
   const handleZoomIn = () => {
@@ -93,6 +94,14 @@ function PythonIDE() {
 
   const handleZoomOut = () => {
     setZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
+  };
+
+  const handleOutputZoomIn = () => {
+    setOutputZoomLevel((prev) => Math.min(prev + 0.1, 2)); // Max zoom 200%
+  };
+
+  const handleOutputZoomOut = () => {
+    setOutputZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
   };
 
   const clearOutput = () => {
@@ -119,11 +128,10 @@ function PythonIDE() {
 
   useEffect(() => {
     const handlePyResponse = (message) => {
-      
-      var escapedMsgs = ""
-      if(message.startsWith('"') && message.endsWith('"')){
+      var escapedMsgs = "";
+      if (message.startsWith('"') && message.endsWith('"')) {
         escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
-      }else{
+      } else {
         escapedMsgs = message;
       }
       // console.log(escapedMsgs)
@@ -131,7 +139,6 @@ function PythonIDE() {
       // setLoading(false);
 
       let formattedMessage = escapedMsgs.replace(/\r\n|\r|\n/g, "\n");
-
 
       if (formattedMessage.startsWith("\n")) {
         formattedMessage = "<br>" + formattedMessage.trimStart();
@@ -284,12 +291,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
@@ -585,7 +592,7 @@ function PythonIDE() {
       right: "3px",
       display: "flex",
       gap: "5px",
-      zIndex: "100",
+      // zIndex: "",
     },
     ".cm-zoom-button": {
       width: "28px",
@@ -723,7 +730,7 @@ function PythonIDE() {
                         // Zoom Out Button with Magnifying Glass and Minus icon
                         const zoomOutButton = document.createElement("button");
                         zoomOutButton.className = "cm-zoom-button";
-                        zoomOutButton.title = "Zoom Out (Ctrl+-)";
+                        zoomOutButton.title = "Zoom Out";
                         zoomOutButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -738,7 +745,7 @@ function PythonIDE() {
                         // Zoom In Button with Magnifying Glass and Plus icon
                         const zoomInButton = document.createElement("button");
                         zoomInButton.className = "cm-zoom-button";
-                        zoomInButton.title = "Zoom In (Ctrl++)";
+                        zoomInButton.title = "Zoom In ";
                         zoomInButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -765,12 +772,12 @@ function PythonIDE() {
                     darkTheme
                       ? "border-blue-600 bg-gray-800"
                       : "border-sky-700 bg-white"
-                  } rounded-lg p-2 gap-y-1`}
+                  } rounded-lg p-2 gap-y-1 relative`}
                 >
                   <div
                     className={`h-14 w-full flex items-center justify-between gap-x-2 rounded-lg ${
                       darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2 `}
+                    } px-2`}
                   >
                     <p
                       className={`font-black px-1 ${
@@ -779,12 +786,14 @@ function PythonIDE() {
                     >
                       Output
                     </p>
-                    <Button
-                      classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs"
-                      text={editorBtns[0].text}
-                      icon={editorBtns[0].icon}
-                      action={clearOutput}
-                    />
+                    <div className="flex items-center gap-x-2">
+                      <Button
+                        classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs"
+                        text={editorBtns[0].text}
+                        icon={editorBtns[0].icon}
+                        action={clearOutput}
+                      />
+                    </div>
                   </div>
                   <div
                     id="outputDivDesktop"
@@ -800,8 +809,61 @@ function PythonIDE() {
                       whiteSpace: "pre",
                       wordBreak: "break-word",
                       overflow: "auto",
+                      fontSize: `${outputZoomLevel * 100}%`,
                     }}
                   ></div>
+                  {/* Zoom buttons for desktop output */}
+                  <div className="absolute bottom-3 right-2 flex  gap-1 z-10">
+                    <button
+                      onClick={handleOutputZoomOut}
+                      className={`w-7 h-7 flex items-center justify-center rounded ${
+                        darkTheme
+                          ? "bg-gray-600 hover:bg-gray-500"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      title="Zoom Out"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={darkTheme ? "white" : "black"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleOutputZoomIn}
+                      className={`w-7 h-7 flex items-center justify-center rounded ${
+                        darkTheme
+                          ? "bg-gray-600 hover:bg-gray-500"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      title="Zoom In"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={darkTheme ? "white" : "black"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -828,7 +890,7 @@ function PythonIDE() {
                     </p>
                     <div className="flex items-center gap-x-2">
                       <Button
-                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#FB2E38] hover:bg-[#FB2E10] px-4  rounded-lg text-xs`}
+                        classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg text-xs`}
                         text={editorBtns[0].text}
                         icon={editorBtns[0].icon}
                         action={clearOutput}
@@ -846,7 +908,6 @@ function PythonIDE() {
                       </button>
                     </div>
                   </div>
-
                   <div
                     id="outputDivMobile"
                     className={`flex-1 w-full overflow-auto ${
@@ -859,9 +920,61 @@ function PythonIDE() {
                       flexDirection: "column",
                       whiteSpace: "pre",
                       wordBreak: "break-word",
-                      // overflow: "auto",
+                      fontSize: `${outputZoomLevel * 100}%`,
                     }}
                   ></div>
+                  {/* Zoom buttons for mobile output */}
+                  <div className="flex justify-end gap-2 p-2">
+                    <button
+                      onClick={handleOutputZoomOut}
+                      className={`w-7 h-7 flex items-center justify-center rounded ${
+                        darkTheme
+                          ? "bg-gray-600 hover:bg-gray-500"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      title="Zoom Out"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={darkTheme ? "white" : "black"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleOutputZoomIn}
+                      className={`w-7 h-7 flex items-center justify-center rounded ${
+                        darkTheme
+                          ? "bg-gray-600 hover:bg-gray-500"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      title="Zoom In"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={darkTheme ? "white" : "black"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
