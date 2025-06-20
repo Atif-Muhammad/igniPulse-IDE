@@ -42,6 +42,16 @@ function sqlIDETwo() {
   const [views, setViews] = useState();
 
   const [loadingDB, setLoadingDB] = useState(true);
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  // / Add these zoom functions:
+  const handleZoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + 0.1, 2)); // Max zoom 200%
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
+  };
 
   // Add line wrapping extension
   const lineWrapping = EditorView.lineWrapping;
@@ -398,6 +408,50 @@ function sqlIDETwo() {
     },
   ];
 
+  // zoom theme extension
+  const zoomTheme = EditorView.theme({
+    "&": {
+      fontSize: `${zoomLevel * 100}%`,
+    },
+    ".cm-content": {
+      fontSize: `${zoomLevel * 100}%`,
+    },
+    ".cm-gutterElement": {
+      fontSize: `${zoomLevel * 100}%`,
+    },
+  });
+
+  // Create a custom theme extension that respects the zoom level
+  const zoomButtons = EditorView.theme({
+    ".cm-editor": {
+      position: "relative",
+    },
+    ".cm-zoom-buttons": {
+      position: "absolute",
+      bottom: "3px",
+      right: "3px",
+      display: "flex",
+      gap: "5px",
+      zIndex: "100",
+    },
+    ".cm-zoom-button": {
+      width: "28px",
+      height: "28px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "4px",
+      backgroundColor: darkTheme ? "#475569" : "#D1D5DB",
+      color: darkTheme ? "white" : "black",
+      cursor: "pointer",
+      border: "none",
+      fontSize: "12px",
+      "&:hover": {
+        backgroundColor: darkTheme ? "#64748B" : "#9CA3AF",
+      },
+    },
+  });
+
   useEffect(() => {
     setTimeout(() => {
       setShowInfo(true);
@@ -514,7 +568,7 @@ function sqlIDETwo() {
                     <div className="w-full flex-1 flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
-                        className={`text-[1rem] w-full scrollbar-custom rounded-lg ${
+                        className={` text-[1rem] w-full scrollbar-custom rounded-lg ${
                           darkTheme ? "text-gray-200" : "text-gray-800"
                         }`}
                         theme={darkTheme ? oneDark : "light"}
@@ -523,6 +577,8 @@ function sqlIDETwo() {
                           customScrollbar,
                           highlightActiveLineGutter(),
                           lineWrapping,
+                          zoomTheme,
+                          zoomButtons,
                         ]}
                         onChange={(newContent, viewUpdate) => {
                           setEditorContent(newContent);
@@ -530,6 +586,46 @@ function sqlIDETwo() {
                         }}
                         onCreateEditor={(editor) => {
                           editorRef.current = editor;
+
+                          const zoomContainer = document.createElement("div");
+                          zoomContainer.className = "cm-zoom-buttons";
+
+                          // Zoom Out Button with Magnifying Glass and Minus icon
+                          const zoomOutButton =
+                            document.createElement("button");
+                          zoomOutButton.className = "cm-zoom-button";
+                          zoomOutButton.title = "Zoom Out (Ctrl+-)";
+                          zoomOutButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>`;
+                          zoomOutButton.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleZoomOut();
+                          };
+
+                          // Zoom In Button with Magnifying Glass and Plus icon
+                          const zoomInButton = document.createElement("button");
+                          zoomInButton.className = "cm-zoom-button";
+                          zoomInButton.title = "Zoom In (Ctrl++)";
+                          zoomInButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>`;
+                          zoomInButton.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleZoomIn();
+                          };
+
+                          zoomContainer.appendChild(zoomOutButton);
+                          zoomContainer.appendChild(zoomInButton);
+
+                          editor.dom.appendChild(zoomContainer);
                         }}
                       />
                     </div>
