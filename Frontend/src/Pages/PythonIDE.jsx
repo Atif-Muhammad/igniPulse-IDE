@@ -698,7 +698,7 @@ function PythonIDE() {
                   >
                     <CodeMirror
                       defaultValue={editorContent}
-                      className="w-full h-full text-[1rem] scrollbar-custom"
+                      className="CodeMirror w-full h-full text-[1rem] scrollbar-custom"
                       style={{
                         height: "100%",
                         maxHeight: "100%",

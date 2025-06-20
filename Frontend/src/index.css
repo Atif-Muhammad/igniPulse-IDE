@@ -17,6 +17,10 @@
   /* font-family: consolas-font; */
 }
 
+.CodeMirror * {
+  font-family: 'consolas-font';
+}
+
 .cm-content {
   tab-size: 2;
 }
