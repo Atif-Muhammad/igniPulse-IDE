@@ -29,6 +29,7 @@ import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
 import { useLocation } from "react-router-dom";
+import escapeHtml from "../../Functions/escapeHtml";
 
 const insertSpacesAtCursor = keymap.of([
   {
@@ -118,10 +119,19 @@ function PythonIDE() {
 
   useEffect(() => {
     const handlePyResponse = (message) => {
+      
+      var escapedMsgs = ""
+      if(message.startsWith('"') && message.endsWith('"')){
+        escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
+      }else{
+        escapedMsgs = message;
+      }
+      // console.log(escapedMsgs)
       setDisable(false);
       // setLoading(false);
 
-      let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
+      let formattedMessage = escapedMsgs.replace(/\r\n|\r|\n/g, "\n");
+
 
       if (formattedMessage.startsWith("\n")) {
         formattedMessage = "<br>" + formattedMessage.trimStart();
