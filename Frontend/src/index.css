@@ -18,7 +18,7 @@
 }
 
 .CodeMirror * {
-  font-family: 'consolas-font';
+  font-family: monospace;
 }
 
 .cm-content {
