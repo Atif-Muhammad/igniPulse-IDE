@@ -44,7 +44,7 @@ plt.show = safe_show
       const image = type === "ds" ? "python-ds" : "python-gen";
       const sharedVolumePath = "/temps";
       const fullOutputPath = path.join(sharedVolumePath, outputFile);
-      const containerName = `py-${socket.id}`; 
+      const containerName = `py-${socket.id}`;
       const dockerArgs = [
         "run",
         "--rm",
@@ -62,9 +62,7 @@ plt.show = safe_show
       const pyProcess = spawn("docker", dockerArgs);
       let expectingEntry = false;
       let errorOutput = "";
-      let wasCancelled = false; 
-
-     
+      let wasCancelled = false;
 
       const handleUserEntry = (userInput) => {
         if (expectingEntry) {
@@ -99,18 +97,23 @@ plt.show = safe_show
             } else {
               // console.log(line)
               // console.log(typeof(line))
-              socket.emit("pyResponse", '"'+ line.toString() + '"');
+              socket.emit("pyResponse", '"' + line.toString() + '"');
             }
           });
       });
 
-
       pyProcess.stderr.on("data", (data) => {
         let errorMsg = data.toString();
-        errorMsg = errorMsg.replace(
-          /File "<string>", line (\d+)/g,
-          (_, lineNum) => `line ${Math.max(1, lineNum - (type === "ds" ? 18: 8))}`
-        );
+        errorMsg = errorMsg
+          .replace(
+            /File "<string>", line (\d+)/g,
+            (_, lineNum) =>
+              `line ${Math.max(1, lineNum - (type === "ds" ? 18 : 8))}`
+          )
+          .replace(
+            /SyntaxError: unterminated string literal \(detected at line \d+\)/,
+            "SyntaxError: unterminated string literal"
+          );
         errorOutput += errorMsg;
       });
 
@@ -141,8 +144,10 @@ plt.show = safe_show
           }
         }
 
-        if (!wasCancelled) {
+        if(!wasCancelled && !errorOutput.trim()){
           socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
+        }else if(!wasCancelled && errorOutput.trim()){
+          socket.emit("EXIT_ERROR", "EXIT_ERROR");
         }
       });
 
@@ -153,7 +158,7 @@ plt.show = safe_show
           spawn("docker", ["kill", containerName]);
         }
       });
-      
+
       socket.on("disconnect", () => {
         socket.removeListener("userEntry", handleUserEntry);
         if (!pyProcess.killed) {

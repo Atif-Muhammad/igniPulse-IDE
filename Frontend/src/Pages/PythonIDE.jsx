@@ -178,6 +178,22 @@ function PythonIDE() {
       appendToOutputDivs(exitMsg);
     };
 
+    const handleExitError = () => {
+      setLoading(false);
+      const exitMsg = document.createElement("p");
+      exitMsg.innerText = "--- Program Executed with Errors ---";
+      exitMsg.style.fontWeight = "bold";
+      exitMsg.style.marginTop = "10px";
+      exitMsg.style.textAlign = "start";
+      exitMsg.style.wordWrap = "break-word";
+      exitMsg.style.overflowWrap = "break-word";
+      exitMsg.style.whiteSpace = "normal";
+      exitMsg.style.width = "100%";
+
+      // document.getElementById("outputDiv").appendChild(exitMsg);
+      appendToOutputDivs(exitMsg);
+    };
+
     const handleUser = (message) => {
       setDisable(false);
 
@@ -291,15 +307,16 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000");
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
+      socket.current.on("EXIT_ERROR", handleExitError);
       socket.current.on("userInput", handleUser);
     }
 
@@ -308,6 +325,7 @@ function PythonIDE() {
         socket.current?.off("pyResponse", handlePyResponse);
         socket.current?.off("graphOutput", handleGraphOutput);
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
+        socket.current?.off("EXIT_ERROR", handleExitError);
         socket.current?.off("userInput", handleUser);
         socket.current?.disconnect();
         socket.current?.close();
