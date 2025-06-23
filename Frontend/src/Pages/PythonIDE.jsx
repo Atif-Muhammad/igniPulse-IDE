@@ -123,6 +123,7 @@ function PythonIDE() {
     // Add styling to ensure proper display
     el.style.display = "block";
     el.style.width = "100%";
+    el.style.fontFamily= "monospace";
     el.style.wordBreak = "break-word";
   };
 
@@ -181,7 +182,7 @@ function PythonIDE() {
     const handleExitError = () => {
       setLoading(false);
       const exitMsg = document.createElement("p");
-      exitMsg.innerText = "--- Program Executed with Errors ---";
+      exitMsg.innerText = "--- Program Exited with Errors ---";
       exitMsg.style.fontWeight = "bold";
       exitMsg.style.marginTop = "10px";
       exitMsg.style.textAlign = "start";
@@ -189,6 +190,7 @@ function PythonIDE() {
       exitMsg.style.overflowWrap = "break-word";
       exitMsg.style.whiteSpace = "normal";
       exitMsg.style.width = "100%";
+
 
       // document.getElementById("outputDiv").appendChild(exitMsg);
       appendToOutputDivs(exitMsg);
@@ -307,12 +309,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true,
-      // });
-      socket.current = io("http://localhost:9000");
+      socket.current = io("https://igniup.com", {
+        path: "/socket.io/",
+        transports: ["websocket", "polling"],
+        withCredentials: true,
+      });
+      // socket.current = io("http://localhost:9000");
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
