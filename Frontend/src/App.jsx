@@ -12,6 +12,7 @@ import bgwhite from "../public/bg-saif.svg";
 import bgdark from "../public/bgDark.svg";
 import { useQuery } from "@tanstack/react-query";
 import config from "../Config/config";
+import { Profile } from "./Pages/Profile";
 
 function AppWrapper() {
   // This component will have access to the theme
@@ -39,6 +40,7 @@ function AppWrapper() {
     >
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/authentication" element={<Authentication/>}/>
         <Route path="/python" element={<PythonPage />} />
         <Route path="/sql" element={<SQLPage />} />
