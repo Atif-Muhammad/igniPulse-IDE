@@ -29,7 +29,7 @@ import Button from "../components/Button";
 import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
 import { useLocation } from "react-router-dom";
-import escapeHtml from "../../Functions/escapeHtml";
+import escapeHtml from "../Functions/escapeHtml";
 
 const insertSpacesAtCursor = keymap.of([
   {

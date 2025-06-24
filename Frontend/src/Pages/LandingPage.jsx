@@ -1,6 +1,6 @@
 import { React, useRef } from "react";
 import { NavLink } from "react-router-dom";
-import { Rocket, Moon, Sun } from "lucide-react";
+import { Rocket, Moon, Sun, User } from "lucide-react";
 import py from "../assets/py.svg";
 import sql from "../assets/sql.svg";
 import pyVid from "../assets/python.webp";
@@ -127,7 +127,7 @@ const LandingPage = () => {
               />
               igniUp
             </div>
-            <div className="flex relative z-50 gap-4">
+            <div className="flex relative z-50 gap-4 items-center justify-center">
               <div
                 className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full cursor-pointer"
                 onClick={toggleTheme}
@@ -138,6 +138,9 @@ const LandingPage = () => {
                   <Moon className="text-white" size={16} />
                 )}
               </div>
+              <NavLink to='/authentication' className={`${darkTheme ? "bg-white" : "bg-black"} p-2 rounded-full`}>
+                <User className={`${darkTheme ? "text-black" : "text-white"}`}/>
+              </NavLink>
             </div>
           </div>
 
