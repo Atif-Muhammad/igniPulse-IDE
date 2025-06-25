@@ -3,7 +3,7 @@ import "./index.css";
 import Sidebar from "./Pages/Sidebar";
 import PythonPage from "./Pages/PythonIDE";
 import SQLPage from "./Pages/sqlIDETwo";
-import Authentication from "./Pages/authentication/Authentication"
+import Authentication from "./Pages/authentication/Authentication";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext"; // Remove useTheme import
 import { useTheme } from "./context/ThemeContext";
@@ -18,18 +18,18 @@ function AppWrapper() {
   // This component will have access to the theme
   const { darkTheme } = useTheme();
 
-    const {data: currentUser, isLoading} = useQuery({
-      queryKey: ["currentUser"],
-      queryFn: async ()=> {
-        return await config.me();
-      },
-      onSuccess: (data)=>{
-        console.log(data)
-      },
-      onError: (err)=>{
-        console.log(err)
-      }
-    })
+  const { data: currentUser, isLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      return await config.me();
+    },
+    onSuccess: (data) => {
+      console.log(data);
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   return (
     <div
@@ -41,7 +41,7 @@ function AppWrapper() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/authentication" element={<Authentication/>}/>
+        <Route path="/authentication" element={<Authentication />} />
         <Route path="/python" element={<PythonPage />} />
         <Route path="/sql" element={<SQLPage />} />
       </Routes>
