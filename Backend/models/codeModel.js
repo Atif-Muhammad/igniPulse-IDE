@@ -7,7 +7,9 @@ const codeSchema = mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-    }
+    },
+    lang: String,
+    hash: String
 }, {timestamps: true})
 
 module.exports = mongoose.model("Code", codeSchema);

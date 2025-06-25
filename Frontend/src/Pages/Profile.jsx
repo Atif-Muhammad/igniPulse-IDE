@@ -1,5 +1,9 @@
 import React from "react";
 import { BadgeCheck, Copy } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import config from "../../Config/config";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const mockUser = {
   username: "Ayesha Malik",
@@ -19,6 +23,21 @@ const mockUser = {
 };
 
 export const Profile = () => {
+  const [execs, setExecs] = useState([]);
+  const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData(["currentUser"]);
+  // console.log(currentUser)
+  const { data } = useQuery({
+    queryKey: ["profile", currentUser?.data?.id],
+    queryFn: async () => {
+      return await config.getProfile(currentUser?.data?.id);
+    },
+    enabled: !!currentUser?.data?.id,
+  });
+  useEffect(() => {
+    setExecs(data?.data?.successExec || []);
+  }, [data]);
+
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code);
   };
@@ -31,15 +50,15 @@ export const Profile = () => {
           {/* Avatar & Username */}
           <div className="flex items-center gap-4">
             <img
-              src={mockUser.avatar}
-              alt="User Avatar"
+              src={data?.data?.image}
+              alt=""
               className="w-16 h-16 rounded-full border-2 border-blue-500 shadow-md"
             />
             <div>
               <h2 className="text-2xl font-bold text-gray-800">
-                {mockUser.username}
+                {data?.data?.user_name}
               </h2>
-              <p className="text-sm text-gray-500">Full Stack Developer</p>
+              <p className="text-sm text-gray-500"> {data?.data?.email}</p>
             </div>
           </div>
 
@@ -47,19 +66,19 @@ export const Profile = () => {
           <div className="flex gap-8 text-center">
             <div>
               <p className="text-lg font-bold text-gray-800">
-                {mockUser.stats.total}
+                {data?.data?.totalExec}
               </p>
               <p className="text-sm text-gray-500">Total Executions</p>
             </div>
             <div>
               <p className="text-lg font-bold text-green-600">
-                {mockUser.stats.success}
+                {data?.data?.successExec?.length}
               </p>
               <p className="text-sm text-gray-500">Success</p>
             </div>
             <div>
               <p className="text-lg font-bold text-red-500">
-                {mockUser.stats.error}
+                {data?.data?.errorExec}
               </p>
               <p className="text-sm text-gray-500">With Error</p>
             </div>
@@ -85,7 +104,7 @@ export const Profile = () => {
             Recent Successful Executions
           </h3>
 
-          {mockUser.recentCodes.map((code, index) => (
+          {execs?.map((code, index) => (
             <div
               key={index}
               className="relative rounded-lg overflow-hidden bg-gray-900 text-white p-4 mb-4"
@@ -98,7 +117,7 @@ export const Profile = () => {
                 <Copy className="w-5 h-5" />
               </button>
               <pre className="text-sm font-mono whitespace-pre-wrap leading-relaxed">
-                {code}
+                {code.code}
               </pre>
             </div>
           ))}

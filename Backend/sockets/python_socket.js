@@ -1,9 +1,19 @@
 const { spawnSync, spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const {
+  addCodetoDB,
+  incTotal,
+  incError,
+} = require("../utils/addCodeToDB");
+const cookie = require("cookie")
 
 module.exports = function (io) {
   io.on("connection", (socket) => {
+    // get cookie from initial handshake header
+    const cookieHeader = socket.handshake.headers.cookie;
+    const {IDETOKEN} = cookieHeader && cookie.parse(cookieHeader)
+    // console.log("cookie:", IDETOKEN)
     console.log("connection established with user:", socket.id);
 
     socket.on("runPy", (data, type) => {
@@ -11,25 +21,27 @@ module.exports = function (io) {
       const outputFile = `${fileId}.png`;
       // console.log("outpufile: ", outputFile)
 
-      const injectInputPatch = `
+      const injectInputPatch = `# BEGIN_INPUT_PATCH
 import builtins
 original_input = builtins.input
 def custom_input(prompt=""):
-    print(prompt + " INPUT_REQUEST", flush=True)
-    return original_input()
+  print(prompt + " INPUT_REQUEST", flush=True)
+  return original_input()
 builtins.input = custom_input
+# END_INPUT_PATCH
 `;
 
-      const injectDsGraphPatch = `
+      const injectDsGraphPatch = `# BEGIN_DS_PATCH
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def safe_show():
-    try:
-        plt.savefig("/temps/${outputFile}")
-    except Exception as e:
-        print("Could not save plot:", str(e), flush=True)
+  try:
+    plt.savefig("/temps/${outputFile}")
+  except Exception as e:
+    print("Could not save plot:", str(e), flush=True)
 plt.show = safe_show
+# END_DS_PATCH
 `;
 
       const modifiedCode =
@@ -137,6 +149,7 @@ plt.show = safe_show
               fs.unlinkSync(fullOutputPath);
             } else {
               console.log(`file ${fullOutputPath} not found.`);
+              errorOutput += "file not found";
             }
           } catch (e) {
             socket.emit("graphOutput", ``);
@@ -144,9 +157,19 @@ plt.show = safe_show
           }
         }
 
-        if(!wasCancelled && !errorOutput.trim()){
+        if (!wasCancelled && !errorOutput.trim()) {
+          addCodetoDB(code, "python", IDETOKEN).then(res=>{
+            console.log(res)
+          }).catch(err=>{
+            console.log(err)
+          })
           socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
-        }else if(!wasCancelled && errorOutput.trim()){
+        } else if (!wasCancelled && errorOutput.trim()) {
+          incError(IDETOKEN).then(res=>{
+            console.log(res)
+          }).catch(err=>{
+            console.log(err)
+          })
           socket.emit("EXIT_ERROR", "EXIT_ERROR");
         }
       });

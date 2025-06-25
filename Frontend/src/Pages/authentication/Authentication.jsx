@@ -6,13 +6,14 @@ import { useMutation } from "@tanstack/react-query";
 import config from "../../../Config/config";
 import { useTheme } from "../../context/ThemeContext";
 import { Mail, Lock, User } from "lucide-react";
+import {useNavigate} from "react-router-dom"
 
 export default function AuthSwitcherWithFormik() {
   const [isSignup, setIsSignup] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate()
   const toggleMode = () => setIsSignup((prev) => !prev);
   const { darkTheme, toggleTheme } = useTheme();
 
@@ -23,7 +24,8 @@ export default function AuthSwitcherWithFormik() {
         : await config.loginUser(formValues);
     },
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
+      navigate('/')
     },
     onError: (err) => {
       console.log(err);
@@ -36,7 +38,7 @@ export default function AuthSwitcherWithFormik() {
       return;
     }
 
-    setLoading(true); // Start loading
+    setLoading(true);
 
     if (isSignup) {
       const formData = new FormData();
@@ -48,7 +50,7 @@ export default function AuthSwitcherWithFormik() {
         formData.append("image", imageFile);
       }
       mutate(formData, {
-        onSettled: () => setLoading(false), // Stop loading
+        onSettled: () => setLoading(false), 
       });
     } else {
       const data = {
@@ -56,7 +58,7 @@ export default function AuthSwitcherWithFormik() {
         password: values.password,
       };
       mutate(data, {
-        onSettled: () => setLoading(false), // Stop loading
+        onSettled: () => setLoading(false), 
       });
     }
   };

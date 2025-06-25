@@ -3,6 +3,7 @@
     "@sqlitecloud/drivers": "^1.0.354",
     "@tanstack/react-query": "^5.81.2",
     "bcrypt": "^6.0.0",
+    "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

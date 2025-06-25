@@ -1,5 +1,7 @@
 const connection = require('../utils');
 const crypto = require("crypto");
+const {addCodetoDB} = require("../utils/addCodeToDB")
+
 
 function createTablesAndSeedData(dbName, callback) {
     const employeeTable = `
@@ -2118,8 +2120,6 @@ exports.createDB = async (req, res) => {
     const unq_id = req.body.id;
     const generateHash = () => crypto.createHash("md5").update(crypto.randomUUID()).digest("hex").slice(0, 8);
 
-
-
     const createAndSeed = (hash) => {
         connection.query(`CREATE DATABASE IF NOT EXISTS \`${hash}\``, (err) => {
             if (err) return res.status(500).send("DB creation error: " + err.message);
@@ -2148,10 +2148,10 @@ exports.createDB = async (req, res) => {
     }
 };
 
-
 exports.postData = async (req, res) => {
 
     try {
+        const userCookie = req.cookies?.IDETOKEN;
         const { data } = req.body;
         const { db } = req.body
         if (!data || !db) {
@@ -2166,6 +2166,7 @@ exports.postData = async (req, res) => {
                         res.send(err)
                     } else {
                         // console.log(result[0])
+                        addCodetoDB(data, "sql", userCookie)
                         res.json({ success: true, result });
 
                     }

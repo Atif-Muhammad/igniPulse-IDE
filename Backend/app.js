@@ -37,7 +37,8 @@ const io = new Server(server, {
             } else {
                 callback(new Error("Not Allowed by cors"))
             }
-        }
+        },
+        credentials: true
     }
 });
 

@@ -7,6 +7,7 @@ const ENDPOINTS = {
   createUser: `${BASE_URL}/authentication/signup`,
   loginUser: `${BASE_URL}/authentication/signin`,
   me: `${BASE_URL}/authentication/me`,
+  profile: `${BASE_URL}/authentication/profile`,
   create_db: `${BASE_URL}/sql/createDB`,
   refresh_tbs: `${BASE_URL}/sql/ref_tabs`,
   delete_db: `${BASE_URL}/sql/DDBSES`,
@@ -49,6 +50,15 @@ const me = async () => {
   }
 };
 
+const getProfile = async (userId) => {
+  try {
+    const response = await axios.get(`${ENDPOINTS.profile}?user=${userId}`, {withCredentials: true});
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 const createDB = async (id) => {
   try {
     const response = await axios.post(ENDPOINTS.create_db, { id });
@@ -81,7 +91,7 @@ const dropDbs = async () => {
 const postData = async (data, db) => {
   // console.log(data, db)
   try {
-    const response = await axios.post(ENDPOINTS.post_data, { data, db });
+    const response = await axios.post(ENDPOINTS.post_data, { data, db }, {withCredentials: true});
     if (response) {
       return response;
     }
@@ -127,6 +137,7 @@ export default {
   createUser,
   loginUser,
   me,
+  getProfile,
   createDB,
   dropDbs,
   postData,

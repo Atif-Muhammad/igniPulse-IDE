@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const sendEmail = require("./sendEmail");
+const sendEmail = require("../utils/sendEmail");
 
 const userControllers = {
   createUser: async (req, res) => {
@@ -148,6 +148,28 @@ const userControllers = {
         }
       })
     );
+  },
+  getProfile: async (req, res) => {
+    const user_id = req.query.user;
+
+    try {
+      const usr = await User.findOne({ _id: user_id }).populate({
+        path: "successExec",
+        options: {
+          sort: {
+            createdAt: -1
+          }
+        }
+      });
+      // console.log(usr)
+      const finalUser = {
+        ...usr._doc,
+        image: `data:image/png;base64,${usr.image?.data?.toString("base64")}`,
+      };
+      res.send(finalUser);
+    } catch (error) {
+      res.send(error);
+    }
   },
 };
 
