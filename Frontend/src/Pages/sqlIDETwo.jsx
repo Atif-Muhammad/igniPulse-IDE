@@ -432,7 +432,7 @@ function sqlIDETwo() {
       right: "3px",
       display: "flex",
       gap: "5px",
-      zIndex: "100",
+      zIndex: "20",
     },
     ".cm-zoom-button": {
       width: "28px",
@@ -568,7 +568,7 @@ function sqlIDETwo() {
                     <div className="w-full flex-1 flex items-start justify-center overflow-auto rounded-lg">
                       <CodeMirror
                         defaultValue={editorContent}
-                        className={` text-[1rem] w-full scrollbar-custom rounded-lg ${
+                        className={` CodeMirror text-[1rem] w-full scrollbar-custom rounded-lg ${
                           darkTheme ? "text-gray-200" : "text-gray-800"
                         }`}
                         theme={darkTheme ? oneDark : "light"}
@@ -632,7 +632,7 @@ function sqlIDETwo() {
                   </div>
 
                   <div
-                    className={`w-full lg:h-full md:h-full h-full ${
+                    className={`CodeMirror w-full lg:h-full md:h-full h-full ${
                       darkTheme ? "border-blue-600" : "border-sky-700"
                     } border-2 rounded-lg overflow-hidden ${
                       darkTheme

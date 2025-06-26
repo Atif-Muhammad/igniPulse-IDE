@@ -58,7 +58,7 @@ function LeftMenuSQL({
           <NavLink
             to="/"
             className=" flex-col lg:flex hidden items-center justify-center gap-y-1 cursor-pointer"
-            data-aos="fade-up"
+            // data-aos="fade-up"
           >
             <div className="flex items-center justify-center md:p-3.5 p-3 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
               <HomeIcon className="text-white" size={16} />
