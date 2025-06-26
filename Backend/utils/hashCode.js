@@ -1,7 +1,9 @@
-import crypto from "crypto"
-import { normalizeCode } from "./normalizeCode.js";
+// import crypto from "crypto"
+const crypto = require("crypto")
+// import { normalizeCode } from "./normalizeCode.js";
+const {normalizeCode} = require("./normalizeCode")
 
-export function hashCode(code) {
+exports.hashCode = function(code) {
   const normalized = normalizeCode(code);
   return crypto.createHash("sha256").update(normalized).digest("hex");
 }

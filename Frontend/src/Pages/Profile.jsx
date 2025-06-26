@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BadgeCheck, Copy } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../../Config/config";
-import { useState } from "react";
-import { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const mockUser = {
   username: "Ayesha Malik",
   avatar: "https://i.pravatar.cc/150?img=47",
-  stats: {
-    total: 75,
-    success: 60,
-    error: 15,
-  },
   badges: ["Python Pro", "Top Performer", "Bug Squasher", "Fast Coder"],
   recentCodes: [
     `def greet(name):\n    print(f"Hello, {name}!")\n\ngreet("World")`,
@@ -26,14 +21,17 @@ export const Profile = () => {
   const [execs, setExecs] = useState([]);
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData(["currentUser"]);
-  // console.log(currentUser)
+
+  useEffect(() => {
+    AOS.init({ duration: 800 });
+  }, []);
+
   const { data } = useQuery({
     queryKey: ["profile", currentUser?.data?.id],
-    queryFn: async () => {
-      return await config.getProfile(currentUser?.data?.id);
-    },
+    queryFn: async () => await config.getProfile(currentUser?.data?.id),
     enabled: !!currentUser?.data?.id,
   });
+
   useEffect(() => {
     setExecs(data?.data?.successExec || []);
   }, [data]);
@@ -58,7 +56,7 @@ export const Profile = () => {
               <h2 className="text-2xl font-bold text-gray-800">
                 {data?.data?.user_name}
               </h2>
-              <p className="text-sm text-gray-500"> {data?.data?.email}</p>
+              <p className="text-sm text-gray-500">{data?.data?.email}</p>
             </div>
           </div>
 
@@ -85,21 +83,31 @@ export const Profile = () => {
           </div>
         </div>
 
-        {/* Badges */}
-        <div className="mt-6 flex flex-wrap gap-3">
-          {mockUser.badges.map((badge, index) => (
-            <span
-              key={index}
-              className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 hover:bg-blue-200 transition"
-            >
-              <BadgeCheck className="w-3 h-3" />
-              {badge}
-            </span>
-          ))}
+        {/* Badges as Cards with Icon on Top and Name Below */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Achievements & Badges
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {mockUser.badges.map((badge, index) => (
+              <div
+                key={index}
+                data-aos="fade-up"
+                className="flex flex-col items-center p-4 bg-white rounded-xl shadow-md border border-blue-100 hover:shadow-lg transition"
+              >
+                <div className="bg-blue-100 text-blue-600 rounded-full p-3 mb-2">
+                  <BadgeCheck className="w-6 h-6" />
+                </div>
+                <div className="text-center text-sm font-medium text-gray-700">
+                  {badge}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Recent Code Executions */}
-        <div className="mt-8">
+        <div className="mt-10">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Recent Successful Executions
           </h3>
@@ -107,6 +115,7 @@ export const Profile = () => {
           {execs?.map((code, index) => (
             <div
               key={index}
+              data-aos="fade-up"
               className="relative rounded-lg overflow-hidden bg-gray-900 text-white p-4 mb-4"
             >
               <button

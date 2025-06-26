@@ -5,15 +5,15 @@ import getValidationSchema from "../../validationSchema/ValidationSchema";
 import { useMutation } from "@tanstack/react-query";
 import config from "../../../Config/config";
 import { useTheme } from "../../context/ThemeContext";
-import { Mail, Lock, User } from "lucide-react";
-import {useNavigate} from "react-router-dom"
+import { Mail, Lock, User, UserPlus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthSwitcherWithFormik() {
   const [isSignup, setIsSignup] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const toggleMode = () => setIsSignup((prev) => !prev);
   const { darkTheme, toggleTheme } = useTheme();
 
@@ -25,7 +25,7 @@ export default function AuthSwitcherWithFormik() {
     },
     onSuccess: (data) => {
       // console.log(data);
-      navigate('/')
+      navigate("/");
     },
     onError: (err) => {
       console.log(err);
@@ -50,7 +50,7 @@ export default function AuthSwitcherWithFormik() {
         formData.append("image", imageFile);
       }
       mutate(formData, {
-        onSettled: () => setLoading(false), 
+        onSettled: () => setLoading(false),
       });
     } else {
       const data = {
@@ -58,7 +58,7 @@ export default function AuthSwitcherWithFormik() {
         password: values.password,
       };
       mutate(data, {
-        onSettled: () => setLoading(false), 
+        onSettled: () => setLoading(false),
       });
     }
   };
@@ -84,7 +84,7 @@ export default function AuthSwitcherWithFormik() {
       }`}
     >
       <div
-        className={`relative w-full max-w-2xl h-[560px] rounded-3xl shadow-2xl transition-all duration-300 border overflow-hidden ${
+        className={`relative w-full max-w-2xl h-[600px] rounded-3xl shadow-2xl transition-all duration-300 border overflow-hidden ${
           darkTheme
             ? "bg-gray-900 border-blue-500 text-white"
             : "bg-white border-sky-700 text-black"
@@ -108,7 +108,7 @@ export default function AuthSwitcherWithFormik() {
             exit={{ x: isSignup ? "-100%" : "100%", opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
             onSubmit={formik.handleSubmit}
-            className="absolute inset-0 p-8 md:p-12 flex flex-col justify-center gap-6 overflow-y-auto"
+            className="absolute inset-0 p-8 md:p-12 flex flex-col justify-center gap-6 overflow-y-hidden"
           >
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-1">
@@ -118,6 +118,45 @@ export default function AuthSwitcherWithFormik() {
                 {isSignup ? "Join us today!" : "Welcome back 👋"}
               </p>
             </div>
+            {isSignup && (
+              <div className="flex flex-col items-center justify-center">
+                <div className="relative group">
+                  {/* Hidden File Input */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="profile-upload"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setImageFile(file);
+                        setProfileImage(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+
+                  {/* Clickable Circle Label */}
+                  <label
+                    htmlFor="profile-upload"
+                    className="cursor-pointer w-24 h-24 rounded-full border-2 border-blue-500 flex items-center justify-center overflow-hidden group-hover:opacity-80 transition bg-gray-200 dark:bg-gray-800"
+                  >
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <UserPlus className="w-8 h-8 text-blue-500" />
+                    )}
+                  </label>
+                </div>
+                <p className=" text-gray-600 text-center ">
+                  upload your pictures
+                </p>
+              </div>
+            )}
 
             {/* Username */}
             {isSignup && (
