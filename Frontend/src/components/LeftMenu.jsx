@@ -26,7 +26,6 @@ function LeftMenu({ handleCopy, handlePaste, pasteDone, copyDone }) {
         <NavLink
           to="/"
           className="flex flex-col items-center justify-center gap-y-1 cursor-pointer"
-          data-aos="fade-up"
         >
           <div className="flex items-center justify-center p-3.5 transition-all duration-300 bg-[#2E60EB] hover:bg-[#3d6df1] rounded-full">
             <HomeIcon className="text-white" size={16} />
