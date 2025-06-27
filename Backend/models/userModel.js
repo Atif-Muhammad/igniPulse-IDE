@@ -29,6 +29,7 @@ const userSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  // score: 
   badges: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Badge"

@@ -8,6 +8,7 @@ const ENDPOINTS = {
   loginUser: `${BASE_URL}/authentication/signin`,
   me: `${BASE_URL}/authentication/me`,
   profile: `${BASE_URL}/authentication/profile`,
+
   create_db: `${BASE_URL}/sql/createDB`,
   refresh_tbs: `${BASE_URL}/sql/ref_tabs`,
   delete_db: `${BASE_URL}/sql/DDBSES`,
@@ -15,6 +16,8 @@ const ENDPOINTS = {
   get_data: `${BASE_URL}/sql/getDataBases`,
   get_tables: `${BASE_URL}/sql/getTables`,
   switch_db: `${BASE_URL}/sql/switchDB`,
+
+  addBadge: `${BASE_URL}/noCode/admin/addBadge`,
 };
 
 const createUser = async (data) => {
@@ -43,7 +46,7 @@ const loginUser = async (data) => {
 
 const me = async () => {
   try {
-    const response = await axios.get(ENDPOINTS.me, {withCredentials: true});
+    const response = await axios.get(ENDPOINTS.me, { withCredentials: true });
     return response;
   } catch (error) {
     return error;
@@ -52,7 +55,9 @@ const me = async () => {
 
 const getProfile = async (userId) => {
   try {
-    const response = await axios.get(`${ENDPOINTS.profile}?user=${userId}`, {withCredentials: true});
+    const response = await axios.get(`${ENDPOINTS.profile}?user=${userId}`, {
+      withCredentials: true,
+    });
     return response;
   } catch (error) {
     return error;
@@ -91,7 +96,11 @@ const dropDbs = async () => {
 const postData = async (data, db) => {
   // console.log(data, db)
   try {
-    const response = await axios.post(ENDPOINTS.post_data, { data, db }, {withCredentials: true});
+    const response = await axios.post(
+      ENDPOINTS.post_data,
+      { data, db },
+      { withCredentials: true }
+    );
     if (response) {
       return response;
     }
@@ -133,6 +142,22 @@ const getTables = async (db) => {
 //     }
 // }
 
+// ---------------------------------------------------------------------------------------
+
+const addBadge = async (data) => {
+  try {
+    const response = await axios.post(ENDPOINTS.addBadge, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+    if (response) {
+      return response;
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
 export default {
   createUser,
   loginUser,
@@ -143,4 +168,6 @@ export default {
   postData,
   getTables,
   refreshTables,
+
+  addBadge,
 };

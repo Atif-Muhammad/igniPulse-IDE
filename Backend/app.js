@@ -60,6 +60,8 @@ app.use('/api/sql', require('./routes/sql_routes/index.js'))
 
 app.use('/api/authentication', require('./routes/authentication/index.js'));
 
+app.use('/api/noCode', require('./routes/no_code_routes'));
+
 app.get('/api/ping', (req, res) => {
     res.status(200).send("pong.")
 })

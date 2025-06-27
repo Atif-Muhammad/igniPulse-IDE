@@ -13,6 +13,8 @@ import bgdark from "../public/bgDark.svg";
 import { useQuery } from "@tanstack/react-query";
 import config from "../Config/config";
 import { Profile } from "./Pages/Profile";
+import { AddBadge } from "./Pages/admin";
+
 
 function AppWrapper() {
   // This component will have access to the theme
@@ -44,6 +46,9 @@ function AppWrapper() {
         <Route path="/authentication" element={<Authentication />} />
         <Route path="/python" element={<PythonPage />} />
         <Route path="/sql" element={<SQLPage />} />
+        <Route path="/admin">
+          <Route path="Badges" element={<AddBadge/>}/>
+        </Route>
       </Routes>
     </div>
   );
