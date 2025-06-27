@@ -5,17 +5,23 @@ import config from "../../Config/config";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-const mockUser = {
-  username: "Ayesha Malik",
-  avatar: "https://i.pravatar.cc/150?img=47",
-  badges: ["Python Pro", "Top Performer", "Bug Squasher", "Fast Coder"],
-  recentCodes: [
-    `def greet(name):\n    print(f"Hello, {name}!")\n\ngreet("World")`,
-    `def factorial(n):\n    return 1 if n == 0 else n * factorial(n - 1)\n\nprint(factorial(5))`,
-    `for i in range(5):\n    print("Loop iteration:", i)`,
-    `try:\n    num = int("abc")\nexcept ValueError:\n    print("Conversion failed")`,
-  ],
-};
+const dummyBadges = [
+  {
+    id: 1,
+    image: "https://img.icons8.com/color/48/python.png",
+    name: "Python Pro",
+  },
+  {
+    id: 2,
+    image: "https://img.icons8.com/color/48/bug.png",
+    name: "Bug Squasher",
+  },
+  {
+    id: 3,
+    image: "https://img.icons8.com/color/48/lightning-bolt.png",
+    name: "Fast Coder",
+  },
+];
 
 export const Profile = () => {
   const [execs, setExecs] = useState([]);
@@ -41,95 +47,136 @@ export const Profile = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="rounded-2xl bg-gradient-to-br from-white to-gray-100 shadow-xl p-6 md:p-8 transition-all">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-gray-200 pb-6">
-          {/* Avatar & Username */}
-          <div className="flex items-center gap-4">
+    <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row md:items-start gap-2">
+      {/* Left Profile Card */}
+      <div className=" h-[75vh] flex md:sticky md:top-5 items-center md:w-1/3 w-full">
+        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl pt-16 pb-8 px-8 w-full flex flex-col items-center text-center border-2 border-blue-500 ">
+          {/* Profile Image - overlapping top */}
+          <div className="absolute z-20 -top-14">
             <img
-              src={data?.data?.image}
+              src={data?.data?.image || "https://i.pravatar.cc/150?img=47"}
               alt=""
-              className="w-16 h-16 rounded-full border-2 border-blue-500 shadow-md"
+              className="w-28 h-28 rounded-full border-4 border-blue-500 shadow-lg object-cover bg-white"
             />
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                {data?.data?.user_name}
-              </h2>
-              <p className="text-sm text-gray-500">{data?.data?.email}</p>
-            </div>
           </div>
 
-          {/* Stats */}
-          <div className="flex gap-8 text-center">
-            <div>
-              <p className="text-lg font-bold text-gray-800">
-                {data?.data?.totalExec}
-              </p>
-              <p className="text-sm text-gray-500">Total Executions</p>
+          {/* Username & Email */}
+          <h2 className="text-2xl font-extrabold text-gray-800 mb-1 mt-4">
+            {data?.data?.user_name}
+          </h2>
+          <p className="text-gray-500 text-sm mb-6">{data?.data?.email}</p>
+
+          {/* Current Badge label */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-semibold text-gray-700">
+              Current Badge
+            </span>
+          </div>
+
+          {/* Badges + Progress Bar */}
+          <div className="flex items-center w-full justify-between mb-4">
+            <img
+              src="https://img.icons8.com/color/32/000000/badge.png"
+              alt="start badge"
+              className="w-6 h-6"
+            />
+            <div className="flex-1 mx-2 bg-gray-200 rounded-full h-3 overflow-hidden relative">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full w-[75%]"></div>
             </div>
-            <div>
-              <p className="text-lg font-bold text-green-600">
-                {data?.data?.successExec?.length}
-              </p>
-              <p className="text-sm text-gray-500">Success</p>
+            <img
+              src="https://img.icons8.com/color/32/000000/badge.png"
+              alt="end badge"
+              className="w-6 h-6"
+            />
+          </div>
+
+          {/* Points */}
+          <p className="text-gray-800 text-sm mb-2 font-medium">
+            You have {data?.data?.points || "10,116"} Points
+          </p>
+          <p className="text-xs text-gray-500 mb-8 italic">
+            Earn 84 points to Triple Star badge rank
+          </p>
+
+          {/* Execution Counters */}
+          <div className="w-full bg-white rounded-2xl p-5 border border-gray-300 shadow-sm">
+            <div className="flex justify-between mb-3">
+              <span className="text-gray-600 text-sm font-medium">
+                Total Executions
+              </span>
+              <span className="font-bold text-gray-800">
+                {data?.data?.totalExec || 0}
+              </span>
             </div>
-            <div>
-              <p className="text-lg font-bold text-red-500">
-                {data?.data?.errorExec}
-              </p>
-              <p className="text-sm text-gray-500">With Error</p>
+            <div className="flex justify-between mb-3">
+              <span className="text-green-600 text-sm font-medium">
+                Successful
+              </span>
+              <span className="font-bold text-green-600">
+                {data?.data?.successExec?.length || 0}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-red-500 text-sm font-medium">Errors</span>
+              <span className="font-bold text-red-500">
+                {data?.data?.errorExec || 0}
+              </span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Badges as Cards with Icon on Top and Name Below */}
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+      {/* Right Content */}
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 flex-1 border-2 border-blue-500 flex flex-col">
+        {/* Achievements */}
+        <div className="mb-8">
+          <h3 className="text-xl font-bold text-gray-800 mb-6">
             Achievements & Badges
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {mockUser.badges.map((badge, index) => (
+            {dummyBadges.map((badge) => (
               <div
-                key={index}
-                data-aos="fade-up"
-                className="flex flex-col items-center p-4 bg-white rounded-xl shadow-md border border-blue-100 hover:shadow-lg transition"
+                key={badge.id}
+                className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 shadow hover:shadow-md hover:scale-105 transition-transform duration-300"
               >
-                <div className="bg-blue-100 text-blue-600 rounded-full p-3 mb-2">
-                  <BadgeCheck className="w-6 h-6" />
-                </div>
-                <div className="text-center text-sm font-medium text-gray-700">
-                  {badge}
-                </div>
+                <img src={badge.image} alt="badge" className="w-10 h-10 mb-2" />
+                <p className="text-xs font-medium text-gray-700 text-center">
+                  {badge.name}
+                </p>
               </div>
             ))}
+            <button className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow self-center">
+              See All
+            </button>
           </div>
         </div>
 
-        {/* Recent Code Executions */}
-        <div className="mt-10">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        {/* Recent Successful Executions */}
+        <div>
+          <h3 className="text-xl font-bold text-gray-800 mb-6">
             Recent Successful Executions
           </h3>
 
-          {execs?.map((code, index) => (
-            <div
-              key={index}
-              data-aos="fade-up"
-              className="relative rounded-lg overflow-hidden bg-gray-900 text-white p-4 mb-4"
-            >
-              <button
-                onClick={() => handleCopy(code)}
-                className="absolute top-3 right-3 text-gray-400 hover:text-white transition"
-                title="Copy Code"
+          <div className="flex flex-col gap-4">
+            {execs?.map((code, index) => (
+              <div
+                key={index}
+                data-aos="fade-up"
+                className="relative rounded-2xl bg-gray-900 text-white p-5 shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
-                <Copy className="w-5 h-5" />
-              </button>
-              <pre className="text-sm font-mono whitespace-pre-wrap leading-relaxed">
-                {code.code}
-              </pre>
-            </div>
-          ))}
+                <button
+                  onClick={() => handleCopy(code)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
+                  title="Copy Code"
+                >
+                  <Copy className="w-5 h-5" />
+                </button>
+                <pre className="text-sm font-mono whitespace-pre-wrap leading-relaxed">
+                  {code.code}
+                </pre>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
