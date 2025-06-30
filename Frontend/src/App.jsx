@@ -13,25 +13,20 @@ import bgdark from "../public/bgDark.svg";
 import { useQuery } from "@tanstack/react-query";
 import config from "../Config/config";
 import { Profile } from "./Pages/Profile";
-import { AddBadge } from "./Pages/admin";
+import { AddBadge, AddAvatar } from "./Pages/admin";
 
 
 function AppWrapper() {
   // This component will have access to the theme
   const { darkTheme } = useTheme();
 
-  const { data: currentUser, isLoading } = useQuery({
+  const { data: currentUser } = useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {
       return await config.me();
     },
-    onSuccess: (data) => {
-      console.log(data);
-    },
-    onError: (err) => {
-      console.log(err);
-    },
   });
+
 
   return (
     <div
@@ -41,13 +36,14 @@ function AppWrapper() {
       style={{ backgroundImage: `url(${darkTheme ? bgdark : bgwhite})` }}
     >
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/" element={<LandingPage currentUser={currentUser?.data} />} />
+        <Route path="/profile" element={<Profile currentUser={currentUser?.data}/>} />
         <Route path="/authentication" element={<Authentication />} />
         <Route path="/python" element={<PythonPage />} />
         <Route path="/sql" element={<SQLPage />} />
         <Route path="/admin">
           <Route path="Badges" element={<AddBadge/>}/>
+          <Route path="Avatars" element={<AddAvatar/>}/>
         </Route>
       </Routes>
     </div>

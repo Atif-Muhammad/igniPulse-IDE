@@ -1,4 +1,4 @@
-import { React, useRef } from "react";
+import { React, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { Rocket, Moon, Sun, User } from "lucide-react";
 import py from "../assets/py.svg";
@@ -65,8 +65,9 @@ function Model() {
   );
 }
 
-const LandingPage = () => {
+const LandingPage = ({ currentUser }) => {
   const { darkTheme, toggleTheme } = useTheme();
+  
 
   const cards = [
     {
@@ -138,9 +139,27 @@ const LandingPage = () => {
                   <Moon className="text-white" size={16} />
                 )}
               </div>
-              <NavLink to='/authentication' className={`${darkTheme ? "bg-white" : "bg-black"} p-2 rounded-full`}>
-                <User className={`${darkTheme ? "text-black" : "text-white"}`}/>
-              </NavLink>
+              {currentUser?.id ? (
+                <NavLink
+                  to="/profile"
+                  className={`${
+                    darkTheme ? "bg-white" : "bg-black"
+                  } p-2 rounded-full`}
+                >
+                  <User
+                    className={`${darkTheme ? "text-black" : "text-white"}`}
+                  />
+                </NavLink>
+              ) : (
+                <NavLink
+                  to="/authentication"
+                  className={`${
+                    darkTheme ? "bg-white" : "bg-black text-white"
+                  } p-2 rounded-full`}
+                >
+                  login/signup
+                </NavLink>
+              )}
             </div>
           </div>
 
@@ -241,7 +260,6 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-              
       </div>
     </>
   );

@@ -2,6 +2,7 @@ const Code = require("../models/codeModel");
 const { hashCode } = require("./hashCode");
 const userWho = require("./userWho");
 const User = require("../models/userModel");
+const Badge = require("../models/badgeModel");
 
 async function incTotal(currentUser) {
   // console.log("incrementing total....");
@@ -10,6 +11,40 @@ async function incTotal(currentUser) {
     return {
       msg: "success",
     };
+  } catch (error) {
+    return error;
+  }
+}
+
+async function incScore(currentUser) {
+  try {
+    await User.updateOne({ _id: currentUser?.id }, { $inc: { score: 20 } });
+  } catch (error) {
+    return error;
+  }
+}
+
+async function assignBadge(currentUser) {
+  try {
+    const foundUser = await User.findOne({ _id: currentUser?.id });
+    // check if userScore >= badgeScore is a already assigned
+    const foundBadges = await Badge.find({ score: { $lte: foundUser?.score } });
+    // console.log(foundBadges);
+    if (foundBadges?.length > 0) {
+      const not_assigned_ones = foundBadges.filter(
+        (badge) => !foundUser?.badges?.includes(badge)
+      );
+      // console.log(not_assigned_ones)
+      not_assigned_ones.map(
+        async (badge) =>
+          await User.updateOne(
+            { _id: currentUser?.id },
+            { $push: { badges: badge?._id } }
+          )
+      );
+      // console.log(updated)
+    }
+    return foundBadges;
   } catch (error) {
     return error;
   }
@@ -41,7 +76,14 @@ async function addCodetoDB(code, lang, IDETOKEN) {
         { _id: currentUser?.id },
         { $push: { successExec: newRec._id } }
       );
-      incTotal(currentUser);
+      incScore(currentUser);
+      incTotal(currentUser)
+        .then((res) => {
+          assignBadge(currentUser);
+        })
+        .catch((err) => {
+          return err;
+        });
     }
     return {
       msg: "Success",

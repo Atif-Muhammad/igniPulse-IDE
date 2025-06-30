@@ -17,7 +17,11 @@ const ENDPOINTS = {
   get_tables: `${BASE_URL}/sql/getTables`,
   switch_db: `${BASE_URL}/sql/switchDB`,
 
+  getAvatars: `${BASE_URL}/noCode/getAvatars`,
+  selectAvatar: `${BASE_URL}/noCode/selAvatar`,
+
   addBadge: `${BASE_URL}/noCode/admin/addBadge`,
+  addAvatar: `${BASE_URL}/noCode/admin/addAvatar`,
 };
 
 const createUser = async (data) => {
@@ -144,9 +148,47 @@ const getTables = async (db) => {
 
 // ---------------------------------------------------------------------------------------
 
+const getAvatars = async () => {
+  try {
+    const response = await axios.get(ENDPOINTS.getAvatars, {withCredentials: true});
+    if (response) {
+      return response;
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
+const selectAvatar = async (data) => {
+  try {
+    const response = await axios.put(ENDPOINTS.selectAvatar, data, {withCredentials: true});
+    if (response) {
+      return response;
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
+
+
 const addBadge = async (data) => {
   try {
     const response = await axios.post(ENDPOINTS.addBadge, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+    if (response) {
+      return response;
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
+const addAvatar = async (data) => {
+  try {
+    const response = await axios.post(ENDPOINTS.addAvatar, data, {
       headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });
@@ -169,5 +211,9 @@ export default {
   getTables,
   refreshTables,
 
+  getAvatars,
+  selectAvatar,
+
   addBadge,
+  addAvatar,
 };

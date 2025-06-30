@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
+const Badge = require("../models/badgeModel")
 
 const userControllers = {
   createUser: async (req, res) => {
@@ -151,21 +152,34 @@ const userControllers = {
   },
   getProfile: async (req, res) => {
     const user_id = req.query.user;
-
+    
     try {
-      const usr = await User.findOne({ _id: user_id }).populate({
+      const usr = await User.findOne({ _id: user_id }).populate("image").populate({
         path: "successExec",
         options: {
           sort: {
             createdAt: -1
           }
         }
+      }).populate({
+        path: "badges",
+        options: {
+          sort: {
+            score: -1
+          }
+        }
       });
       // console.log(usr)
       const finalUser = {
         ...usr._doc,
-        image: `data:image/png;base64,${usr.image?.data?.toString("base64")}`,
+        image: usr?.image?.avatar?.data ? `data:image/png;base64,${usr.image?.avatar?.data?.toString("base64")}`: null,
       };
+
+      // console.log(finalUser?.score)
+      // attach the next badge in the response for visuals
+      const nextBadge = await Badge.find({score: {$gt: finalUser?.score}}).sort({score: 1}).limit(1);
+      // console.log(nextBadge)
+      finalUser.nextBadge = nextBadge;
       res.send(finalUser);
     } catch (error) {
       res.send(error);

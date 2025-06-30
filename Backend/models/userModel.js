@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Code = require("./codeModel");
 const Badge = require("./badgeModel");
+const Avatar = require("./avatarModel")
 
 
 const userSchema = mongoose.Schema({
@@ -12,8 +13,8 @@ const userSchema = mongoose.Schema({
   email: String,
   password: String,
   image: {
-    data: Buffer,
-    contentType: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Avatar'
   },
   totalExec: {
     type: Number,
@@ -29,7 +30,10 @@ const userSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
-  // score: 
+  score: {
+    type: Number,
+    default: 0
+  },
   badges: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Badge"
