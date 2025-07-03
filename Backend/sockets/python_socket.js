@@ -1,18 +1,20 @@
 const { spawnSync, spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const {
-  addCodetoDB,
-  incTotal,
-  incError,
-} = require("../utils/addCodeToDB");
-const cookie = require("cookie")
+const { addCodetoDB, incTotal, incError } = require("../utils/addCodeToDB");
+const cookie = require("cookie");
 
 module.exports = function (io) {
   io.on("connection", (socket) => {
     // get cookie from initial handshake header
     const cookieHeader = socket.handshake.headers.cookie;
-    const {IDETOKEN} = cookieHeader && cookie.parse(cookieHeader)
+    let IDETOKEN = null;
+
+    if (cookieHeader) {
+      const parsedCookies = cookie.parse(cookieHeader);
+      IDETOKEN = parsedCookies.IDETOKEN;
+    }
+
     // console.log("cookie:", IDETOKEN)
     console.log("connection established with user:", socket.id);
 
@@ -158,18 +160,24 @@ plt.show = safe_show
         }
 
         if (!wasCancelled && !errorOutput.trim()) {
-          addCodetoDB(code, "python", IDETOKEN).then(res=>{
-            console.log(res)
-          }).catch(err=>{
-            console.log(err)
-          })
+          IDETOKEN &&
+            addCodetoDB(code, "python", IDETOKEN)
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
           socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
         } else if (!wasCancelled && errorOutput.trim()) {
-          incError(IDETOKEN).then(res=>{
-            console.log(res)
-          }).catch(err=>{
-            console.log(err)
-          })
+          IDETOKEN &&
+            incError(IDETOKEN)
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
           socket.emit("EXIT_ERROR", "EXIT_ERROR");
         }
       });
