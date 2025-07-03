@@ -139,7 +139,7 @@ const LandingPage = ({ currentUser }) => {
                   <Moon className="text-white" size={16} />
                 )}
               </div>
-              {currentUser?.id ? (
+              {/* {currentUser?.id ? (
                 <NavLink
                   to="/profile"
                   className={`${
@@ -159,7 +159,7 @@ const LandingPage = ({ currentUser }) => {
                 >
                   login/signup
                 </NavLink>
-              )}
+              )} */}
             </div>
           </div>
 
