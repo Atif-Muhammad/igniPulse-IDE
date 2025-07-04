@@ -15,7 +15,6 @@ import config from "../Config/config";
 import { Profile } from "./Pages/Profile";
 import { AddBadge, AddAvatar } from "./Pages/admin";
 
-
 function AppWrapper() {
   // This component will have access to the theme
   const { darkTheme } = useTheme();
@@ -27,7 +26,6 @@ function AppWrapper() {
     },
   });
 
-
   return (
     <div
       className={`bg-cover bg-no-repeat transition-colors duration-300 ${
@@ -36,14 +34,20 @@ function AppWrapper() {
       style={{ backgroundImage: `url(${darkTheme ? bgdark : bgwhite})` }}
     >
       <Routes>
-        <Route path="/" element={<LandingPage currentUser={currentUser?.data} />} />
-        <Route path="/profile" element={<Profile currentUser={currentUser?.data}/>} />
+        <Route
+          path="/"
+          element={<LandingPage currentUser={currentUser?.data} />}
+        />
+        <Route
+          path="/profile"
+          element={<Profile currentUser={currentUser?.data} />}
+        />
         <Route path="/authentication" element={<Authentication />} />
         <Route path="/python" element={<PythonPage />} />
         <Route path="/sql" element={<SQLPage />} />
         <Route path="/admin">
-          <Route path="Badges" element={<AddBadge/>}/>
-          <Route path="Avatars" element={<AddAvatar/>}/>
+          <Route path="Badges" element={<AddBadge />} />
+          <Route path="Avatars" element={<AddAvatar />} />
         </Route>
       </Routes>
     </div>

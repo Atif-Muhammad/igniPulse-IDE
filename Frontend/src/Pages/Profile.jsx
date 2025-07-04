@@ -1,187 +1,258 @@
-import React, { useEffect, useState } from "react";
-import { BadgeCheck, Copy } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import config from "../../Config/config";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import AvatarsPrev from "../components/AvatarsPrev";
-import { changeToBase64 } from "../Functions/toBase64";
+import React, { useState } from "react";
+import { Copy, Lock } from "lucide-react";
+import { BadgesModal } from "../models/BadgesModal";
+import badges1 from "../../public/badges/Badges1.png";
+import badges2 from "../../public/badges/Badges2.png";
+import badges3 from "../../public/badges/Badges3.png";
 
 export const Profile = () => {
-  const [execs, setExecs] = useState([]);
-  const [dispAvatars, setDispAvatars] = useState(false);
-  const [targetScore, setTargetScore] = useState(0);
-  const [badges, setBadges] = useState([])
-  const queryClient = useQueryClient();
-  const currentUser = queryClient.getQueryData(["currentUser"]);
+  const [activeTab, setActiveTab] = useState("Python");
+  const [showBadgesModal, setShowBadgesModal] = useState(false);
 
-  useEffect(() => {
-    AOS.init({ duration: 800 });
-  }, []);
-
-  const { data } = useQuery({
-    queryKey: ["profile", currentUser?.data?.id],
-    queryFn: async () => await config.getProfile(currentUser?.data?.id),
-    enabled: !!currentUser?.data?.id,
-  });
-
-  useEffect(() => {
-    // console.log(data?.data)
-    setExecs(data?.data?.successExec || []);
-    setTargetScore(data?.data?.nextBadge[0]?.score - data?.data?.score);
-    setBadges(data?.data?.badges);
-  }, [data]);
-
-  const handleCopy = (code) => {
-    navigator.clipboard.writeText(code);
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    // You can add a toast notification here if needed
   };
 
   return (
     <>
-      <div className="max-w-6xl h-screen mx-auto px-6 py-10 flex flex-col md:flex-row md:items-start gap-2">
-        {/* Left Profile Card */}
-        <div className=" h-[75vh] flex md:sticky md:top-5 items-center md:w-1/3 w-full">
-          <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl pt-16 pb-8 px-8 w-full flex flex-col items-center text-center border-2 border-blue-500 ">
-            {/* Profile Image - overlapping top */}
-            <div className="absolute z-20 -top-14">
-              {data?.data?.image ? (
-                <img
-                  src={data?.data?.image}
-                  alt=""
-                  className="w-28 h-28 rounded-full border-4 border-blue-500 shadow-lg object-cover bg-white"
-                />
-              ) : (
-                <div onClick={()=> setDispAvatars(!dispAvatars)} className="w-28 h-28 rounded-full border-4 border-blue-500 shadow-lg object-cover bg-white break-words">
-                  pencil icon dalta wachwa talaqa
-                </div>
-              )}
-            </div>
-
-            {/* Username & Email */}
-            <h2 className="text-2xl font-extrabold text-gray-800 mb-1 mt-4">
-              {data?.data?.user_name}
-            </h2>
-            <p className="text-gray-500 text-sm mb-6">{data?.data?.email}</p>
-
-            {/* Current Badge label */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-semibold text-gray-700">
-                Current Badge
-              </span>
-            </div>
-
-            {/* Badges + Progress Bar */}
-            <div className="flex items-center w-full justify-between mb-4">
+      <div className="p-4 md:px-8 py-12 bg-gray-100 min-h-screen">
+        <div className="flex flex-col  md:flex-row gap-2">
+          {/* Left Sidebar - Fixed */}
+          <div className="md:w-1/4 w-full mt-10 bg-white shadow-black border-2 border-blue-500 rounded-2xl shadow-md flex flex-col items-center text-center  overflow-visible pb-5 pt-20 md:sticky md:top-24 h-fit">
+            {/* Profile Image - absolute overlap */}
+            <div className="absolute md:top-0 top-20 left-1/2 -translate-x-1/2 -translate-y-1/2">
               <img
-                src={`${changeToBase64(data?.data?.badges[0]?.logo?.data?.data)}`}
-                alt="current badge"
-                className="w-6 h-6"
-              />
-              <div className="flex-1 mx-2 bg-gray-200 rounded-full h-3 overflow-hidden relative">
-                <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full w-[75%]"></div>
-              </div>
-              <img
-                src={`${changeToBase64(data?.data?.nextBadge[0]?.logo?.data?.data)}`}
-                alt="next badge"
-                className="w-6 h-6 rounded-md"
+                src="/smile.png"
+                alt="User avatar"
+                className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl"
               />
             </div>
 
-            {/* Points */}
-            <p className="text-gray-800 text-sm mb-2 font-medium">
-              You have {data?.data?.score || 0} Points
-            </p>
-            <p className="text-xs text-gray-500 mb-8 italic">
-              Earn {targetScore} points to {data?.data?.nextBadge[0]?.title} badge rank
-            </p>
+            <div className=" w-full px-4 flex flex-col gap-5 ">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">Haris Khan</h2>
+                <p className="text-md text-gray-500 mb-4">
+                  haris.ignupulse@gmail.com
+                </p>
+              </div>
 
-            {/* Execution Counters */}
-            <div className="w-full bg-white rounded-2xl p-5 border border-gray-300 shadow-sm">
-              <div className="flex justify-between mb-3">
-                <span className="text-gray-600 text-sm font-medium">
-                  Total Executions
-                </span>
-                <span className="font-bold text-gray-800">
-                  {data?.data?.totalExec || 0}
-                </span>
-              </div>
-              <div className="flex justify-between mb-3">
-                <span className="text-green-600 text-sm font-medium">
-                  Successful
-                </span>
-                <span className="font-bold text-green-600">
-                  {data?.data?.successExec?.length || 0}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-red-500 text-sm font-medium">Errors</span>
-                <span className="font-bold text-red-500">
-                  {data?.data?.errorExec || 0}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                  Current Level
+                </h3>
+                <p className="text-md text-gray-600 ">Double Star Ranker</p>
 
-        {/* Right Content */}
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 flex-1 border-2 border-blue-500 flex flex-col">
-          {/* Achievements */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-6">
-              Achievements & Badges
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {badges?.map((badge, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 shadow hover:shadow-md hover:scale-105 transition-transform duration-300"
-                >
-                  <img
-                    src={`${changeToBase64(badge?.logo?.data?.data)}`}
-                    alt="badge"
-                    className="w-10 h-10 mb-2"
-                  />
-                  <p className="text-xs font-medium text-gray-700 text-center">
-                    {badge.title}
-                  </p>
+                <div className="flex items-center  justify-between gap-2 mb-4">
+                  <img src={badges1} className="w-20 h-20" alt="Star icon" />
+                  <div className="flex-1 bg-gray-300 rounded-full h-2 overflow-hidden relative">
+                    <div
+                      className="absolute top-0 left-0 bg-red-500 h-2 rounded-full transition-all duration-700 ease-in-out"
+                      style={{ width: "84%" }}
+                    ></div>
+                  </div>
+                  <img src={badges3} className="w-20 h-20" alt="Star icon" />
                 </div>
-              ))}
-             {badges?.length > 3 && <button className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow self-center">
-                See All
-              </button>}
+
+                <p className="text-lg text-gray-700 mb-1">
+                  You have{" "}
+                  <strong className="font-extrabold text-black">10,116</strong>{" "}
+                  Points
+                </p>
+                <p className="text-sm text-gray-500 mb-6">
+                  Rean 84 points to Triple star badges rank
+                </p>
+              </div>
+            </div>
+
+            <div className="w-11/12 bg-gray-50 border border-gray-200 rounded-xl shadow-sm p-4">
+              <div className="flex flex-col gap-3 text-md text-gray-500 font-medium">
+                <div className="flex justify-between">
+                  <p>Total Executions</p>
+                  <p className="text-black font-bold">0</p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-green-600">Successful</p>
+                  <p className="text-green-600 font-bold">0</p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-red-500">Errors</p>
+                  <p className="text-red-500 font-bold">0</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Recent Successful Executions */}
-          <div>
-            <h3 className="text-xl font-bold text-gray-800 mb-6">
-              Recent Successful Executions
-            </h3>
-
-            <div className="flex flex-col gap-4">
-              {execs?.map((code, index) => (
-                <div
-                  key={index}
-                  data-aos="fade-up"
-                  className="relative rounded-2xl bg-gray-900 text-white p-5 shadow-lg hover:shadow-2xl transition-shadow duration-300"
+          {/* Middle Section - Scrollable */}
+          <div className="md:w-1/2 bg-white border-2 shadow-black border-blue-500 rounded-xl shadow-md p-5 overflow-y-auto">
+            <div>
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-xl  text-gray-800">
+                  Achievements &amp; Badges
+                </h2>
+              </div>
+              <div className="flex justify-center bg-[#FAF7F7] items-center gap-4 p-4 rounded-lg ">
+                <img src={badges1} className="w-24 h-24" />
+                <img src={badges2} className="w-24 h-24" />
+                <img src={badges3} className="w-24 h-24" />
+                <img src={badges1} className="w-24 h-24" />
+                <button
+                  onClick={() => setShowBadgesModal(true)}
+                  className="bg-[#D9D9D9] px-3 py-2 text-sm rounded-xl hover:bg-gray-200"
                 >
+                  See all
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h2 className="font-bold text-gray-800 text-xl">
+                Recent Successful Executions
+              </h2>
+              <div className="mt-2 flex">
+                {["Python", "SQL"].map((tab) => (
                   <button
-                    onClick={() => handleCopy(code)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
-                    title="Copy Code"
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`w-1/2 py-2 text-md font-semibold rounded-t-md transition-all duration-300 ${
+                      activeTab === tab
+                        ? "bg-[#FAF7F7] text-black border-t border-l border-r border-gray-300"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    }`}
                   >
-                    <Copy className="w-5 h-5" />
+                    {tab}
                   </button>
-                  <pre className="text-sm font-mono whitespace-pre-wrap leading-relaxed">
-                    {code.code}
-                  </pre>
+                ))}
+              </div>
+
+              <div className="bg-[#FAF7F7] px-4 border-b border-l border-r border-gray-300 py-5 rounded-b-lg space-y-6">
+                {activeTab === "Python" && (
+                  <>
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-500 font-medium">
+                        Yesterday
+                      </p>
+                      {[...Array(4)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all"
+                        >
+                          <span>print("Hello World!")</span>
+                          <button
+                            onClick={() =>
+                              copyToClipboard('print("Hello World!")')
+                            }
+                            className="text-gray-400 cursor-pointer hover:text-white"
+                            title="Copy to clipboard"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-500 font-medium">
+                        April 25, 2025
+                      </p>
+                      {[...Array(10)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all"
+                        >
+                          <span>print("Hello World!")</span>
+                          <button
+                            onClick={() =>
+                              copyToClipboard('print("Hello World!")')
+                            }
+                            className="text-gray-400 cursor-pointer hover:text-white"
+                            title="Copy to clipboard"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-500 font-medium">
+                        April 22, 2025
+                      </p>
+                      <div className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
+                        <span>print("Hello World!")</span>
+                        <button
+                          onClick={() =>
+                            copyToClipboard('print("Hello World!")')
+                          }
+                          className="text-gray-400 cursor-pointer hover:text-white"
+                          title="Copy to clipboard"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {activeTab === "SQL" && (
+                  <p className="text-sm text-gray-600">
+                    No SQL executions available.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Scrollable */}
+          <div className="md:w-1/4 w-full sticky top-12 no-scrollbar bg-white border-2 shadow-black border-blue-500 rounded-xl shadow-md overflow-y-auto max-h-[calc(100vh-100px)]">
+            <h2 className="text-xl z-20 sticky top-0 text-center rounded-t-xl py-3 bg-[#FAF7F7] font-bold text-gray-800 mb-4">
+              General Badges
+            </h2>
+            <div className="space-y-4 px-6">
+              {[
+                { title: "Persistent Pro" },
+                { title: "Supreme Coder" },
+                { title: "Debugger Knight" },
+                { title: "Persistent Pro" },
+                { title: "Logic Architect" },
+                { title: "Persistent Pro" },
+                { title: "Persistent Pro" },
+                { title: "Persistent Pro" },
+              ].map((badge, idx, arr) => (
+                <div
+                  key={idx}
+                  className={`flex items-center justify-between gap-4 py-2 ${
+                    idx !== arr.length - 1 ? "border-b border-black" : ""
+                  }`}
+                >
+                  <div className="text-center">
+                    <p className="text-xl font-bold text-gray-800">
+                      {badge.title}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Achieved 10,116 Points
+                    </p>
+                  </div>
+                  <div className="relative w-28 h-28">
+                    <img
+                      src={badges2}
+                      alt={badge.title}
+                      className="w-full h-full opacity-80 object-contain rounded-md"
+                    />
+                    <div className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow">
+                      <Lock className="w-full h-full text-gray-700" />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
-      {dispAvatars && <AvatarsPrev currentUser={currentUser?.data?.id}/>}
+
+      {showBadgesModal && (
+        <BadgesModal onClose={() => setShowBadgesModal(false)} />
+      )}
     </>
   );
 };
