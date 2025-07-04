@@ -122,7 +122,7 @@ plt.show = safe_show
           .replace(
             /File "<string>", line (\d+)/g,
             (_, lineNum) =>
-              `line ${Math.max(1, lineNum - (type === "ds" ? 18 : 8))}`
+              `line ${Math.max(1, lineNum - (type === "ds" ? 19 : 9))}`
           )
           .replace(
             /SyntaxError: unterminated string literal \(detected at line \d+\)/,
