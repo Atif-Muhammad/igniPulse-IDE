@@ -21,18 +21,35 @@
     ></script> -->
   </head>
   <body>
-    <!-- ads -->
-     <script type="text/javascript">
-	atOptions = {
-		'key' : '8f64201a79160eb71004a7023b1537db',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/8f64201a79160eb71004a7023b1537db/invoke.js"></script>
+    <!-- Container for the ad, absolutely positioned at top center -->
+    <div
+      id="ad-container"
+      style="
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+      "
+    ></div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-   </body>
+
+    <script type="text/javascript">
+      atOptions = {
+        key: "8f64201a79160eb71004a7023b1537db",
+        format: "iframe",
+        height: 50,
+        width: 320,
+        params: {},
+      };
+    </script>
+    <script type="text/javascript">
+      const script = document.createElement("script");
+      script.src =
+        "//www.highperformanceformat.com/8f64201a79160eb71004a7023b1537db/invoke.js";
+      document.getElementById("ad-container").appendChild(script);
+    </script>
+  </body>
 </html>
