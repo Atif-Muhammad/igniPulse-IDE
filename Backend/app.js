@@ -15,14 +15,14 @@ const cookieParser = require("cookie-parser");
 // 1. create hppt server for app
 const server = http.createServer(app);
 // 2. create io for socket
-const allowedOrigins = [
-    "http://168.231.116.169:8080",
-    "http://www.igniup.com",
-    "https://www.igniup.com",
-    "http://igniup.com",
-    "https://igniup.com"
-]
-// const allowedOrigins = ["http://localhost:5173"];
+// const allowedOrigins = [
+//     "http://168.231.116.169:8080",
+//     "http://www.igniup.com",
+//     "https://www.igniup.com",
+//     "http://igniup.com",
+//     "https://igniup.com"
+// ]
+const allowedOrigins = ["http://localhost:5173"];
 
 const io = new Server(server, {
   cors: {

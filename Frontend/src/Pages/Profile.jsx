@@ -83,8 +83,8 @@ export const Profile = () => {
   };
 
   const scoreMap = {
-    Python: data?.data?.pyScore || [],
-    Sql: data?.data?.sqlScore || [],
+    Python: data?.data?.pyScore || 0,
+    Sql: data?.data?.sqlScore || 0,
   };
 
   const copyToClipboard = (text) => {
@@ -187,15 +187,15 @@ export const Profile = () => {
                     <p className="text-lg text-gray-700 mb-1">
                       You have{" "}
                       <strong className="font-extrabold text-black">
-                        {scoreMap[activeTab] || 0}{" "}
+                        {scoreMap[activeTab]}{" "}
                       </strong>{" "}
                       Points
                     </p>
                     <p className="text-sm text-gray-500 mb-6">
                       Earn{" "}
                       {nextBadgeMap[activeTab]?.score - scoreMap[activeTab]}{" "}
-                      points to {nextBadgeMap[activeTab]?.[0]?.title}
-                      Badge
+                      points to {'"'}{nextBadgeMap[activeTab]?.title}{'"'}
+                      {" "}Badge
                     </p>
                   </div>
                 </div>
@@ -281,7 +281,7 @@ export const Profile = () => {
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                     }`}
                   >
-                    {`${tab} (${
+                    {`${tab === "Sql" ? tab.toUpperCase() :tab} (${
                       tab === "Python" ? pyExecs?.length : sqlExecs?.length
                     })`}
                   </button>
