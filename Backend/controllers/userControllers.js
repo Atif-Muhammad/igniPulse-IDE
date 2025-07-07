@@ -175,11 +175,13 @@ const userControllers = {
         image: usr?.image?.avatar?.data ? `data:image/png;base64,${usr.image?.avatar?.data?.toString("base64")}`: null,
       };
 
-      // console.log(finalUser?.score)
+      // console.log(finalUser)
       // attach the next badge in the response for visuals
-      const nextBadge = await Badge.find({score: {$gt: finalUser?.score}}).sort({score: 1}).limit(1);
-      // console.log(nextBadge)
-      finalUser.nextBadge = nextBadge;
+      const nextBadgePy = await Badge.find({score: {$gt: finalUser?.pyScore}, lang: "python"}).sort({score: 1}).limit(1);
+      const nextBadgeSql = await Badge.find({score: {$gt: finalUser?.sqlScore}, lang: "sql"}).sort({score: 1}).limit(1);
+      finalUser.nextBadgePy = nextBadgePy;
+      finalUser.nextBadgeSql = nextBadgeSql;
+      // console.log(finalUser)
       res.send(finalUser);
     } catch (error) {
       res.send(error);

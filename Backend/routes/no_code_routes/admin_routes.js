@@ -5,13 +5,10 @@ const router = require("express").Router();
 
 router.post("/addBadge", async (req, res) => {
   try {
-    const image = req.file
-      ? { data: req.file.buffer, contentType: req.file.mimetype }
-      : null;
     const { title, description, score } = req.body;
 
     const res = await Badge.create({
-        title, score, description, logo: image
+        title, score, description, logo: req.file.buffer
     });
     res.send(res)
   } catch (error) {
@@ -22,13 +19,10 @@ router.post("/addBadge", async (req, res) => {
 
 router.post("/addAvatar", async (req, res) => {
   try {
-    const image = req.file
-      ? { data: req.file.buffer, contentType: req.file.mimetype }
-      : null;
     const { name } = req.body;
 
     const res = await Avatar.create({
-        name, avatar: image
+        name, avatar: req.file.buffer
     });
     res.send(res)
   } catch (error) {

@@ -7,10 +7,11 @@ const badgeSchema = mongoose.Schema({
     min: [0, "Score cannot be negative"],
   },
   description: String,
-  logo: {
-    data: Buffer,
-    contentType: String,
-  },
+  logo: Buffer,
+  lang: {
+    type: String,
+    enum: ["python", "sql"]
+  }
 });
 
 module.exports = mongoose.model("Badge", badgeSchema);

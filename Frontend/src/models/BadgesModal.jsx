@@ -2,8 +2,7 @@ import React from "react";
 import { Lock, X } from "lucide-react";
 import badges1 from "../../public/badges/Badges1.png";
 import badges2 from "../../public/badges/Badges2.png";
-import badges3 from "../../public/badges/Badges3.png";
-
+import badges3 from "../../public/badges/badges3.png"
 export const BadgesModal = ({ onClose }) => {
   const pythonBadges = [
     { title: "Loop Master", img: badges1 },

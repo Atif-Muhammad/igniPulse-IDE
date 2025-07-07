@@ -171,7 +171,7 @@ plt.show = safe_show
           socket.emit("EXIT_SUCCESS", "EXIT_SUCCESS");
         } else if (!wasCancelled && errorOutput.trim()) {
           IDETOKEN &&
-            incError(IDETOKEN)
+            incError(IDETOKEN, "python")
               .then((res) => {
                 console.log(res);
               })

@@ -1,10 +1,9 @@
-const connection = require('../utils');
+const connection = require("../utils");
 const crypto = require("crypto");
-const {addCodetoDB} = require("../utils/addCodeToDB")
-
+const { addCodetoDB, incError } = require("../utils/addCodeToDB");
 
 function createTablesAndSeedData(dbName, callback) {
-    const employeeTable = `
+  const employeeTable = `
         CREATE TABLE IF NOT EXISTS ${dbName}.Employees (
             empno int,
             FirstName varchar(20),
@@ -16,7 +15,7 @@ function createTablesAndSeedData(dbName, callback) {
         );
     `;
 
-    const employeeInserts = `
+  const employeeInserts = `
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1001, 'Daniel', 'Wilson', 'IT', 75253, 'Liverpool', 'UK');
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1002, 'James', 'Smith', 'IT', 70744, 'Los Angeles', 'USA');
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (1003, 'Daniel', 'Smith', 'Marketing', 110898, 'London', 'UK');
@@ -1019,7 +1018,7 @@ INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Cou
 INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Country) VALUES (2000, 'Emma', 'Moore', 'Finance', 87142, 'Phoenix', 'USA');
     `;
 
-    const studentTable = `
+  const studentTable = `
         CREATE TABLE IF NOT EXISTS ${dbName}.Students (
             registration int,
             name char(20),
@@ -1029,7 +1028,7 @@ INSERT INTO Employees (empno, FirstName, LastName, Department, Salary, City, Cou
         );
     `;
 
-    const studentInserts = `
+  const studentInserts = `
         INSERT INTO Students (registration, name, marks, college, nationality) VALUES (1, 'Eva', 32, 'MIT', 'Canadian');
 INSERT INTO Students (registration, name, marks, college, nationality) VALUES (2, 'Frank', 117, 'Princeton', 'American');
 INSERT INTO Students (registration, name, marks, college, nationality) VALUES (3, 'Ian', 48, 'Stanford', 'Japanese');
@@ -2032,152 +2031,182 @@ INSERT INTO Students (registration, name, marks, college, nationality) VALUES (9
         INSERT INTO Students (registration, name, marks, college, nationality) VALUES (1000, 'Alice', 83, 'UCLA', 'American');
     `;
 
-    const empView = `
+  const empView = `
         create view ukEmployees as select  firstname,lastname , salary*21/100 as Tax, salary-(salary*21/100) as "Net Salary", Country from Employees where country='UK'
-    `
+    `;
 
-    const stuView = `
+  const stuView = `
         create view AustralianStudents as select registration as Regno,name,marks*100/150 as Percentage,nationality  from students where nationality = 'Australian';
-    `
+    `;
 
-    // Execute all queries in sequence
-    connection.query(`use ${dbName};`, (err, result) => {
-        connection.query(employeeTable, (err) => {
+  // Execute all queries in sequence
+  connection.query(`use ${dbName};`, (err, result) => {
+    connection.query(employeeTable, (err) => {
+      if (err) return callback(err);
+      connection.query(employeeInserts, (err) => {
+        if (err) return callback(err);
+        connection.query(studentTable, (err) => {
+          if (err) return callback(err);
+          connection.query(studentInserts, (err) => {
             if (err) return callback(err);
-            connection.query(employeeInserts, (err) => {
+            connection.query(empView, (err) => {
+              if (err) return callback(err);
+              connection.query(stuView, (err) => {
                 if (err) return callback(err);
-                connection.query(studentTable, (err) => {
-                    if (err) return callback(err);
-                    connection.query(studentInserts, (err) => {
-                        if (err) return callback(err);
-                        connection.query(empView, (err) => {
-                            if (err) return callback(err);
-                            connection.query(stuView, (err) => {
-                                if (err) return callback(err);
-                                callback(null);
-                            });
-                        });
-                    });
-                });
+                callback(null);
+              });
             });
+          });
         });
-    })
+      });
+    });
+  });
 }
 
 exports.refTabs = async (req, res) => {
-    // console.log("first")
-    const { db_id } = req.query;
-    connection.query(`use ${db_id};`, (err) => {
+  // console.log("first")
+  const { db_id } = req.query;
+  connection.query(`use ${db_id};`, (err) => {
+    if (err) return res.send(err);
+    connection.query("drop view if exists ukEmployees;", (err) => {
+      if (err) return res.send(err);
+      connection.query("drop table if exists employees;", (err) => {
         if (err) return res.send(err);
-        connection.query('drop view if exists ukEmployees;', (err) => {
+        connection.query("drop view if exists australianstudents;", (err) => {
+          if (err) return res.send(err);
+          connection.query("drop table if exists students;", (err) => {
             if (err) return res.send(err);
-            connection.query('drop table if exists employees;', (err) => {
-                if (err) return res.send(err);
-                connection.query('drop view if exists australianstudents;', (err) => {
-                    if (err) return res.send(err);
-                    connection.query('drop table if exists students;', (err) => {
-                        if (err) return res.send(err);
-                        createTablesAndSeedData(db_id, (err) => {
-                            if (err) return res.status(500).send("Table creation error: " + err.message);
-                            // console.log("first")
-                            return res.send(db_id);
-                        });
-                    });
-                });
+            createTablesAndSeedData(db_id, (err) => {
+              if (err)
+                return res
+                  .status(500)
+                  .send("Table creation error: " + err.message);
+              // console.log("first")
+              return res.send(db_id);
             });
+          });
         });
+      });
     });
-
-
-
-}
+  });
+};
 
 exports.deleteDDBSES = async (req, res) => {
-    const systemDatabases = ["information_schema", "mysql", "performance_schema", "sys"];
-    connection.query("SHOW DATABASES", (err, results) => {
-        if (err) {
-            return res.status(500).send("Error fetching databases: " + err.message);
-        }
+  const systemDatabases = [
+    "information_schema",
+    "mysql",
+    "performance_schema",
+    "sys",
+  ];
+  connection.query("SHOW DATABASES", (err, results) => {
+    if (err) {
+      return res.status(500).send("Error fetching databases: " + err.message);
+    }
 
-        const databases = results.map(db => db.Database).filter(db => !systemDatabases.includes(db));
+    const databases = results
+      .map((db) => db.Database)
+      .filter((db) => !systemDatabases.includes(db));
 
-        if (databases.length === 0) {
-            return res.send("No user-created databases to drop");
-        }
+    if (databases.length === 0) {
+      return res.send("No user-created databases to drop");
+    }
 
-        const dropQueries = databases.map(db => `DROP DATABASE \`${db}\`;`).join(" ");
+    const dropQueries = databases
+      .map((db) => `DROP DATABASE \`${db}\`;`)
+      .join(" ");
 
-        connection.query(dropQueries, (dropErr) => {
-            if (dropErr) {
-                return res.send("Error dropping databases: " + dropErr.message);
-            }
-            res.send(`Dropped databases: ${databases.join(", ")}`);
-        });
-    })
-}
+    connection.query(dropQueries, (dropErr) => {
+      if (dropErr) {
+        return res.send("Error dropping databases: " + dropErr.message);
+      }
+      res.send(`Dropped databases: ${databases.join(", ")}`);
+    });
+  });
+};
 
 exports.createDB = async (req, res) => {
-    const unq_id = req.body.id;
-    const generateHash = () => crypto.createHash("md5").update(crypto.randomUUID()).digest("hex").slice(0, 8);
+  const unq_id = req.body.id;
+  const generateHash = () =>
+    crypto
+      .createHash("md5")
+      .update(crypto.randomUUID())
+      .digest("hex")
+      .slice(0, 8);
 
-    const createAndSeed = (hash) => {
-        connection.query(`CREATE DATABASE IF NOT EXISTS \`${hash}\``, (err) => {
-            if (err) return res.status(500).send("DB creation error: " + err.message);
+  const createAndSeed = (hash) => {
+    connection.query(`CREATE DATABASE IF NOT EXISTS \`${hash}\``, (err) => {
+      if (err) return res.status(500).send("DB creation error: " + err.message);
 
-            createTablesAndSeedData(hash, (err) => {
-                if (err) return res.status(500).send("Table creation error: " + err.message);
-                return res.status(200).send(hash);
-            });
-        });
-    };
+      createTablesAndSeedData(hash, (err) => {
+        if (err)
+          return res.status(500).send("Table creation error: " + err.message);
+        return res.status(200).send(hash);
+      });
+    });
+  };
 
-    if (!unq_id) {
-        const hash = generateHash();
-        createAndSeed(hash);
-    } else {
-        connection.query(`SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?`, [unq_id], (err, result) => {
-            if (err) return res.status(500).send(err);
+  if (!unq_id) {
+    const hash = generateHash();
+    createAndSeed(hash);
+  } else {
+    connection.query(
+      `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?`,
+      [unq_id],
+      (err, result) => {
+        if (err) return res.status(500).send(err);
 
-            if (result.length > 0) {
-                return res.status(200).send(unq_id);
-            } else {
-                const hash = generateHash();
-                createAndSeed(hash);
-            }
-        });
-    }
+        if (result.length > 0) {
+          return res.status(200).send(unq_id);
+        } else {
+          const hash = generateHash();
+          createAndSeed(hash);
+        }
+      }
+    );
+  }
 };
 
 exports.postData = async (req, res) => {
-
-    try {
-        const userCookie = req.cookies?.IDETOKEN;
-        const { data } = req.body;
-        const { db } = req.body
-        if (!data || !db) {
-            return res.status(400).json({ error: "SQL script is required. || databse name is required" });
-        }
-        connection.query(`use ${db};`, (err, result) => {
-            if (err) {
-                return res.send(err)
-            } else {
-                connection.query(data, (err, result) => {
-                    if (err) {
-                        res.send(err)
-                    } else {
-                        // console.log(result[0])
-                        addCodetoDB(data, "sql", userCookie)
-                        res.json({ success: true, result });
-
-                    }
-                })
-            }
-        })
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const userCookie = req.cookies?.IDETOKEN;
+    const { data } = req.body;
+    const { db } = req.body;
+    if (!data || !db) {
+      return res
+        .status(400)
+        .json({ error: "SQL script is required. || databse name is required" });
     }
-}
+    connection.query(`use ${db};`, (err, result) => {
+      if (err) {
+        return res.send(err);
+      } else {
+        connection.query(data, (err, result) => {
+          if (err) {
+            const sqlErrorCodes = [
+              "ER_PARSE_ERROR", // Syntax error
+              "ER_NO_SUCH_TABLE", // Table doesn't exist
+              "ER_BAD_FIELD_ERROR", // Unknown column
+              "ER_WRONG_DB_NAME", // Invalid DB
+              "ER_TABLE_EXISTS_ERROR", // Table already exists
+              "ER_SYNTAX_ERROR",
+            ];
+
+            if (sqlErrorCodes.includes(err.code)) {
+              incError(userCookie, "sql");
+            }
+            res.send(err);
+          } else {
+            // console.log(result[0])
+            addCodetoDB(data, "sql", userCookie);
+            res.json({ success: true, result });
+          }
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // exports.getDBS = async  (req, res) => {
 //     const {db} = req.body;
@@ -2204,20 +2233,20 @@ exports.postData = async (req, res) => {
 // }
 
 exports.getTables = async (req, res) => {
-    const db_name = req.query.db;
-    // connection.connect((err) => {
-    //     if (err) {
-    //         console.log(err)
-    //     } else {
-    //         console.log("connected to mysql")
-    //     }
-    // })
+  const db_name = req.query.db;
+  // connection.connect((err) => {
+  //     if (err) {
+  //         console.log(err)
+  //     } else {
+  //         console.log("connected to mysql")
+  //     }
+  // })
 
-    connection.query(`use ${db_name};`, (err, result) => {
-        if (err) {
-            res.send(err)
-        } else {
-            const query = `
+  connection.query(`use ${db_name};`, (err, result) => {
+    if (err) {
+      res.send(err);
+    } else {
+      const query = `
   SELECT 
     t.TABLE_NAME,
     t.TABLE_TYPE,
@@ -2231,42 +2260,54 @@ exports.getTables = async (req, res) => {
   ORDER BY t.CREATE_TIME DESC, c.ORDINAL_POSITION ASC;
 `;
 
-            connection.query(query, [db_name], (err, result) => {
-                if (err) {
-                    return res.send(err);
-                }
-
-                const tables = {};
-                const views = {};
-
-                for (const row of result) {
-                    const { TABLE_NAME, TABLE_TYPE, CREATE_TIME, COLUMN_NAME, DATA_TYPE } = row;
-                    const entry = {
-                        tableName: TABLE_NAME,
-                        createTime: CREATE_TIME,
-                        columnName: COLUMN_NAME,
-                        dataType: DATA_TYPE
-                    };
-
-                    if (TABLE_TYPE === "BASE TABLE") {
-                        if (!tables[TABLE_NAME]) tables[TABLE_NAME] = { createTime: CREATE_TIME, columns: [] };
-                        tables[TABLE_NAME].columns.push({ columnName: COLUMN_NAME, dataType: DATA_TYPE });
-                    } else if (TABLE_TYPE === "VIEW") {
-                        if (!views[TABLE_NAME]) views[TABLE_NAME] = { createTime: CREATE_TIME, columns: [] };
-                        views[TABLE_NAME].columns.push({ columnName: COLUMN_NAME, dataType: DATA_TYPE });
-                    }
-                }
-
-                res.send({
-                    tables,
-                    views
-                });
-            });
-
+      connection.query(query, [db_name], (err, result) => {
+        if (err) {
+          return res.send(err);
         }
-    })
 
-}
+        const tables = {};
+        const views = {};
+
+        for (const row of result) {
+          const {
+            TABLE_NAME,
+            TABLE_TYPE,
+            CREATE_TIME,
+            COLUMN_NAME,
+            DATA_TYPE,
+          } = row;
+          const entry = {
+            tableName: TABLE_NAME,
+            createTime: CREATE_TIME,
+            columnName: COLUMN_NAME,
+            dataType: DATA_TYPE,
+          };
+
+          if (TABLE_TYPE === "BASE TABLE") {
+            if (!tables[TABLE_NAME])
+              tables[TABLE_NAME] = { createTime: CREATE_TIME, columns: [] };
+            tables[TABLE_NAME].columns.push({
+              columnName: COLUMN_NAME,
+              dataType: DATA_TYPE,
+            });
+          } else if (TABLE_TYPE === "VIEW") {
+            if (!views[TABLE_NAME])
+              views[TABLE_NAME] = { createTime: CREATE_TIME, columns: [] };
+            views[TABLE_NAME].columns.push({
+              columnName: COLUMN_NAME,
+              dataType: DATA_TYPE,
+            });
+          }
+        }
+
+        res.send({
+          tables,
+          views,
+        });
+      });
+    }
+  });
+};
 
 // exports.switchDB = async (req, res) => {
 //     // connection.connect((err) => {

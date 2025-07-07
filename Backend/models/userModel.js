@@ -26,11 +26,19 @@ const userSchema = mongoose.Schema({
       ref: "Code",
     },
   ],
-  errorExec: {
+  errorExecPy: {
     type: Number,
     default: 0,
   },
-  score: {
+  errorExecSql: {
+    type: Number,
+    default: 0,
+  },
+  pyScore: {
+    type: Number,
+    default: 0
+  },
+  sqlScore: {
     type: Number,
     default: 0
   },

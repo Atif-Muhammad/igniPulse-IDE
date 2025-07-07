@@ -19,6 +19,7 @@ const ENDPOINTS = {
 
   getAvatars: `${BASE_URL}/noCode/getAvatars`,
   selectAvatar: `${BASE_URL}/noCode/selAvatar`,
+  getBadges: `${BASE_URL}/noCode/getBadges`,
 
   addBadge: `${BASE_URL}/noCode/admin/addBadge`,
   addAvatar: `${BASE_URL}/noCode/admin/addAvatar`,
@@ -150,10 +151,23 @@ const getTables = async (db) => {
 
 const getAvatars = async () => {
   try {
-    const response = await axios.get(ENDPOINTS.getAvatars, {withCredentials: true});
+    const response = await axios.get(ENDPOINTS.getAvatars, {
+      withCredentials: true,
+    });
     if (response) {
       return response;
     }
+  } catch (error) {
+    return error;
+  }
+};
+
+const getBadges = async () => {
+  try {
+    const response = await axios.get(ENDPOINTS.getBadges, {
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
     return error;
   }
@@ -161,7 +175,9 @@ const getAvatars = async () => {
 
 const selectAvatar = async (data) => {
   try {
-    const response = await axios.put(ENDPOINTS.selectAvatar, data, {withCredentials: true});
+    const response = await axios.put(ENDPOINTS.selectAvatar, data, {
+      withCredentials: true,
+    });
     if (response) {
       return response;
     }
@@ -169,8 +185,6 @@ const selectAvatar = async (data) => {
     return error;
   }
 };
-
-
 
 const addBadge = async (data) => {
   try {
@@ -213,6 +227,7 @@ export default {
 
   getAvatars,
   selectAvatar,
+  getBadges,
 
   addBadge,
   addAvatar,

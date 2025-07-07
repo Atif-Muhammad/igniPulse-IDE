@@ -16,21 +16,26 @@ async function incTotal(currentUser) {
   }
 }
 
-async function incScore(currentUser) {
+async function incScore(currentUser, lang) {
+  // console.log("incrementing score for lang:", lang)
   try {
-    await User.updateOne({ _id: currentUser?.id }, { $inc: { score: 20 } });
+    lang === "python"? await User.updateOne({ _id: currentUser?.id }, { $inc: { pyScore: 20 } }) : await User.updateOne({ _id: currentUser?.id }, { $inc: { sqlScore: 20 } })
   } catch (error) {
     return error;
   }
 }
 
-async function assignBadge(currentUser) {
+async function assignBadge(currentUser, lang) {
+  console.log("assigning badge for lang:", lang)
   try {
     const foundUser = await User.findOne({ _id: currentUser?.id });
     // check if userScore >= badgeScore is a already assigned
-    const foundBadges = await Badge.find({ score: { $lte: foundUser?.score } });
-    // console.log(foundBadges);
+    const userScore = lang === "python" ? foundUser?.pyScore : foundUser?.sqlScore
+    // console.log(userScore)
+    const foundBadges = await Badge.find({ score: { $lte:  userScore}, lang });
+    // console.log("foundbadges:",foundBadges[0]);
     if (foundBadges?.length > 0) {
+      // console.log("badges found")
       const not_assigned_ones = foundBadges.filter(
         (badge) => !foundUser?.badges?.includes(badge)
       );
@@ -68,18 +73,20 @@ async function addCodetoDB(code, lang, IDETOKEN) {
       lang,
     };
 
+
     const DBcode = await Code.find({ hash, owner: currentUser?.id });
     // console.log(DBcode)
     if (DBcode.length === 0) {
       const newRec = await Code.create(payload);
+      // console.log("created code", newRec, "for", payload)
       await User.updateOne(
         { _id: currentUser?.id },
         { $push: { successExec: newRec._id } }
       );
-      incScore(currentUser);
+      incScore(currentUser, lang);
       incTotal(currentUser)
         .then((res) => {
-          assignBadge(currentUser);
+          assignBadge(currentUser, lang);
         })
         .catch((err) => {
           return err;
@@ -93,12 +100,13 @@ async function addCodetoDB(code, lang, IDETOKEN) {
   }
 }
 
-async function incError(IDETOKEN) {
+async function incError(IDETOKEN, lang) {
   // console.log("incrementing error....");
 
   try {
     const currentUser = await userWho(IDETOKEN);
-    await User.updateOne({ _id: currentUser?.id }, { $inc: { errorExec: 1 } });
+    const ErrorExec = lang === "python" ? {errorExecPy: 1}: {errorExecSql: 1}
+    await User.updateOne({ _id: currentUser?.id }, { $inc: ErrorExec });
     incTotal(currentUser);
     // add score for failed execution
     return {
