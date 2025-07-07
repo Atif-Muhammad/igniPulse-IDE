@@ -5,6 +5,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../../Config/config";
 import { changeToBase64 } from "../Functions/toBase64.js";
 import { groupDates } from "../Functions/groupDates.js";
+import {
+  ProfileSkeleton,
+  CodeSnippetSkeleton,
+  BadgeSkeleton,
+  MiniBadge,
+} from "../skeletons/index.js";
 
 export const Profile = () => {
   const [pyExecs, setPyExecs] = useState([]);
@@ -15,17 +21,21 @@ export const Profile = () => {
 
   const [showBadgesModal, setShowBadgesModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Python");
-  
+
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData(["currentUser"]);
 
-  const { data: allBadges = [] } = useQuery({
+  const { data: allBadges = [], isLoading: badgesLoading } = useQuery({
     queryKey: ["Badges", currentUser?.data?.id],
     queryFn: async () => await config.getBadges(),
     enabled: !!currentUser?.data?.id,
   });
 
-  const { data = [], isSuccess } = useQuery({
+  const {
+    data = [],
+    isSuccess,
+    isLoading: profileLoading,
+  } = useQuery({
     queryKey: ["profile", currentUser?.data?.id],
     queryFn: async () => await config.getProfile(currentUser?.data?.id),
     enabled: !!currentUser?.data?.id,
@@ -75,15 +85,14 @@ export const Profile = () => {
     Sql: data?.data?.sqlScore || [],
   };
 
-  
-
-  const handleCopy = (code) => {
-    navigator.clipboard.writeText(code);
-  };
-
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    // You can add a toast notification here if needed
+  };
+
+  const calculateProgressPercentage = () => {
+    const currentScore = scoreMap[activeTab] || 0;
+    const nextBadgeScore = nextBadgeMap[activeTab]?.score || 1;
+    return Math.min(100, Math.max(0, (currentScore / nextBadgeScore) * 100));
   };
 
   return (
@@ -92,96 +101,113 @@ export const Profile = () => {
         <div className="flex flex-col  md:flex-row gap-2">
           {/* Left Sidebar - Fixed */}
           <div className="md:w-1/4 w-full mt-10 bg-white shadow-black border-2 border-blue-500 rounded-2xl shadow-md flex flex-col items-center text-center  overflow-visible pb-5 pt-20 md:sticky md:top-24 h-fit">
-            {/* Profile Image - absolute overlap */}
-            <div className="absolute md:top-0 top-20 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <img
-                src={data?.data?.image}
-                alt="User avatar"
-                className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl"
-              />
-            </div>
-
-            <div className=" w-full px-4 flex flex-col gap-5 ">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {data?.data?.user_name}
-                </h2>
-                <p className="text-md text-gray-500 mb-4">
-                  {data?.data?.email}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                  Current Progress
-                </h3>
-                <p className="text-md text-gray-600 ">
-                  {
-                    userBadgesMap[activeTab]?.[0]?.title
-                  }
-                </p>
-
-                <div className="flex items-center  justify-between gap-2 mb-4">
+            {profileLoading ? (
+              <ProfileSkeleton />
+            ) : (
+              <>
+                {/* Profile Image - absolute overlap */}
+                <div className="absolute md:top-0 top-20 left-1/2 -translate-x-1/2 -translate-y-1/2">
                   <img
-                    src={userBadgesMap[activeTab]?.[0]?.logo}
-                    className="w-20 h-20"
-                    alt="Star icon"
+                    src={data?.data?.image}
+                    alt="User avatar"
+                    className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl"
                   />
-                  <div className="flex-1 bg-gray-300 rounded-full h-2 overflow-hidden relative">
-                    <div
-                      className="absolute top-0 left-0 bg-red-500 h-2 rounded-full transition-all duration-700 ease-in-out"
-                      style={{ width: "84%" }}
-                    ></div>
+                </div>
+
+                <div className=" w-full px-4 flex flex-col gap-5 ">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {data?.data?.user_name}
+                    </h2>
+                    <p className="text-md text-gray-500 mb-4">
+                      {data?.data?.email}
+                    </p>
                   </div>
-                  <img
-                    src={nextBadgeMap[activeTab]?.logo}
-                    className="w-20 h-20"
-                    alt="Star icon"
-                  />
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                      Current Progress
+                    </h3>
+                    <p className="text-md text-gray-600">
+                      {userBadgesMap[activeTab]?.[0]?.title ??
+                        "Run your first code to unlock!"}
+                    </p>
+
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      {/* Conditionally render left badge */}
+                      {userBadgesMap[activeTab]?.[0]?.logo ? (
+                        <img
+                          src={userBadgesMap[activeTab]?.[0]?.logo}
+                          className="w-20 h-20"
+                          alt="Current badge"
+                        />
+                      ) : (
+                        <div className="w-20 bg-gray-200 flex items-center text-sm justify-center rounded-full h-20">
+                          No Achieved badges{" "}
+                        </div>
+                      )}
+
+                      {/* Progress bar - always visible */}
+                      <div className="flex-1 bg-gray-300 rounded-full h-2 overflow-hidden relative">
+                        <div
+                          className="absolute top-0 left-0 bg-red-500 h-2 rounded-full transition-all duration-700 ease-in-out"
+                          style={{ width: `${calculateProgressPercentage()}%` }}
+                        ></div>
+                      </div>
+
+                      {/* Next badge - always visible (assuming there's always a next badge) */}
+                      <img
+                        src={
+                          nextBadgeMap[activeTab]?.logo || "/default-badge.png"
+                        } // Fallback image if needed
+                        className="w-20 h-20"
+                        alt="Next badge"
+                      />
+                    </div>
+
+                    <p className="text-lg text-gray-700 mb-1">
+                      You have{" "}
+                      <strong className="font-extrabold text-black">
+                        {scoreMap[activeTab] || 0}{" "}
+                      </strong>{" "}
+                      Points
+                    </p>
+                    <p className="text-sm text-gray-500 mb-6">
+                      Earn{" "}
+                      {nextBadgeMap[activeTab]?.score - scoreMap[activeTab]}{" "}
+                      points to {nextBadgeMap[activeTab]?.[0]?.title}
+                      Badge
+                    </p>
+                  </div>
                 </div>
 
-                <p className="text-lg text-gray-700 mb-1">
-                  You have{" "}
-                  <strong className="font-extrabold text-black">
-                    {scoreMap[activeTab] || 0}{" "}
-                  </strong>{" "}
-                  Points
-                </p>
-                <p className="text-sm text-gray-500 mb-6">
-                  Earn{" "}
-                  {nextBadgeMap[activeTab]?.score - scoreMap[activeTab]}
-                  points to{" "}
-                  {nextBadgeMap[activeTab]?.[0]?.title}
-                  Badge
-                </p>
-              </div>
-            </div>
-
-            <div className="w-11/12 bg-gray-50 border border-gray-200 rounded-xl shadow-sm p-4">
-              <div className="flex flex-col gap-3 text-md text-gray-500 font-medium">
-                <div className="flex justify-between">
-                  <p>Total Executions</p>
-                  <p className="text-black font-bold">
-                    {data?.data?.totalExec -
-                      data?.data?.successExec?.filter(
-                        (exec) => exec.lang != activeTab.toLowerCase()
-                      )?.length || 0}
-                  </p>
+                <div className="w-11/12 bg-gray-50 border border-gray-200 rounded-xl shadow-sm p-4">
+                  <div className="flex flex-col gap-3 text-md text-gray-500 font-medium">
+                    <div className="flex justify-between">
+                      <p>Total Executions</p>
+                      <p className="text-black font-bold">
+                        {data?.data?.totalExec -
+                          data?.data?.successExec?.filter(
+                            (exec) => exec.lang != activeTab.toLowerCase()
+                          )?.length || 0}
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-green-600">Successful</p>
+                      <p className="text-green-600 font-bold">
+                        {execsMap[activeTab]?.length || 0}
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p className="text-red-500">Errors</p>
+                      <p className="text-red-500 font-bold">
+                        {errorsMap[activeTab] || 0}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <p className="text-green-600">Successful</p>
-                  <p className="text-green-600 font-bold">
-                    {execsMap[activeTab]?.length || 0}
-                  </p>
-                </div>
-                <div className="flex justify-between">
-                  <p className="text-red-500">Errors</p>
-                  <p className="text-red-500 font-bold">
-                    {errorsMap[activeTab] || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
           {/* Middle Section - Scrollable */}
@@ -192,32 +218,32 @@ export const Profile = () => {
                   Achievements &amp; Badges
                 </h2>
               </div>
-              <div className="flex justify-center bg-[#FAF7F7] items-center gap-4 p-4 rounded-lg ">
-                {(activeTab === "Python" ? pyUserBadges : sqlUserBadges)?.map(
-                  (badge, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 shadow hover:shadow-md hover:scale-105 transition-transform duration-300"
-                    >
-                      <img
-                        src={badge?.logo}
-                        alt="badge"
-                        className="w-10 h-10 mb-2"
-                      />
-                      <p className="text-xs font-medium text-gray-700 text-center">
-                        {badge.title}
-                      </p>
-                    </div>
+              <div className="flex justify-center bg-[#FAF7F7] items-center gap-4 p-4 rounded-lg min-h-28">
+                {badgesLoading ? (
+                  [...Array(3)].map((_, index) => <MiniBadge key={index} />)
+                ) : (activeTab === "Python" ? pyUserBadges : sqlUserBadges)
+                    ?.length > 0 ? (
+                  (activeTab === "Python" ? pyUserBadges : sqlUserBadges).map(
+                    (badge, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 shadow hover:shadow-md hover:scale-105 transition-transform duration-300"
+                      >
+                        <img
+                          src={badge?.logo}
+                          alt="badge"
+                          className="w-20 h-18 mb-2"
+                        />
+                        <p className="text-sm font-medium text-gray-700 text-center">
+                          {badge.title}
+                        </p>
+                      </div>
+                    )
                   )
-                )}
-                {(activeTab === "Python" ? pyUserBadges : sqlUserBadges)
-                  ?.length > 3 && (
-                  <button
-                    onClick={() => setShowBadgesModal(true)}
-                    className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow self-center"
-                  >
-                    See All
-                  </button>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center font-medium">
+                    No Achieved Badges
+                  </p>
                 )}
               </div>
             </div>
@@ -245,52 +271,88 @@ export const Profile = () => {
               </div>
 
               <div className="bg-[#FAF7F7] px-4 border-b border-l border-r border-gray-300 py-5 rounded-b-lg space-y-6">
-                {activeTab === "Python" && pyExecs?.length > 0 && (
-                  <>
-                    {pyExecs?.map((code, index) => (
-                      <div key={index} className="space-y-3">
-                        <p className="text-sm text-gray-500 font-medium">
-                          {groupDates(code?.createdAt)}
-                        </p>
-                        <div className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
-                          <span>{code.code}</span>
-                          <button
-                            onClick={() =>
-                              copyToClipboard('print("Hello World!")')
-                            }
-                            className="text-gray-400 cursor-pointer hover:text-white"
-                            title="Copy to clipboard"
-                          >
-                            <Copy className="w-4 h-4" />
-                          </button>
+                {profileLoading ? (
+                  [...Array(3)].map((_, index) => (
+                    <CodeSnippetSkeleton key={index} />
+                  ))
+                ) : activeTab === "Python" && pyExecs?.length > 0 ? (
+                  // Group executions by date
+                  Object.entries(
+                    pyExecs.reduce((groups, code) => {
+                      const { label, dateStr } = groupDates(code?.createdAt);
+                      if (!groups[dateStr]) {
+                        groups[dateStr] = {
+                          label,
+                          items: [],
+                        };
+                      }
+                      groups[dateStr].items.push(code);
+                      return groups;
+                    }, {})
+                  ).map(([dateStr, group]) => (
+                    <div key={dateStr} className="space-y-3">
+                      {/* Only show date label once at the top */}
+                      <p className="text-sm text-gray-500 font-medium">
+                        {group.label}
+                      </p>
+                      {/* Render all items for this date group */}
+                      {group.items.map((code, index) => (
+                        <div key={index}>
+                          <div className="bg-[#1e293b] relative text-white px-4 py-3 rounded-lg text-md mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
+                            <span className="whitespace-pre-wrap">
+                              {code.code}
+                            </span>
+                            <button
+                              onClick={() => copyToClipboard(code.code)}
+                              className="text-gray-400 absolute top-4 right-4 cursor-pointer hover:text-white"
+                              title="Copy to clipboard"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </>
-                )}
-
-                {activeTab === "Sql" && sqlExecs?.length > 0 && (
-                  <>
-                    {sqlExecs?.map((code, index) => (
-                      <div key={index} className="space-y-3">
-                        <p className="text-sm text-gray-500 font-medium">
-                          {groupDates(code?.createdAt)}
-                        </p>
-                        <div className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
-                          <span>{code.code}</span>
-                          <button
-                            onClick={() =>
-                              copyToClipboard('print("Hello World!")')
-                            }
-                            className="text-gray-400 cursor-pointer hover:text-white"
-                            title="Copy to clipboard"
-                          >
-                            <Copy className="w-4 h-4" />
-                          </button>
+                      ))}
+                    </div>
+                  ))
+                ) : activeTab === "Sql" && sqlExecs?.length > 0 ? (
+                  // Same grouping logic for SQL
+                  Object.entries(
+                    sqlExecs.reduce((groups, code) => {
+                      const { label, dateStr } = groupDates(code?.createdAt);
+                      if (!groups[dateStr]) {
+                        groups[dateStr] = {
+                          label,
+                          items: [],
+                        };
+                      }
+                      groups[dateStr].items.push(code);
+                      return groups;
+                    }, {})
+                  ).map(([dateStr, group]) => (
+                    <div key={dateStr} className="space-y-3">
+                      <p className="text-sm text-gray-500 font-medium">
+                        {group.label}
+                      </p>
+                      {group.items.map((code, index) => (
+                        <div key={index}>
+                          <div className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
+                            <span>{code.code}</span>
+                            <button
+                              onClick={() => copyToClipboard(code.code)}
+                              className="text-gray-400 cursor-pointer hover:text-white"
+                              title="Copy to clipboard"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500">
+                    No executions found.
+                  </p>
                 )}
               </div>
             </div>
@@ -302,38 +364,41 @@ export const Profile = () => {
               All Badges
             </h2>
             <div className="space-y-4 px-6">
-              {allBadges &&
-                allBadges
-                  ?.filter(
-                    (bdg) => bdg.lang?.toLowerCase() === activeTab.toLowerCase()
-                  )
-                  ?.map((badge, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center justify-between gap-4 py-2 `}
-                    >
-                      <div className="text-center">
-                        <p className="text-xl font-bold text-gray-800">
-                          {badge.title}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Achieved on {badge.score} Points
-                        </p>
+              {badgesLoading
+                ? [...Array(5)].map((_, index) => <BadgeSkeleton key={index} />)
+                : allBadges &&
+                  allBadges
+                    ?.filter(
+                      (bdg) =>
+                        bdg.lang?.toLowerCase() === activeTab.toLowerCase()
+                    )
+                    ?.map((badge, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center border-b justify-between gap-4 py-2 `}
+                      >
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-gray-800">
+                            {badge.title}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Achieved on {badge.score} Points
+                          </p>
+                        </div>
+                        <div className="relative w-28 h-28">
+                          <img
+                            src={badge?.logo}
+                            alt={badge?.title}
+                            className="w-full h-full object-contain rounded-md"
+                          />
+                          {badges?.some((bdg) => bdg?._id != badge?._id) && (
+                            <div className="absolute top-8 right-8 bg-white/70 p-3 rounded-full shadow-xl">
+                              <Lock className="w-full h-full text-gray-700" />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="relative w-28 h-28">
-                        <img
-                          src={badge?.logo}
-                          alt={badge?.title}
-                          className="w-full h-full object-contain rounded-md"
-                        />
-                        {badges?.some((bdg) => bdg?._id != badge?._id) && (
-                          <div className="absolute top-8 right-8 bg-white p-3 rounded-full shadow-xl">
-                            <Lock className="w-full h-full text-gray-700" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
             </div>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 export function groupDates(dateItem) {
   const date = new Date(dateItem);
   const dateStr = date.toDateString();
@@ -9,6 +8,7 @@ export function groupDates(dateItem) {
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   const yesterdayStr = yesterday.toDateString();
+
   let label;
   if (dateStr === todayStr) {
     label = "Today";
@@ -22,5 +22,8 @@ export function groupDates(dateItem) {
     });
   }
 
-  return label;
+  return {
+    label,
+    dateStr, // we'll use this to group by date
+  };
 }
