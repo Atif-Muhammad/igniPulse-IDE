@@ -1,13 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import config from "../../Config/config";
 
-function AvatarsPrev({ currentUser }) {
+function AvatarsPrev({ currentUser, setAvatars }) {
   const { mutate } = useMutation({
     mutationKey: ["selectAvatar", currentUser],
     mutationFn: async (avatar) => {
       // console.log("selecting:", avatar);
       return await config.selectAvatar({currentUser, avatar})
     },
+    onSuccess: ()=> setAvatars(false)
   });
 
   const { data } = useQuery({
@@ -18,7 +19,7 @@ function AvatarsPrev({ currentUser }) {
   });
 
   return (
-    <div className="bg-white w-100 h-120 absolute top-55 left-70 overflow-y-scroll grid grid-cols-3 gap-x-1 gap-y-4 shadow-xl p-2 rounded-xl">
+    <div className="bg-white z-40 w-100 h-120 absolute top-0 left-70 overflow-y-scroll grid grid-cols-3 gap-x-1 gap-y-4 shadow-xl p-2 rounded-xl">
       {data?.data?.map((avatar, index) => (
         <img
           onClick={() => mutate(avatar?._id)}

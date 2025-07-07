@@ -11,6 +11,7 @@ import {
   BadgeSkeleton,
   MiniBadge,
 } from "../skeletons/index.js";
+import AvatarsPrev from "../components/AvatarsPrev.jsx"
 
 export const Profile = () => {
   const [pyExecs, setPyExecs] = useState([]);
@@ -18,6 +19,7 @@ export const Profile = () => {
   const [pyUserBadges, setPyUserBadges] = useState([]);
   const [sqlUserBadges, setSqlUserBadges] = useState([]);
   const [badges, setBadges] = useState([]);
+  const [avatars, setAvatars] = useState(false)
 
   const [showBadgesModal, setShowBadgesModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Python");
@@ -107,11 +109,30 @@ export const Profile = () => {
               <>
                 {/* Profile Image - absolute overlap */}
                 <div className="absolute md:top-0 top-20 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <img
-                    src={data?.data?.image}
-                    alt="User avatar"
-                    className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl"
-                  />
+                  {data?.data?.image ? (
+                    <img
+                      src={data?.data?.image}
+                      alt="User avatar"
+                      className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl"
+                    />
+                  ) : (
+                    <div onClick={()=> setAvatars(true)} className="w-36 h-36 rounded-full object-cover bg-gray-100 border-4 border-blue-500 shadow-xl">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="full"
+                        height="full"
+                        viewBox="0 -3 24 28"
+                        fill="#ccc"
+                        className="rounded-full"
+                      >
+                        <circle cx="12" cy="12" r="full" fill="#e5e7eb" />
+                        <path
+                          fill="#9ca3af"
+                          d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                        />
+                      </svg>
+                    </div>
+                  )}
                 </div>
 
                 <div className=" w-full px-4 flex flex-col gap-5 ">
@@ -142,9 +163,7 @@ export const Profile = () => {
                           alt="Current badge"
                         />
                       ) : (
-                        <div className="w-20 bg-gray-200 flex items-center text-sm justify-center rounded-full h-20">
-                          No Achieved badges{" "}
-                        </div>
+                        <div className="w-20 bg-gray-200 flex items-center text-sm justify-center rounded-full h-20"></div>
                       )}
 
                       {/* Progress bar - always visible */}
@@ -206,6 +225,7 @@ export const Profile = () => {
                     </div>
                   </div>
                 </div>
+                {avatars && (<AvatarsPrev currentUser={currentUser?.data?.id} setAvatars={setAvatars}/>)}
               </>
             )}
           </div>
@@ -219,10 +239,8 @@ export const Profile = () => {
                 </h2>
               </div>
               <div className="flex justify-center bg-[#FAF7F7] items-center gap-4 p-4 rounded-lg min-h-28">
-                {badgesLoading ? (
-                  [...Array(3)].map((_, index) => <MiniBadge key={index} />)
-                ) : (activeTab === "Python" ? pyUserBadges : sqlUserBadges)
-                    ?.length > 0 ? (
+                {(activeTab === "Python" ? pyUserBadges : sqlUserBadges)
+                  ?.length > 0 ? (
                   (activeTab === "Python" ? pyUserBadges : sqlUserBadges).map(
                     (badge, index) => (
                       <div
@@ -391,7 +409,8 @@ export const Profile = () => {
                             alt={badge?.title}
                             className="w-full h-full object-contain rounded-md"
                           />
-                          {badges?.some((bdg) => bdg?._id != badge?._id) && (
+                          {(badges?.length === 0 ||
+                            badges?.some((bdg) => bdg?._id !== badge?._id)) && (
                             <div className="absolute top-8 right-8 bg-white/70 p-3 rounded-full shadow-xl">
                               <Lock className="w-full h-full text-gray-700" />
                             </div>

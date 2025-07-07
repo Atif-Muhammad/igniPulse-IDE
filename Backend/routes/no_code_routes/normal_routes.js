@@ -10,7 +10,7 @@ router.get("/getAvatars", async (req, res) => {
     const final = response.map((doc) => ({
       ...doc._doc,
       avatar: doc.avatar
-        ? `data:image/png;base64,${doc.avatar.buffer.toString("base64")}`
+        ? `data:image/png;base64,${doc.avatar.toString("base64")}`
         : null,
     }));
 
@@ -23,6 +23,7 @@ router.get("/getAvatars", async (req, res) => {
 router.put("/selAvatar", async (req, res) => {
   try {
     const { currentUser, avatar } = req.body;
+  
       await User.updateOne(
       { _id: currentUser },
       { image: avatar}

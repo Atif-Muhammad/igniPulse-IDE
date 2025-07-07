@@ -12,6 +12,7 @@ import { useLoader, useFrame } from "@react-three/fiber";
 import { useTheme } from "../context/ThemeContext";
 import { useState } from "react";
 import DataScience from "../assets/DataScience.webp";
+import { useQueryClient } from "@tanstack/react-query";
 
 function Model() {
   const fbx = useLoader(FBXLoader, "/rocket.fbx");
@@ -65,9 +66,12 @@ function Model() {
   );
 }
 
-const LandingPage = ({ currentUser }) => {
+const LandingPage = () => {
   const { darkTheme, toggleTheme } = useTheme();
   
+  const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData(["currentUser"])?.data
+  console.log(currentUser)
 
   const cards = [
     {
@@ -154,10 +158,12 @@ const LandingPage = ({ currentUser }) => {
                 <NavLink
                   to="/authentication"
                   className={`${
-                    darkTheme ? "bg-white" : "bg-black text-white"
-                  } p-2 rounded-full`}
+                    darkTheme
+                      ? "bg-white text-black hover:bg-gray-200"
+                      : "bg-black text-white hover:bg-gray-800"
+                  } px-5 py-2 rounded-full shadow-md font-semibold transition-all duration-300`}
                 >
-                  login/signup
+                  Login
                 </NavLink>
               )}
             </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useFormik } from "formik";
 import { motion, AnimatePresence } from "framer-motion";
 import getValidationSchema from "../../validationSchema/ValidationSchema";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import config from "../../../Config/config";
 import { useTheme } from "../../context/ThemeContext";
 import { Mail, Lock, User, UserPlus } from "lucide-react";
@@ -16,6 +16,7 @@ export default function AuthSwitcherWithFormik() {
   const navigate = useNavigate();
   const toggleMode = () => setIsSignup((prev) => !prev);
   const { darkTheme, toggleTheme } = useTheme();
+  const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: async (formValues) => {
@@ -25,6 +26,7 @@ export default function AuthSwitcherWithFormik() {
     },
     onSuccess: (data) => {
       // console.log(data);
+      queryClient.invalidateQueries(["currentUser"])
       navigate("/");
     },
     onError: (err) => {

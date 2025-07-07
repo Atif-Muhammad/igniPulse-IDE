@@ -36,7 +36,7 @@ function AppWrapper() {
       <Routes>
         <Route
           path="/"
-          element={<LandingPage currentUser={currentUser?.data} />}
+          element={<LandingPage />}
         />
         <Route
           path="/profile"
