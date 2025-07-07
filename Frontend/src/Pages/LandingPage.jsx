@@ -71,7 +71,7 @@ const LandingPage = () => {
   
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData(["currentUser"])?.data
-  console.log(currentUser)
+  // console.log(currentUser)
 
   const cards = [
     {
