@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { Copy, Lock } from "lucide-react";
 import { BadgesModal } from "../models/BadgesModal";
-import badges1 from "../../public/badges/Badges1.png";
-import badges2 from "../../public/badges/Badges2.png";
-import badges3 from "../../public/badges/Badges1.png";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../../Config/config";
 import { changeToBase64 } from "../Functions/toBase64.js";
@@ -12,12 +9,8 @@ import { groupDates } from "../Functions/groupDates.js";
 export const Profile = () => {
   const [pyExecs, setPyExecs] = useState([]);
   const [sqlExecs, setSqlExecs] = useState([]);
-  const [pyErrors, setPyErrors] = useState([]);
-  const [sqlErrors, setSqlErrors] = useState([]);
   const [pyUserBadges, setPyUserBadges] = useState([]);
   const [sqlUserBadges, setSqlUserBadges] = useState([]);
-  const [dispAvatars, setDispAvatars] = useState(false);
-  const [targetScore, setTargetScore] = useState(0);
   const [badges, setBadges] = useState([]);
 
   const [showBadgesModal, setShowBadgesModal] = useState(false);
@@ -63,8 +56,8 @@ export const Profile = () => {
   };
 
   const errorsMap = {
-    Python: data?.data?.errorExecPy || [],
-    Sql: data?.data?.errorExecSql || [],
+    Python: data?.data?.errorExecPy,
+    Sql: data?.data?.errorExecSql,
   };
 
   const userBadgesMap = {
@@ -130,7 +123,7 @@ export const Profile = () => {
 
                 <div className="flex items-center  justify-between gap-2 mb-4">
                   <img
-                    src={changeToBase64(userBadgesMap[activeTab]?.[0]?.logo?.data?.data)}
+                    src={userBadgesMap[activeTab]?.[0]?.logo}
                     className="w-20 h-20"
                     alt="Star icon"
                   />
@@ -141,9 +134,7 @@ export const Profile = () => {
                     ></div>
                   </div>
                   <img
-                    src={changeToBase64(
-                      nextBadgeMap[activeTab]?.logo?.data?.data
-                    )}
+                    src={nextBadgeMap[activeTab]?.logo}
                     className="w-20 h-20"
                     alt="Star icon"
                   />
@@ -209,7 +200,7 @@ export const Profile = () => {
                       className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 shadow hover:shadow-md hover:scale-105 transition-transform duration-300"
                     >
                       <img
-                        src={changeToBase64(badge?.logo?.data?.data)}
+                        src={badge?.logo}
                         alt="badge"
                         className="w-10 h-10 mb-2"
                       />
@@ -283,7 +274,7 @@ export const Profile = () => {
                     {sqlExecs?.map((code, index) => (
                       <div key={index} className="space-y-3">
                         <p className="text-sm text-gray-500 font-medium">
-                          Yesterday
+                          {groupDates(code?.createdAt)}
                         </p>
                         <div className="bg-[#1e293b] text-white px-4 py-3 rounded-lg text-sm mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
                           <span>{code.code}</span>
@@ -331,15 +322,12 @@ export const Profile = () => {
                       </div>
                       <div className="relative w-28 h-28">
                         <img
-                          src={changeToBase64(badge?.logo?.data?.data)}
+                          src={badge?.logo}
                           alt={badge?.title}
-                          className="w-full h-full opacity-80 object-contain rounded-md"
+                          className="w-full h-full object-contain rounded-md"
                         />
-                        {(activeTab === "Python"
-                          ? allBadges?.filter((bdg) => bdg.lang === "python")
-                          : allBadges?.filter((bdg) => bdg.lang === "sql")
-                        )?.some((bdg) => bdg?._id != badge?._id) && (
-                          <div className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow">
+                        {badges?.some((bdg) => bdg?._id != badge?._id) && (
+                          <div className="absolute top-8 right-8 bg-white p-3 rounded-full shadow-xl">
                             <Lock className="w-full h-full text-gray-700" />
                           </div>
                         )}

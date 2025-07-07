@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import {useMutation} from '@tanstack/react-query'
+import { useMutation } from "@tanstack/react-query";
 import config from "../../../Config/config";
 
 const BadgeForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
-  const [score, setScore] = useState(null)
+  const [score, setScore] = useState(null);
+  const [lang, setLang] = useState("python");
 
-  
-
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!title || !description || !image) {
@@ -18,19 +17,18 @@ const BadgeForm = () => {
       return;
     }
     try {
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("score", score)
-        formData.append("image", image);
-        
-        const response = await config.addBadge(formData);
-        console.log(response)
-    } catch (error) {
-        console.log(error)
-    }
-    
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("score", score);
+      formData.append("image", image);
+      formData.append("lang", lang); 
 
+      const response = await config.addBadge(formData);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
 
     // console.log("Badge submitted:", { title, description, image });
   };
@@ -77,6 +75,18 @@ const BadgeForm = () => {
             accept="image/*"
             onChange={(e) => setImage(e.target.files[0])}
           />
+        </div>
+        {/* Badge Language */}
+        <div>
+          <label className="block text-sm font-medium">Language</label>
+          <select
+            className="w-full border px-3 py-2 rounded"
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+          >
+            <option value="python">Python</option>
+            <option value="sql">SQL</option>
+          </select>
         </div>
 
         {/* Submit Button */}

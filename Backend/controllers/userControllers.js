@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
-const Badge = require("../models/badgeModel")
+const Badge = require("../models/badgeModel");
 
 const userControllers = {
   createUser: async (req, res) => {
@@ -152,35 +152,67 @@ const userControllers = {
   },
   getProfile: async (req, res) => {
     const user_id = req.query.user;
-    
+
     try {
-      const usr = await User.findOne({ _id: user_id }).populate("image").populate({
-        path: "successExec",
-        options: {
-          sort: {
-            createdAt: -1
-          }
-        }
-      }).populate({
-        path: "badges",
-        options: {
-          sort: {
-            score: -1
-          }
-        }
-      });
-      // console.log(usr)
+      const usr = await User.findOne({ _id: user_id })
+        .populate("image")
+        .populate({
+          path: "successExec",
+          options: {
+            sort: { createdAt: -1 },
+          },
+        })
+        .populate({
+          path: "badges",
+          options: {
+            sort: { score: -1 },
+          },
+        });
+
+        // console.log(usr)
+      // Convert avatar to base64
       const finalUser = {
         ...usr._doc,
-        image: usr?.image?.avatar?.data ? `data:image/png;base64,${usr.image?.avatar?.data?.toString("base64")}`: null,
+        image: usr?.image?.avatar
+          ? `data:image/png;base64,${usr.image.avatar.toString("base64")}`
+          : null,
+        badges: usr.badges?.map((badge) => ({
+          ...badge._doc,
+          logo: badge.logo
+            ? `data:image/png;base64,${badge.logo.toString("base64")}`
+            : null,
+        })),
       };
 
-      // console.log(finalUser)
-      // attach the next badge in the response for visuals
-      const nextBadgePy = await Badge.find({score: {$gt: finalUser?.pyScore}, lang: "python"}).sort({score: 1}).limit(1);
-      const nextBadgeSql = await Badge.find({score: {$gt: finalUser?.sqlScore}, lang: "sql"}).sort({score: 1}).limit(1);
-      finalUser.nextBadgePy = nextBadgePy;
-      finalUser.nextBadgeSql = nextBadgeSql;
+      // Attach next badge for each language
+      const nextBadgePy = await Badge.find({
+        score: { $gt: finalUser?.pyScore },
+        lang: "python",
+      })
+        .sort({ score: 1 })
+        .limit(1);
+      const nextBadgeSql = await Badge.find({
+        score: { $gt: finalUser?.sqlScore },
+        lang: "sql",
+      })
+        .sort({ score: 1 })
+        .limit(1);
+
+      // Convert next badges to base64 too
+      finalUser.nextBadgePy = nextBadgePy.map((badge) => ({
+        ...badge._doc,
+        logo: badge.logo
+          ? `data:image/png;base64,${badge.logo.toString("base64")}`
+          : null,
+      }));
+
+      finalUser.nextBadgeSql = nextBadgeSql.map((badge) => ({
+        ...badge._doc,
+        logo: badge.logo
+          ? `data:image/png;base64,${badge.logo.toString("base64")}`
+          : null,
+      }));
+
       // console.log(finalUser)
       res.send(finalUser);
     } catch (error) {

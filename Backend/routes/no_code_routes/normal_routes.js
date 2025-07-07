@@ -35,11 +35,11 @@ router.put("/selAvatar", async (req, res) => {
 
 router.get("/getBadges", async (req, res)=>{
   try {
-    const response = await Badge.find({});
+    const response = await Badge.find({}).sort({score: 1});
     // console.log(response)
     const final = response.map((doc)=>({
       ...doc._doc,
-      logo: doc.logo ? `data:image/png;base64,${doc.logo.buffer.toString("base64")}`
+      logo: doc.logo ? `data:image/png;base64,${doc.logo.toString("base64")}`
         : null
     }))
     res.send(final);

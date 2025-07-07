@@ -1,19 +1,16 @@
 import React from "react";
 import { Lock, X } from "lucide-react";
-import badges1 from "../../public/badges/Badges1.png";
-import badges2 from "../../public/badges/Badges2.png";
-import badges3 from "../../public/badges/badges3.png"
 export const BadgesModal = ({ onClose }) => {
   const pythonBadges = [
-    { title: "Loop Master", img: badges1 },
-    { title: "Function Pro", img: badges2 },
-    { title: "Syntax Ninja", img: badges3 },
+    { title: "Loop Master", img: "" },
+    { title: "Function Pro", img: "" },
+    { title: "Syntax Ninja", img: "" },
   ];
 
   const sqlBadges = [
-    { title: "Query Champ", img: badges1 },
-    { title: "Join Genius", img: badges2 },
-    { title: "Index Expert", img: badges3 },
+    { title: "Query Champ", img: "" },
+    { title: "Join Genius", img: "" },
+    { title: "Index Expert", img: "" },
   ];
 
   return (

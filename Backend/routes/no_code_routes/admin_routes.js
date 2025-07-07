@@ -5,10 +5,9 @@ const router = require("express").Router();
 
 router.post("/addBadge", async (req, res) => {
   try {
-    const { title, description, score } = req.body;
-
+    const { title, description, score, lang } = req.body;
     const res = await Badge.create({
-        title, score, description, logo: req.file.buffer
+        title, score, description, logo: req.file.buffer, lang
     });
     res.send(res)
   } catch (error) {
