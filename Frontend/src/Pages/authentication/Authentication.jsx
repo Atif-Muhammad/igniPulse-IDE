@@ -7,6 +7,7 @@ import config from "../../../Config/config";
 import { useTheme } from "../../context/ThemeContext";
 import { Mail, Lock, User, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function AuthSwitcherWithFormik() {
   const [isSignup, setIsSignup] = useState(false);
@@ -24,19 +25,30 @@ export default function AuthSwitcherWithFormik() {
         ? await config.createUser(formValues)
         : await config.loginUser(formValues);
     },
-    onSuccess: (data) => {
-      // console.log(data);
-      queryClient.invalidateQueries(["currentUser"])
-      navigate("/");
+    onSuccess: (data, variables, context) => {
+      if (data?.status === 200) {
+        queryClient.invalidateQueries(["currentUser"]);
+        navigate("/");
+        toast.success(
+          isSignup ? "Account created successfully!" : "Logged in successfully!"
+        );
+      } else {
+        toast.error(data?.message || "Something went wrong");
+      }
     },
-    onError: (err) => {
-      console.log(err);
+    onError: (error) => {
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+    },
+    onSettled: () => {
+      setLoading(false);
     },
   });
 
   const handleSubmit = (values) => {
     if (isSignup && values.password !== values.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
@@ -51,17 +63,13 @@ export default function AuthSwitcherWithFormik() {
       if (imageFile) {
         formData.append("image", imageFile);
       }
-      mutate(formData, {
-        onSettled: () => setLoading(false),
-      });
+      mutate(formData);
     } else {
       const data = {
         email: values.email,
         password: values.password,
       };
-      mutate(data, {
-        onSettled: () => setLoading(false),
-      });
+      mutate(data);
     }
   };
 
@@ -77,14 +85,27 @@ export default function AuthSwitcherWithFormik() {
     onSubmit: handleSubmit,
   });
 
-  // const isDark = theme === "dark";
-
   return (
     <div
       className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-500 ${
         darkTheme ? " text-white" : " text-black"
       }`}
     >
+      {/* React Hot Toast Toaster */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          className: "",
+          style: {
+            border: "1px solid",
+            padding: "16px",
+            color: darkTheme ? "#fff" : "#000",
+            background: darkTheme ? "#1f2937" : "#fff",
+            borderColor: darkTheme ? "#374151" : "#e5e7eb",
+          },
+        }}
+      />
+
       <div
         className={`relative w-full max-w-2xl h-[600px] rounded-3xl shadow-2xl transition-all duration-300 border overflow-hidden ${
           darkTheme
@@ -120,45 +141,6 @@ export default function AuthSwitcherWithFormik() {
                 {isSignup ? "Join us today!" : "Welcome back 👋"}
               </p>
             </div>
-            {isSignup && (
-              <div className="flex flex-col items-center justify-center">
-                <div className="relative group">
-                  {/* Hidden File Input */}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="profile-upload"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setImageFile(file);
-                        setProfileImage(URL.createObjectURL(file));
-                      }
-                    }}
-                  />
-
-                  {/* Clickable Circle Label */}
-                  <label
-                    htmlFor="profile-upload"
-                    className="cursor-pointer w-24 h-24 rounded-full border-2 border-blue-500 flex items-center justify-center overflow-hidden group-hover:opacity-80 transition bg-gray-200 dark:bg-gray-800"
-                  >
-                    {profileImage ? (
-                      <img
-                        src={profileImage}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <UserPlus className="w-8 h-8 text-blue-500" />
-                    )}
-                  </label>
-                </div>
-                <p className=" text-gray-600 text-center ">
-                  upload your pictures
-                </p>
-              </div>
-            )}
 
             {/* Username */}
             {isSignup && (

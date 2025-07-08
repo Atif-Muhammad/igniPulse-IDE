@@ -1,6 +1,6 @@
 import React from "react";
 import { Lock, X } from "lucide-react";
-export const BadgesModal = ({ onClose }) => {
+const BadgesModal = ({ onClose }) => {
   const pythonBadges = [
     { title: "Loop Master", img: "" },
     { title: "Function Pro", img: "" },
@@ -102,3 +102,5 @@ export const BadgesModal = ({ onClose }) => {
     </div>
   );
 };
+
+export default BadgesModal;

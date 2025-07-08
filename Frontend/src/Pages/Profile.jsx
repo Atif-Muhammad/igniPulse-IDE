@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Copy, Lock } from "lucide-react";
-import { BadgesModal } from "../models/BadgesModal";
+import { Copy, Lock, Settings, LogOut } from "lucide-react";
+import { BadgesModal, LogoutModel, SettingsModal } from "../models/index.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../../Config/config";
 import { changeToBase64 } from "../Functions/toBase64.js";
@@ -11,7 +11,7 @@ import {
   BadgeSkeleton,
   MiniBadge,
 } from "../skeletons/index.js";
-import AvatarsPrev from "../components/AvatarsPrev.jsx"
+import AvatarsPrev from "../components/AvatarsPrev.jsx";
 
 export const Profile = () => {
   const [pyExecs, setPyExecs] = useState([]);
@@ -19,10 +19,13 @@ export const Profile = () => {
   const [pyUserBadges, setPyUserBadges] = useState([]);
   const [sqlUserBadges, setSqlUserBadges] = useState([]);
   const [badges, setBadges] = useState([]);
-  const [avatars, setAvatars] = useState(false)
+  const [avatars, setAvatars] = useState(false);
 
   const [showBadgesModal, setShowBadgesModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Python");
+
+  const [isLogoutmodel, setLogoutmodel] = useState(false);
+  const [issettingmodel, setsettingmodel] = useState(false);
 
   const queryClient = useQueryClient();
   const currentUser = queryClient.getQueryData(["currentUser"]);
@@ -108,15 +111,21 @@ export const Profile = () => {
             ) : (
               <>
                 {/* Profile Image - absolute overlap */}
-                <div className="absolute md:top-0 top-20 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div
+                  onClick={() => setAvatars(true)}
+                  className="absolute md:top-0 top-20 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                >
                   {data?.data?.image ? (
                     <img
                       src={data?.data?.image}
                       alt="User avatar"
-                      className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl"
+                      className="w-36 h-36 rounded-full object-cover bg-gray-500 border-4 border-blue-500 shadow-xl cursor-pointer hover:border-blue-600 transition-all"
                     />
                   ) : (
-                    <div onClick={()=> setAvatars(true)} className="w-36 h-36 rounded-full object-cover bg-gray-100 border-4 border-blue-500 shadow-xl">
+                    <div
+                      onClick={() => setAvatars(true)}
+                      className="w-36 h-36 rounded-full object-cover bg-gray-100 border-4 border-blue-500 shadow-xl cursor-pointer hover:border-blue-600 transition-all"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="full"
@@ -135,6 +144,22 @@ export const Profile = () => {
                   )}
                 </div>
 
+                {avatars && (
+                  <AvatarsPrev
+                    currentUser={currentUser?.data?.id}
+                    setAvatars={setAvatars}
+                  />
+                )}
+                <div className=" flex absolute top-0  justify-between w-full p-2 ">
+                  <Settings
+                    onClick={() => setsettingmodel(true)}
+                    className="text-xs text-blue-500"
+                  />
+                  <LogOut
+                    onClick={() => setLogoutmodel(true)}
+                    className="text-xs text-red-400"
+                  />
+                </div>
                 <div className=" w-full px-4 flex flex-col gap-5 ">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800">
@@ -194,8 +219,9 @@ export const Profile = () => {
                     <p className="text-sm text-gray-500 mb-6">
                       Earn{" "}
                       {nextBadgeMap[activeTab]?.score - scoreMap[activeTab]}{" "}
-                      points to {'"'}{nextBadgeMap[activeTab]?.title}{'"'}
-                      {" "}Badge
+                      points to {'"'}
+                      {nextBadgeMap[activeTab]?.title}
+                      {'"'} Badge
                     </p>
                   </div>
                 </div>
@@ -225,7 +251,6 @@ export const Profile = () => {
                     </div>
                   </div>
                 </div>
-                {avatars && (<AvatarsPrev currentUser={currentUser?.data?.id} setAvatars={setAvatars}/>)}
               </>
             )}
           </div>
@@ -281,7 +306,7 @@ export const Profile = () => {
                         : "bg-gray-200 text-gray-600 hover:bg-gray-300"
                     }`}
                   >
-                    {`${tab === "Sql" ? tab.toUpperCase() :tab} (${
+                    {`${tab === "Sql" ? tab.toUpperCase() : tab} (${
                       tab === "Python" ? pyExecs?.length : sqlExecs?.length
                     })`}
                   </button>
@@ -316,10 +341,11 @@ export const Profile = () => {
                       {/* Render all items for this date group */}
                       {group.items.map((code, index) => (
                         <div key={index}>
-                          <div className="bg-[#1e293b] relative text-white px-4 py-3 rounded-lg text-md mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
+                          <div className="bg-[#1e293b] relative z-10 text-white px-4 py-3 rounded-lg text-md mb-2 flex justify-between items-center font-mono shadow hover:shadow-lg transition-all">
                             <span className="whitespace-pre-wrap">
                               {code.code}
                             </span>
+
                             <button
                               onClick={() => copyToClipboard(code.code)}
                               className="text-gray-400 absolute top-4 right-4 cursor-pointer hover:text-white"
@@ -425,6 +451,11 @@ export const Profile = () => {
 
       {showBadgesModal && (
         <BadgesModal onClose={() => setShowBadgesModal(false)} />
+      )}
+      {isLogoutmodel && <LogoutModel onClose={() => setLogoutmodel(false)} />}
+
+      {issettingmodel && (
+        <SettingsModal onClose={() => setsettingmodel(false)} />
       )}
     </>
   );
