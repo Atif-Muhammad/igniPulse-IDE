@@ -4,10 +4,7 @@ import { Check, X } from "lucide-react";
 
 function AvatarsPrev({ currentUser, setAvatars }) {
   const queryClient = useQueryClient();
-
-  const { data: profileData } = useQuery({
-    queryKey: ["profile", currentUser],
-  });
+  const profileData = queryClient.getQueryData(["profile", currentUser])?.data;
 
   const { mutate } = useMutation({
     mutationKey: ["selectAvatar", currentUser],
@@ -42,7 +39,7 @@ function AvatarsPrev({ currentUser, setAvatars }) {
 
 
   const isSelectedAvatar = (avatarUrl) => {
-    return profileData?.data?.image === avatarUrl;
+    return profileData?.image === avatarUrl;
   };
 
   return (

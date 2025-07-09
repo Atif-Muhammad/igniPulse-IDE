@@ -8,7 +8,7 @@ const SettingsModal = ({ onClose }) => {
   const [theme, setTheme] = useState("light");
 
   const queryClient = useQueryClient();
-  const currentUser = queryClient.getQueryData(["currentUser"]).data;
+  const currentUser = queryClient.getQueryData(["currentUser"])?.data;
   const {mutate: handleSave} =  useMutation({
     mutationKey: ["updateName"],
     mutationFn: async ()=> await config.updateName({id: currentUser?.id, name}),
