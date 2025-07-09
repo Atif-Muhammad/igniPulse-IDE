@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Copy, Lock, Settings, LogOut } from "lucide-react";
 import { BadgesModal, LogoutModel, SettingsModal } from "../models/index.js";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../../Config/config";
 import { changeToBase64 } from "../Functions/toBase64.js";
 import { groupDates } from "../Functions/groupDates.js";
@@ -46,6 +46,7 @@ export const Profile = () => {
     enabled: !!currentUser?.data?.id,
   });
 
+  
   useEffect(() => {
     if (isSuccess) {
       setPyExecs(
@@ -452,7 +453,7 @@ export const Profile = () => {
       {showBadgesModal && (
         <BadgesModal onClose={() => setShowBadgesModal(false)} />
       )}
-      {isLogoutmodel && <LogoutModel onClose={() => setLogoutmodel(false)} />}
+      {isLogoutmodel && <LogoutModel onClose={() => setLogoutmodel(false)}/>}
 
       {issettingmodel && (
         <SettingsModal onClose={() => setsettingmodel(false)} />

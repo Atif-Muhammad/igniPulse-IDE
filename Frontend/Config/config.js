@@ -6,8 +6,10 @@ const BASE_URL = "http://localhost:9000/api";
 const ENDPOINTS = {
   createUser: `${BASE_URL}/authentication/signup`,
   loginUser: `${BASE_URL}/authentication/signin`,
+  logoutUser: `${BASE_URL}/authentication/logout`,
   me: `${BASE_URL}/authentication/me`,
   profile: `${BASE_URL}/authentication/profile`,
+  updateProfile: `${BASE_URL}/authentication/updateName`,
 
   create_db: `${BASE_URL}/sql/createDB`,
   refresh_tbs: `${BASE_URL}/sql/ref_tabs`,
@@ -49,6 +51,19 @@ const loginUser = async (data) => {
   }
 };
 
+const logout = async () => {
+  // console.log(data)
+  try {
+    const response = await axios.post(ENDPOINTS.logoutUser, {}, {
+      withCredentials: true,
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+
 const me = async () => {
   try {
     const response = await axios.get(ENDPOINTS.me, { withCredentials: true });
@@ -66,6 +81,15 @@ const getProfile = async (userId) => {
     return response;
   } catch (error) {
     return error;
+  }
+};
+
+const updateName = async (data)=>{
+  try {
+    const response = await axios.put(ENDPOINTS.updateProfile, data, {withCredentials: true});
+    return response;
+  } catch (error) {
+    return error
   }
 };
 
@@ -217,8 +241,10 @@ const addAvatar = async (data) => {
 export default {
   createUser,
   loginUser,
+  logout,
   me,
   getProfile,
+  updateName,
   createDB,
   dropDbs,
   postData,

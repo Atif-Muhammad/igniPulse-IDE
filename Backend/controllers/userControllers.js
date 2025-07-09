@@ -219,6 +219,16 @@ const userControllers = {
       res.send(error);
     }
   },
+
+  updateName: async(req, res)=>{
+    const {id, name} = req.body;
+    try {
+      await User.updateOne({_id: id}, {user_name: name});
+      res.send("updated.")
+    } catch (error) {
+      
+    }
+  }
 };
 
 module.exports = userControllers;

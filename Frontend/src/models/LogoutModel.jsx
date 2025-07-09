@@ -1,7 +1,14 @@
 import React from "react";
-import { LogOut } from "lucide-react"; 
+import { LogOut } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import config from "../../Config/config";
 
-const LogoutModal = ({ onClose, onLogout }) => {
+const LogoutModal = ({ onClose }) => {
+  const { mutate: handleLogout, isPending } = useMutation({
+    mutationKey: ["logout"],
+    mutationFn: async () => await config.logout(),
+    onSuccess: onclose,
+  });
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full text-center animate-fade-in scale-in">
@@ -21,12 +28,18 @@ const LogoutModal = ({ onClose, onLogout }) => {
           >
             Cancel
           </button>
-          <button
-            onClick={onLogout}
-            className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400"
-          >
-            Logout
-          </button>
+          {isPending ? (
+            <div className="flex items-center justify-center h-screen bg-gray-900">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+            </div>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </div>
 

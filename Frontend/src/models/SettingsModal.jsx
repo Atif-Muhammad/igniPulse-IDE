@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import { Settings, Moon, User } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import config from "../../Config/config";
 
-const SettingsModal = ({ onClose, onSave }) => {
+const SettingsModal = ({ onClose }) => {
   const [name, setName] = useState("");
   const [theme, setTheme] = useState("light");
 
-  const handleSave = () => {
-    const settings = { name, theme };
-    console.log(name, theme);
-    onSave(settings);
-    onClose();
-  };
+  const queryClient = useQueryClient();
+  const currentUser = queryClient.getQueryData(["currentUser"]).data;
+  const {mutate: handleSave} =  useMutation({
+    mutationKey: ["updateName"],
+    mutationFn: async ()=> await config.updateName({id: currentUser?.id, name}),
+    onSuccess: onClose
+  })
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4">
