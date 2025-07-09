@@ -2,44 +2,72 @@ import React from "react";
 import { LogOut } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import config from "../../Config/config";
+import { useNavigate } from "react-router-dom";
 
 const LogoutModal = ({ onClose }) => {
+  const navigate = useNavigate();
+
   const { mutate: handleLogout, isPending } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => await config.logout(),
-    onSuccess: onclose,
+    onSuccess: () => {
+      navigate("/"); // Navigate to home page on success
+    },
   });
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full text-center animate-fade-in scale-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-sm p-6 text-center bg-white shadow-2xl rounded-2xl animate-fade-in scale-in">
         <div className="flex justify-center mb-4 text-red-600">
           <LogOut size={40} />
         </div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+        <h2 className="mb-2 text-2xl font-semibold text-gray-800">
           Logout Confirmation
         </h2>
-        <p className="text-gray-500 mb-6">
-          Are you sure you want to logout? You’ll need to log in again.
+        <p className="mb-6 text-gray-500">
+          Are you sure you want to logout? You'll need to log in again.
         </p>
         <div className="flex justify-center gap-4">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-gray-300"
+            disabled={isPending}
+            className="px-5 py-2 font-medium text-gray-700 transition bg-gray-100 shadow-sm hover:bg-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
-          {isPending ? (
-            <div className="flex items-center justify-center h-screen bg-gray-900">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
-            </div>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400"
-            >
-              Logout
-            </button>
-          )}
+          <button
+            onClick={handleLogout}
+            disabled={isPending}
+            className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center justify-center min-w-[120px] disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isPending ? (
+              <>
+                <svg
+                  className="w-4 h-4 mr-2 -ml-1 text-white animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Logging out...
+              </>
+            ) : (
+              "Logout"
+            )}
+          </button>
         </div>
       </div>
 
