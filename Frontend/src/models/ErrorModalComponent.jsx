@@ -59,7 +59,7 @@ function ErrorModalComponent({
           {showErrorModal && (
             <div
               ref={modalRef}
-              className="absolute bottom-10 right-12 z-50 bg-gray-200 border-2 border-blue-600 md:w-88  px-2 py-3 h-40 flex items-center justify-center rounded-md shadow-lg"
+              className="absolute bottom-10 right-12 z-50 bg-gray-200 border-2 border-blue-600 md:w-88 px-2 py-3 h-40 flex items-center justify-center rounded-md shadow-lg origin-bottom-right animate-growFromIcon"
             >
               {isPending ? (
                 <LinearLoader />
