@@ -26,7 +26,7 @@ async function incScore(currentUser, lang) {
 }
 
 async function assignBadge(currentUser, lang) {
-  console.log("assigning badge for lang:", lang)
+  // console.log("assigning badge for lang:", lang)
   try {
     const foundUser = await User.findOne({ _id: currentUser?.id });
     // check if userScore >= badgeScore is a already assigned

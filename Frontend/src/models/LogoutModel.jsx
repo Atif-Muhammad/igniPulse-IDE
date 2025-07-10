@@ -1,16 +1,18 @@
 import React from "react";
 import { LogOut } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import config from "../../Config/config";
 import { useNavigate } from "react-router-dom";
 
 const LogoutModal = ({ onClose }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient()
 
   const { mutate: handleLogout, isPending } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => await config.logout(),
     onSuccess: () => {
+      queryClient.invalidateQueries(["currentUser"]);
       navigate("/"); // Navigate to home page on success
     },
   });

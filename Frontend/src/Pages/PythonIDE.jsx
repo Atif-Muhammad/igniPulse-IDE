@@ -30,6 +30,10 @@ import Ads from "../components/Ads";
 import SpinnerIcon from "../components/SpinnerIcon";
 import { useLocation } from "react-router-dom";
 import escapeHtml from "../Functions/escapeHtml";
+import config from "../../Config/config";
+import { useMutation } from "@tanstack/react-query";
+import AgentRes from "../components/AgentRes";
+import LinearLoader from "../components/Loaders/LinearLoader";
 
 const insertSpacesAtCursor = keymap.of([
   {
@@ -79,6 +83,8 @@ function PythonIDE() {
   const [disable, setDisable] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
   const [shouldRunCode, setShouldRunCode] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [agentRes, setAgentRes] = useState(null);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
   const [showGraph, setShowGraph] = useState(false);
@@ -86,6 +92,25 @@ function PythonIDE() {
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [outputZoomLevel, setOutputZoomLevel] = useState(1);
+
+  const {
+    mutate: handleAgentCall,
+    data,
+    isPending,
+    isSuccess,
+  } = useMutation({
+    mutationKey: ["agentCall", editorContent],
+    mutationFn: async () => await config.callAgent(editorContent),
+    enabled: !!editorContent,
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      setAgentRes(null)
+      const final = data?.data?.output?.includes("```json") ? JSON.parse(data?.data?.output?.replace(/```json\n?/, "").replace(/```$/, "")) : typeof data?.data?.output === "string" ? JSON.parse(data?.data?.output) : data?.data?.output;
+      setAgentRes(final);
+    }
+  }, [data?.data, isSuccess]);
 
   // / Add these zoom functions:
   const handleZoomIn = () => {
@@ -123,7 +148,7 @@ function PythonIDE() {
     // Add styling to ensure proper display
     el.style.display = "block";
     el.style.width = "100%";
-    el.style.fontFamily= "monospace";
+    el.style.fontFamily = "monospace";
     el.style.wordBreak = "break-word";
   };
 
@@ -181,6 +206,7 @@ function PythonIDE() {
 
     const handleExitError = () => {
       setLoading(false);
+      setIsError(true);
       const exitMsg = document.createElement("p");
       exitMsg.innerText = "--- Program Exited with Errors ---";
       exitMsg.style.fontWeight = "bold";
@@ -190,7 +216,6 @@ function PythonIDE() {
       exitMsg.style.overflowWrap = "break-word";
       exitMsg.style.whiteSpace = "normal";
       exitMsg.style.width = "100%";
-
 
       // document.getElementById("outputDiv").appendChild(exitMsg);
       appendToOutputDivs(exitMsg);
@@ -309,12 +334,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://igniup.com", {
-        path: "/socket.io/",
-        transports: ["websocket", "polling"],
-        withCredentials: true,
-      });
-      // socket.current = io("http://localhost:9000", {withCredentials: true});
+      // socket.current = io("https://igniup.com", {
+      //   path: "/socket.io/",
+      //   transports: ["websocket", "polling"],
+      //   withCredentials: true,
+      // });
+      socket.current = io("http://localhost:9000", { withCredentials: true });
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
@@ -355,6 +380,7 @@ function PythonIDE() {
       setShowOutput(true);
       setShouldRunCode(true);
       if (socket.current) {
+        setIsError(false);
         socket.current.connect();
         socket.current.emit("runPy", editorContent, editorType);
       }
@@ -720,7 +746,7 @@ function PythonIDE() {
                   </div>
 
                   <div
-                    className="flex flex-col w-full h-full overflow-hidden"
+                    className="flex flex-col w-full h-full overflow-hidden relative"
                     style={{ height: "70vh" }}
                   >
                     <CodeMirror
@@ -784,6 +810,24 @@ function PythonIDE() {
                         editor.dom.appendChild(zoomContainer);
                       }}
                     />
+
+                    {isError && (
+                      <div className="absolute bottom-10 right-0 bg-yellow-800 w-1/2 h-1/5 flex items-end justify-between flex-row-reverse">
+                        <div
+                          onClick={() => handleAgentCall()}
+                          className="bg-black w-10 h-10 text-white text-3xl flex items-end justify-center rounded-full cursor-pointer"
+                        >
+                          ?
+                        </div>
+                        <div className="h-full w-full flex items-center justify-center">
+                          {isPending ? (
+                            <LinearLoader />
+                          ) : (
+                            agentRes && <AgentRes agentRes={agentRes} onClose={()=> setAgentRes(null)}/>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

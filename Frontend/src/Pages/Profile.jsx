@@ -306,7 +306,7 @@ export const Profile = () => {
                       </p>
                     </div>
                     <div className="flex justify-between">
-                      <p className="text-blue-500"> Rating</p>
+                      <p className="text-blue-500">Success Rate</p>
                       <p className="font-bold text-blue-500">
                         {calculateExecutionRating(
                           execsMap[activeTab]?.length || 0,

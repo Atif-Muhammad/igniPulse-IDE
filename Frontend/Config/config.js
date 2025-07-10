@@ -25,6 +25,9 @@ const ENDPOINTS = {
 
   addBadge: `${BASE_URL}/noCode/admin/addBadge`,
   addAvatar: `${BASE_URL}/noCode/admin/addAvatar`,
+
+  // Agent Calls
+  callAgent: 'https://furqankhan.app.n8n.cloud/webhook-test/240d0231-a338-4dd3-a4ae-cf4a1d3f4468',
 };
 
 const createUser = async (data) => {
@@ -238,6 +241,20 @@ const addAvatar = async (data) => {
   }
 };
 
+
+
+// AI Agent calls
+const callAgent = async (data) => {
+  try {
+    const response = await axios.post(ENDPOINTS.callAgent, {data});
+    if (response) {
+      return response;
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
 export default {
   createUser,
   loginUser,
@@ -257,4 +274,7 @@ export default {
 
   addBadge,
   addAvatar,
+
+  // Ai Agent Calls
+  callAgent,
 };
