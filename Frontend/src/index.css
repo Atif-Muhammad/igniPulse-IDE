@@ -13,6 +13,22 @@
   }
 }
 
+/*  Custom animation for Linear Loader */
+@layer utilities {
+  .animate-linearMove {
+    animation: linearMove 1.3s linear infinite;
+  }
+
+  @keyframes linearMove {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
 
 * {
   padding: 0;

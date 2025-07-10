@@ -6,8 +6,7 @@ import {
   Maximize2,
   Minimize2,
   StopCircleIcon,
-  Plus,
-  Minus,
+  HelpCircle,
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { useTheme } from "../context/ThemeContext";
@@ -21,7 +20,6 @@ import {
 } from "@codemirror/view";
 import { EditorSelection } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
-
 import py from "../assets/py.svg";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
@@ -32,8 +30,9 @@ import { useLocation } from "react-router-dom";
 import escapeHtml from "../Functions/escapeHtml";
 import config from "../../Config/config";
 import { useMutation } from "@tanstack/react-query";
-import AgentRes from "../components/AgentRes";
-import LinearLoader from "../components/Loaders/LinearLoader";
+import { ErrorModalComponent } from "../models/index";
+// import AgentRes from "../components/AgentRes";
+// import LinearLoader from "../components/Loaders/LinearLoader";
 
 const insertSpacesAtCursor = keymap.of([
   {
@@ -84,6 +83,7 @@ function PythonIDE() {
   const [showOutput, setShowOutput] = useState(false);
   const [shouldRunCode, setShouldRunCode] = useState(false);
   const [isError, setIsError] = useState(false);
+  // const [isPending, setIsPending] = useState(false);
   const [agentRes, setAgentRes] = useState(null);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -106,8 +106,14 @@ function PythonIDE() {
 
   useEffect(() => {
     if (isSuccess) {
-      setAgentRes(null)
-      const final = data?.data?.output?.includes("```json") ? JSON.parse(data?.data?.output?.replace(/```json\n?/, "").replace(/```$/, "")) : typeof data?.data?.output === "string" ? JSON.parse(data?.data?.output) : data?.data?.output;
+      setAgentRes(null);
+      const final = data?.data?.output?.includes("```json")
+        ? JSON.parse(
+            data?.data?.output?.replace(/```json\n?/, "").replace(/```$/, "")
+          )
+        : typeof data?.data?.output === "string"
+        ? JSON.parse(data?.data?.output)
+        : data?.data?.output;
       setAgentRes(final);
     }
   }, [data?.data, isSuccess]);
@@ -811,23 +817,15 @@ function PythonIDE() {
                       }}
                     />
 
-                    {isError && (
-                      <div className="absolute bottom-10 right-0 bg-yellow-800 w-1/2 h-1/5 flex items-end justify-between flex-row-reverse">
-                        <div
-                          onClick={() => handleAgentCall()}
-                          className="bg-black w-10 h-10 text-white text-3xl flex items-end justify-center rounded-full cursor-pointer"
-                        >
-                          ?
-                        </div>
-                        <div className="h-full w-full flex items-center justify-center">
-                          {isPending ? (
-                            <LinearLoader />
-                          ) : (
-                            agentRes && <AgentRes agentRes={agentRes} onClose={()=> setAgentRes(null)}/>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                    {/* Error Modal */}
+                    <ErrorModalComponent
+                      isError={isError}
+                      isPending={isPending}
+                      agentRes={agentRes}
+                      handleAgentCall={handleAgentCall}
+                      setAgentRes={setAgentRes}
+                      onclose={() => setIsError(false)}
+                    />
                   </div>
                 </div>
 
