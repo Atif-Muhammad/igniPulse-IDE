@@ -1,4 +1,6 @@
 import axios from "axios";
+import dotenv from "dotenv"
+// dotenv.config()
 
 // const BASE_URL = "https://igniup.com/api";
 const BASE_URL = "http://localhost:9000/api";
@@ -27,7 +29,7 @@ const ENDPOINTS = {
   addAvatar: `${BASE_URL}/noCode/admin/addAvatar`,
 
   // Agent Calls
-  callAgent: 'https://furqankhan.app.n8n.cloud/webhook-test/240d0231-a338-4dd3-a4ae-cf4a1d3f4468',
+  callAgent: import.meta.env.VITE_N8N
 };
 
 const createUser = async (data) => {
