@@ -287,10 +287,10 @@ export const Profile = () => {
                     <div className="flex justify-between">
                       <p>Total Executions</p>
                       <p className="font-bold text-black">
-                        {data?.data?.totalExec -
-                          data?.data?.successExec?.filter(
-                            (exec) => exec.lang != activeTab.toLowerCase()
-                          )?.length || 0}
+                        {errorsMap[activeTab] +
+                          (data?.data?.successExec?.filter(
+                            (exec) => exec.lang === activeTab.toLowerCase()
+                          )?.length || 0)}
                       </p>
                     </div>
                     <div className="flex justify-between">
@@ -474,8 +474,9 @@ export const Profile = () => {
                               alt={badge?.title}
                               className="object-contain w-full h-full rounded-md"
                             />
+                            
                             {(badges?.length === 0 ||
-                              badges?.some(
+                              badges?.every(
                                 (bdg) => bdg?._id !== badge?._id
                               )) && (
                               <div className="absolute p-3 rounded-full shadow-xl top-8 right-8 bg-white/70">

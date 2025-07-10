@@ -823,7 +823,6 @@ function PythonIDE() {
                       agentRes={agentRes}
                       handleAgentCall={handleAgentCall}
                       setAgentRes={setAgentRes}
-                      // onclose={() => setIsError(false)}
                     />
                   </div>
                 </div>
