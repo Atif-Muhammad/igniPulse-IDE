@@ -1,8 +1,7 @@
 @font-face {
-  font-family: 'consolas-font';
+  font-family: "consolas-font";
   src: url("/fonts/consolas.ttf") format("truetype");
 }
-
 
 @tailwind utilities;
 @import "tailwindcss";
@@ -10,6 +9,23 @@
 @layer components {
   .input-field {
     @apply px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 transition;
+  }
+}
+
+@layer utilities {
+  @keyframes growFromIcon {
+    0% {
+      opacity: 0;
+      transform: scale(0) translate(50%, 50%);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translate(0, 0);
+    }
+  }
+
+  .animate-growFromIcon {
+    animation: growFromIcon 0.3s ease-out forwards;
   }
 }
 
@@ -29,12 +45,11 @@
   }
 }
 
-
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family:'Gill Sans', 'Gill Sans MT', sans-serif;
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   /* font-family: consolas-font; */
 }
 
@@ -62,7 +77,7 @@
 
 .scrollbar-custom-sql::-webkit-scrollbar {
   width: 8px;
-  height: 10px; 
+  height: 10px;
 }
 
 .scrollbar-custom-sql::-webkit-scrollbar-track {
@@ -111,5 +126,3 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
-
-
