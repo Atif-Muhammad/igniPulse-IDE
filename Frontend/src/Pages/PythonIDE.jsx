@@ -99,13 +99,12 @@ function PythonIDE() {
     isPending,
     isSuccess,
   } = useMutation({
-    mutationKey: ["agentCall", editorContent],
     mutationFn: async () => await config.callAgent(editorContent),
-    enabled: !!editorContent,
   });
 
   useEffect(() => {
     if (isSuccess) {
+      // console.log(editorContent)
       setAgentRes(null);
       const final = data?.data?.output?.includes("```json")
         ? JSON.parse(
@@ -386,7 +385,7 @@ function PythonIDE() {
       setShowOutput(true);
       setShouldRunCode(true);
       if (socket.current) {
-        setIsError(false);
+        // setIsError(false);
         socket.current.connect();
         socket.current.emit("runPy", editorContent, editorType);
       }
@@ -824,7 +823,7 @@ function PythonIDE() {
                       agentRes={agentRes}
                       handleAgentCall={handleAgentCall}
                       setAgentRes={setAgentRes}
-                      onclose={() => setIsError(false)}
+                      // onclose={() => setIsError(false)}
                     />
                   </div>
                 </div>

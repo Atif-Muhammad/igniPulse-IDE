@@ -9,7 +9,7 @@ function ErrorModalComponent({
   agentRes,
   handleAgentCall,
   setAgentRes,
-  onclose,
+  // onclose,
 }) {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const modalRef = useRef();
@@ -21,7 +21,7 @@ function ErrorModalComponent({
 
   const handleClose = () => {
     setShowErrorModal(false);
-    onclose?.();
+    // onclose?.();
   };
 
   // Close modal if clicked outside

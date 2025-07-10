@@ -2,7 +2,7 @@ import React from "react";
 
 function AgentRes({ agentRes }) {
   if (!agentRes) return null;
-  console.log(agentRes);
+  // console.log(agentRes);
 
   return (
     <div className="flex flex-col items-start no-scrollbar  justify-start w-full h-full  overflow-y-auto ">
