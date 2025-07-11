@@ -43,7 +43,7 @@ services:
     command: --lower_case_table_names=1
 
   python-gen:
-    image: python-gen
+    image: python-gen-test
     build: 
       context: ./Backend
       dockerfile: Dockerfile.gen
@@ -51,7 +51,7 @@ services:
     tty: true
 
   python-ds:
-    image: python-ds
+    image: python-ds-test
     build:
       context: ./Backend
       dockerfile: Dockerfile.ds

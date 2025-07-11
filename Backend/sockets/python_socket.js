@@ -55,7 +55,7 @@ plt.show = safe_show
     });
 
     const execPy = (socket, code, type, outputFile) => {
-      const image = type === "ds" ? "python-ds" : "python-gen";
+      const image = type === "ds" ? "python-ds-test" : "python-gen-test";
       const sharedVolumePath = "/temps";
       const fullOutputPath = path.join(sharedVolumePath, outputFile);
       const containerName = `py-${socket.id}`;
