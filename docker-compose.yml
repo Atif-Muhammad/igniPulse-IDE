@@ -1,5 +1,6 @@
 services:
   front-end:
+    container_name: frontend_container_test
     build: 
       context: ./Frontend
       dockerfile: Dockerfile
@@ -7,7 +8,7 @@ services:
       - 9091:5000
 
   backend:
-    container_name: backend_container
+    container_name: backend_container_test
     build: 
       context: ./Backend
       dockerfile: Dockerfile.node
@@ -29,7 +30,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   mysql:
-    container_name: mysql-container
+    container_name: mysql-container_test
     image: mysql:latest
     ports:
       - "3308:3306"
