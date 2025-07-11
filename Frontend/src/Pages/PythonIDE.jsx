@@ -181,6 +181,7 @@ function PythonIDE() {
 
       const res = document.createElement("div");
       res.innerHTML = formattedMessage;
+      res.style.fontSize = "15px";
       // res.style.paddingBottom = "6px";
       // res.style.padding = "2px";
       // res.style.whiteSpace = "pre";

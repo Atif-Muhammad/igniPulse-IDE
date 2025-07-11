@@ -12,13 +12,11 @@ const userControllers = {
     try {
       // Check for existing username or email in one query
       const existingUser = await User.findOne({
-        $or: [{ user_name: name }, { email }],
+        email
       });
 
       if (existingUser) {
-        const conflictField =
-          existingUser.email === email ? "email" : "username";
-        return res.status(400).send(`${conflictField} is already taken`);
+        return res.status(400).send(`${email} is already taken`);
       }
 
       // Hash password

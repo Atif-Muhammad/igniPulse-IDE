@@ -33,6 +33,7 @@ const ENDPOINTS = {
 };
 
 const createUser = async (data) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await axios.post(ENDPOINTS.createUser, data, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -40,19 +41,20 @@ const createUser = async (data) => {
     });
     return response;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 
 const loginUser = async (data) => {
   // console.log(data)
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await axios.post(ENDPOINTS.loginUser, data, {
       withCredentials: true,
     });
     return response;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 

@@ -8,6 +8,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { Mail, Lock, User, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 
 export default function AuthSwitcherWithFormik() {
   const [isSignup, setIsSignup] = useState(false);
@@ -21,30 +22,55 @@ export default function AuthSwitcherWithFormik() {
 
   const { mutate } = useMutation({
     mutationFn: async (formValues) => {
-      return isSignup
-        ? await config.createUser(formValues)
-        : await config.loginUser(formValues);
-    },
-    onSuccess: (data, variables, context) => {
-      if (data?.status === 200) {
-        queryClient.invalidateQueries(["currentUser"]);
-        navigate("/");
-        toast.success(
-          isSignup ? "Account created successfully!" : "Logged in successfully!"
-        );
-      } else {
-        toast.error(data?.message || "Something went wrong");
+      // eslint-disable-next-line no-useless-catch
+      try {
+        if (isSignup) {
+          const res = await config.createUser(formValues);
+          return res.data;
+        } else {
+          const res = await config.loginUser(formValues);
+          return res.data;
+        }
+      } catch (error) {
+        throw error;
       }
     },
     onError: (error) => {
-      const errorMessage =
-        error.response?.data?.message || "Something went wrong";
-      toast.error(errorMessage);
+      console.log(error)
+      toast.error(error?.response?.data || "Something went wrong");
+    },
+    onSuccess: () => {
+      toast.success(
+        isSignup ? "Account created successfully!" : "Logged in successfully!"
+      );
+      queryClient.invalidateQueries(["currentUser"]);
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     },
     onSettled: () => {
       setLoading(false);
     },
   });
+
+  // useEffect(()=>{
+
+  //   if(isError){
+  //     console.log(error)
+  //   toast.error(error?.response?.data?.message || "Something went wrong");
+  //   }
+
+  //   if(isSuccess && !isError){
+  //     toast.success(
+  //       isSignup ? "Account created successfully!" : "Logged in successfully!"
+  //     );
+  //     queryClient.invalidateQueries(["currentUser"]);
+  //       setTimeout(() => {
+  //         navigate("/");
+  //       }, 1000);
+  //     }
+
+  // }, [isError, isSuccess, isSignup, queryClient, navigate, error?.response?.data?.message])
 
   const handleSubmit = (values) => {
     if (isSignup && values.password !== values.confirmPassword) {

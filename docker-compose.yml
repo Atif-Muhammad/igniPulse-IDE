@@ -1,5 +1,6 @@
 services:
   front-end:
+    container_name: frontend_container
     build: 
       context: ./Frontend
       dockerfile: Dockerfile
