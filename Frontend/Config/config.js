@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv"
 // dotenv.config()
 
-const BASE_URL = "https://testing.igniup.com/api";
+const BASE_URL = "https://igniup.com/api";
 // const BASE_URL = "http://localhost:9000/api";
 
 const ENDPOINTS = {

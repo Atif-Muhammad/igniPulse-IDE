@@ -339,7 +339,7 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      socket.current = io("https://testing.igniup.com", {
+      socket.current = io("https://igniup.com", {
         path: "/socket.io/",
         transports: ["websocket", "polling"],
         withCredentials: true,
