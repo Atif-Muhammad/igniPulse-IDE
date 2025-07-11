@@ -472,15 +472,20 @@ export const Profile = () => {
                             <img
                               src={badge?.logo}
                               alt={badge?.title}
-                              className="object-contain w-full h-full rounded-md"
+                              className={`object-contain w-full h-full rounded-md transition-opacity duration-300 ${
+                                badges?.length === 0 ||
+                                badges?.every((bdg) => bdg?._id !== badge?._id)
+                                  ? "opacity-90"
+                                  : "opacity-100"
+                              }`}
                             />
-                            
+
                             {(badges?.length === 0 ||
                               badges?.every(
                                 (bdg) => bdg?._id !== badge?._id
                               )) && (
-                              <div className="absolute p-3 rounded-full shadow-xl top-8 right-8 bg-white/70">
-                                <Lock className="w-full h-full text-gray-700" />
+                              <div className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 shadow-lg">
+                                <Lock className="w-5 h-5 text-gray-700" />
                               </div>
                             )}
                           </div>
