@@ -2,8 +2,8 @@ import axios from "axios";
 import dotenv from "dotenv"
 // dotenv.config()
 
-const BASE_URL = "https://igniup.com/api";
-// const BASE_URL = "http://localhost:9000/api";
+// const BASE_URL = "https://igniup.com/api";
+const BASE_URL = "http://localhost:9000/api";
 
 const ENDPOINTS = {
   createUser: `${BASE_URL}/authentication/signup`,
@@ -33,6 +33,7 @@ const ENDPOINTS = {
 };
 
 const createUser = async (data) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await axios.post(ENDPOINTS.createUser, data, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -40,19 +41,20 @@ const createUser = async (data) => {
     });
     return response;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 
 const loginUser = async (data) => {
   // console.log(data)
+  // eslint-disable-next-line no-useless-catch
   try {
     const response = await axios.post(ENDPOINTS.loginUser, data, {
       withCredentials: true,
     });
     return response;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 
