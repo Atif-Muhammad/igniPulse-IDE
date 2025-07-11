@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), removeConsole()],
   assetsInclude: ['**/*.fbx', "**/*.avi"],
   server:{
-    port: 9000
+    port: 9090
   },
   base: '/'
 })

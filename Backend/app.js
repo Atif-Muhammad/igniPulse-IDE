@@ -16,7 +16,7 @@ const cookieParser = require("cookie-parser");
 const server = http.createServer(app);
 // 2. create io for socket
 const allowedOrigins = [
-    "http://168.231.116.169:8080",
+    "http://168.231.116.169:9091",
     "http://www.igniup.com",
     "https://www.igniup.com",
     "http://igniup.com",
