@@ -221,16 +221,14 @@ export const Profile = () => {
                     <h2 className="text-2xl font-bold text-gray-800">
                       {data?.data?.user_name}
                     </h2>
+
                     <p className="mb-4 text-gray-500 text-md">
                       {data?.data?.email}
                     </p>
                   </div>
 
                   <div>
-                    <h3 className="mb-1 text-xl font-semibold text-gray-800">
-                      Current Progress
-                    </h3>
-                    <p className="text-gray-600 text-md">
+                    <p className="text-gray-700 text-lg">
                       {userBadgesMap[activeTab]?.[0]?.title ??
                         "Run your first code to unlock!"}
                     </p>
@@ -244,7 +242,9 @@ export const Profile = () => {
                           alt="Current badge"
                         />
                       ) : (
-                        <div className="flex items-center justify-center w-20 h-20 text-sm bg-gray-200 rounded-full"></div>
+                        <div className="flex items-center justify-center w-20 h-20 text-sm bg-gray-200 rounded-full">
+                          No Achieve Badges
+                        </div>
                       )}
 
                       {/* Progress bar - always visible */}
@@ -440,7 +440,7 @@ export const Profile = () => {
             </div>
 
             {/* Right Sidebar - Scrollable */}
-            <div className="sticky top-0 w-full max-h-screen overflow-y-auto bg-white border-2 border-blue-500 shadow-md md:w-[40%] lg:w-1/4 no-scrollbar shadow-black rounded-xl">
+            <div className="sticky top-0 w-full max-h-screen overflow-y-auto bg-white border-2 border-blue-500 shadow-md md:w-[40%] lg:w-1/4 custom-scrollbar shadow-black rounded-xl">
               <h2 className="text-xl z-20 sticky top-0 text-center rounded-t-xl py-3 bg-[#FAF7F7] font-bold text-gray-800 mb-4">
                 All Badges
               </h2>
@@ -472,15 +472,20 @@ export const Profile = () => {
                             <img
                               src={badge?.logo}
                               alt={badge?.title}
-                              className="object-contain w-full h-full rounded-md"
+                              className={`object-contain w-full h-full rounded-md transition-opacity duration-300 ${
+                                badges?.length === 0 ||
+                                badges?.every((bdg) => bdg?._id !== badge?._id)
+                                  ? "opacity-90"
+                                  : "opacity-100"
+                              }`}
                             />
-                            
+
                             {(badges?.length === 0 ||
                               badges?.every(
                                 (bdg) => bdg?._id !== badge?._id
                               )) && (
-                              <div className="absolute p-3 rounded-full shadow-xl top-8 right-8 bg-white/70">
-                                <Lock className="w-full h-full text-gray-700" />
+                              <div className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 shadow-lg">
+                                <Lock className="w-5 h-5 text-gray-700" />
                               </div>
                             )}
                           </div>
