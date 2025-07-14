@@ -87,6 +87,7 @@ function PythonIDE() {
   const [agentRes, setAgentRes] = useState(null);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
+  const isCanceledRef = useRef(false);
   const [showGraph, setShowGraph] = useState(false);
   const [graphData, setGraphData] = useState(null);
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
@@ -142,7 +143,31 @@ function PythonIDE() {
     if (mobileOutput) mobileOutput.innerText = "";
   };
 
+  const replaceOutputDivs = (el) => {
+    // if (isCanceledRef.current) return;
+    if (!el) return;
+    const clone = el.cloneNode(true);
+    const desktop = document.getElementById("outputDivDesktop");
+    const mobile = document.getElementById("outputDivMobile");
+
+    if (desktop) {
+      desktop.innerHTML = "";
+      desktop.appendChild(el);
+    }
+
+    if (mobile) {
+      mobile.innerHTML = "";
+      mobile.appendChild(clone);
+    }
+    // Add styling to ensure proper display
+    el.style.display = "block";
+    el.style.width = "100%";
+    el.style.fontFamily = "monospace";
+    el.style.wordBreak = "break-word";
+  };
+
   const appendToOutputDivs = (el) => {
+    // if (isCanceledRef.current) return;
     if (!el) return;
     const clone = el.cloneNode(true);
     const desktop = document.getElementById("outputDivDesktop");
@@ -159,7 +184,9 @@ function PythonIDE() {
 
   useEffect(() => {
     const handlePyResponse = (message) => {
+      if (isCanceledRef.current) return;
       var escapedMsgs = "";
+
       if (message.startsWith('"') && message.endsWith('"')) {
         escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
       } else {
@@ -195,6 +222,7 @@ function PythonIDE() {
     };
 
     const handleExitSuccess = () => {
+      if (isCanceledRef.current) return;
       setLoading(false);
       const exitMsg = document.createElement("p");
       exitMsg.innerText = "--- Program Executed Successfully ---";
@@ -211,6 +239,7 @@ function PythonIDE() {
     };
 
     const handleExitError = () => {
+      if (isCanceledRef.current) return;
       setLoading(false);
       setIsError(true);
       const exitMsg = document.createElement("p");
@@ -228,6 +257,7 @@ function PythonIDE() {
     };
 
     const handleUser = (message) => {
+      if (isCanceledRef.current) return;
       setDisable(false);
 
       let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -335,8 +365,14 @@ function PythonIDE() {
     };
 
     const handleGraphOutput = (imageData) => {
+      if (isCanceledRef.current) return;
       setShowGraph(true);
       setGraphData(imageData);
+    };
+
+    const handleAutoCancel = (message) => {
+      // console.log("canceled", message);
+      appendToOutputDivs(document.createTextNode(message));
     };
 
     if (!socket.current) {
@@ -351,6 +387,7 @@ function PythonIDE() {
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("EXIT_ERROR", handleExitError);
       socket.current.on("userInput", handleUser);
+      socket.current.on("cancelled", handleAutoCancel);
     }
 
     return () => {
@@ -360,6 +397,7 @@ function PythonIDE() {
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
         socket.current?.off("EXIT_ERROR", handleExitError);
         socket.current?.off("userInput", handleUser);
+        socket.current?.off("cancelled", handleAutoCancel);
         socket.current?.disconnect();
         socket.current?.close();
         socket.current = null;
@@ -367,16 +405,18 @@ function PythonIDE() {
     };
   }, []);
 
-  const handleCancel = () => {
+  const handleCancel = (timeOut = false) => {
     if (socket.current) {
-      socket.current.emit("cancle");
-      setLoading(false);
-      setDisable(false);
-      appendToOutputDivs(
-        document.createTextNode(">>> Execution Cancelled <<<")
-      );
+      isCanceledRef.current = true; // instant sync with React
+      setLoading(false); // stop spinner immediately
+      setDisable(false); // re-enable UI now
+      socket.current.emit("cancel", timeOut);
     }
   };
+
+  setTimeout(() => {
+    handleCancel(true);
+  }, 5000);
 
   const handleRun = async () => {
     if (editorContent !== "") {
@@ -387,6 +427,7 @@ function PythonIDE() {
       setShouldRunCode(true);
       if (socket.current) {
         // setIsError(false);
+        isCanceledRef.current = false;
         socket.current.connect();
         socket.current.emit("runPy", editorContent, editorType);
       }
