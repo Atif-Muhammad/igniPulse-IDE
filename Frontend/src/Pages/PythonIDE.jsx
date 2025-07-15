@@ -439,16 +439,22 @@ function PythonIDE() {
 
   const handleCancel = (timeOut) => {
     if (!isCanceledRef.current && socket.current) {
-      // console.log("cancel called", timeOut);
       isCanceledRef.current = true;
       socket.current.emit("cancel", timeOut);
+
       if (timeOut) {
-        isCanceledRef.current = true;
         setLoading(false);
         setDisable(false);
-        appendToOutputDivs(
-          document.createTextNode("<<< Execution timed out >>>")
-        );
+
+        const boldMessage = document.createElement("span");
+        boldMessage.innerHTML = "<<< <strong>Execution timed out</strong> >>>";
+        appendToOutputDivs(boldMessage);
+
+        // // OR (Method 2 - Using CSS fontWeight)
+        // const styledMessage = document.createElement("span");
+        // styledMessage.textContent = "<<< Execution timed out >>>";
+        // styledMessage.style.fontWeight = "bold";
+        // appendToOutputDivs(styledMessage);
       }
     }
   };
