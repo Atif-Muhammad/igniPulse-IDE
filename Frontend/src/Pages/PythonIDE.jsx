@@ -87,6 +87,8 @@ function PythonIDE() {
   const [agentRes, setAgentRes] = useState(null);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [userEntry, setUserEntry] = useState(false);
+  const isCanceledRef = useRef(false);
   const [showGraph, setShowGraph] = useState(false);
   const [graphData, setGraphData] = useState(null);
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
@@ -142,7 +144,31 @@ function PythonIDE() {
     if (mobileOutput) mobileOutput.innerText = "";
   };
 
+  const replaceOutputDivs = (el) => {
+    // if (isCanceledRef.current) return;
+    if (!el) return;
+    const clone = el.cloneNode(true);
+    const desktop = document.getElementById("outputDivDesktop");
+    const mobile = document.getElementById("outputDivMobile");
+
+    if (desktop) {
+      desktop.innerHTML = "";
+      desktop.appendChild(el);
+    }
+
+    if (mobile) {
+      mobile.innerHTML = "";
+      mobile.appendChild(clone);
+    }
+    // Add styling to ensure proper display
+    el.style.display = "block";
+    el.style.width = "100%";
+    el.style.fontFamily = "monospace";
+    el.style.wordBreak = "break-word";
+  };
+
   const appendToOutputDivs = (el) => {
+    // if (isCanceledRef.current) return;
     if (!el) return;
     const clone = el.cloneNode(true);
     const desktop = document.getElementById("outputDivDesktop");
@@ -159,7 +185,10 @@ function PythonIDE() {
 
   useEffect(() => {
     const handlePyResponse = (message) => {
+      if (isCanceledRef.current) return;
+      setUserEntry(false);
       var escapedMsgs = "";
+
       if (message.startsWith('"') && message.endsWith('"')) {
         escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
       } else {
@@ -195,6 +224,8 @@ function PythonIDE() {
     };
 
     const handleExitSuccess = () => {
+      if (isCanceledRef.current) return;
+      setUserEntry(false);
       setLoading(false);
       const exitMsg = document.createElement("p");
       exitMsg.innerText = "--- Program Executed Successfully ---";
@@ -211,6 +242,8 @@ function PythonIDE() {
     };
 
     const handleExitError = () => {
+      if (isCanceledRef.current) return;
+      setUserEntry(false);
       setLoading(false);
       setIsError(true);
       const exitMsg = document.createElement("p");
@@ -228,6 +261,8 @@ function PythonIDE() {
     };
 
     const handleUser = (message) => {
+      if (isCanceledRef.current) return;
+      setUserEntry(true);
       setDisable(false);
 
       let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -335,8 +370,18 @@ function PythonIDE() {
     };
 
     const handleGraphOutput = (imageData) => {
+      if (isCanceledRef.current) return;
+      setUserEntry(false);
       setShowGraph(true);
       setGraphData(imageData);
+    };
+    const handleCancelled = (message) => {
+      // clearOutput();
+      // console.log(message);
+      isCanceledRef.current = true;
+      setLoading(false);
+      setDisable(false);
+      appendToOutputDivs(document.createTextNode(message));
     };
 
     if (!socket.current) {
@@ -351,6 +396,7 @@ function PythonIDE() {
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("EXIT_ERROR", handleExitError);
       socket.current.on("userInput", handleUser);
+      socket.current.on("cancelled", handleCancelled);
     }
 
     return () => {
@@ -360,6 +406,7 @@ function PythonIDE() {
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
         socket.current?.off("EXIT_ERROR", handleExitError);
         socket.current?.off("userInput", handleUser);
+        socket.current?.off("cancelled", handleCancelled);
         socket.current?.disconnect();
         socket.current?.close();
         socket.current = null;
@@ -367,16 +414,35 @@ function PythonIDE() {
     };
   }, []);
 
-  const handleCancel = () => {
-    if (socket.current) {
-      socket.current.emit("cancle");
-      setLoading(false);
-      setDisable(false);
-      appendToOutputDivs(
-        document.createTextNode(">>> Execution Cancelled <<<")
-      );
+  const handleCancel = (timeOut) => {
+    if (!isCanceledRef.current && socket.current) {
+      // console.log("cancel called", timeOut);
+      isCanceledRef.current = true;
+      socket.current.emit("cancel", timeOut);
+      if (timeOut) {
+        isCanceledRef.current = true;
+        setLoading(false);
+        setDisable(false);
+        appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
+      }
     }
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // console.log(
+      //   "Timeout check — userEntry:",
+      //   userEntry,
+      //   "| loading:",
+      //   loading
+      // );
+      if (!userEntry && loading) {
+        handleCancel(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [userEntry, loading]);
 
   const handleRun = async () => {
     if (editorContent !== "") {
@@ -387,6 +453,7 @@ function PythonIDE() {
       setShouldRunCode(true);
       if (socket.current) {
         // setIsError(false);
+        isCanceledRef.current = false;
         socket.current.connect();
         socket.current.emit("runPy", editorContent, editorType);
       }
@@ -727,7 +794,7 @@ function PythonIDE() {
                             <Button
                               key={index}
                               classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg"
-                              action={handleCancel}
+                              action={() => handleCancel(false)}
                               text="Cancel"
                               icon={<StopCircleIcon />}
                             />

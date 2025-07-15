@@ -9,6 +9,7 @@ module.exports = function (io) {
     // get cookie from initial handshake header
     const cookieHeader = socket.handshake.headers.cookie;
     let IDETOKEN = null;
+    const EXECUTION_TIMEOUT = 3000;
 
     if (cookieHeader) {
       const parsedCookies = cookie.parse(cookieHeader);
@@ -25,6 +26,8 @@ module.exports = function (io) {
 
       const injectInputPatch = `# BEGIN_INPUT_PATCH
 import builtins
+import sys
+sys.setrecursionlimit(500)
 original_input = builtins.input
 def custom_input(prompt=""):
   print(prompt + " INPUT_REQUEST", flush=True)
@@ -73,10 +76,13 @@ plt.show = safe_show
         code,
       ];
 
-      const pyProcess = spawn("docker", dockerArgs);
+      // socket.emit("auto_closed", "<b>Error!</b>\Test timed out");
+
+      let wasCancelled = false;
       let expectingEntry = false;
       let errorOutput = "";
-      let wasCancelled = false;
+      let stdoutBuffer = "";
+      const pyProcess = spawn("docker", dockerArgs);
 
       const handleUserEntry = (userInput) => {
         if (expectingEntry) {
@@ -88,9 +94,8 @@ plt.show = safe_show
       socket.removeAllListeners("userEntry");
       socket.on("userEntry", handleUserEntry);
 
-      let stdoutBuffer = ""; // keep outside the listener
-
       pyProcess.stdout.on("data", (data) => {
+        if (wasCancelled) return;
         stdoutBuffer += data.toString();
 
         // Split into lines
@@ -117,12 +122,13 @@ plt.show = safe_show
       });
 
       pyProcess.stderr.on("data", (data) => {
+        if (wasCancelled) return;
         let errorMsg = data.toString();
         errorMsg = errorMsg
           .replace(
             /File "<string>", line (\d+)/g,
             (_, lineNum) =>
-              `line ${Math.max(1, lineNum - (type === "ds" ? 20 : 9))}`
+              `line ${Math.max(1, lineNum - (type === "ds" ? 20 : 11))}`
           )
           .replace(
             /SyntaxError: unterminated string literal \(detected at line \d+\)/,
@@ -131,8 +137,28 @@ plt.show = safe_show
         errorOutput += errorMsg;
       });
 
-      pyProcess.on("close", () => {
+      pyProcess.on("close", (ExecCode) => {
         // clearTimeout(killTimeout);
+        if (wasCancelled) {
+          return;
+        }
+
+        // if (ExecCode === 124) {
+        //   wasCancelled = true;
+
+        //   // Cleanup listeners to stop further emission
+        //   pyProcess.stdout.pause();
+        //   pyProcess.stderr.pause();
+        //   pyProcess.stdout.removeAllListeners("data");
+        //   pyProcess.stderr.removeAllListeners("data");
+        //   pyProcess.stdout.destroy();
+        //   pyProcess.stderr.destroy();
+
+        //   socket.emit("cancelled", "<<< Execution timed out >>>");
+        //   console.log("📤 Emitted 'timeout' event (via exit code)");
+        //   return;
+        // }
+
         socket.removeListener("userEntry", handleUserEntry);
 
         if (errorOutput.trim()) {
@@ -182,15 +208,40 @@ plt.show = safe_show
         }
       });
 
-      socket.on("cancle", () => {
-        if (pyProcess && !pyProcess.killed) {
-          wasCancelled = true;
-          // console.log("Cancelling process...");
-          spawn("docker", ["kill", containerName]);
+      socket.on("cancel", (timeOut) => {
+        if (wasCancelled || !pyProcess) return;
+
+        wasCancelled = true;
+        const message = timeOut
+          ? "<<< Execution timed out >>>"
+          : "<<< Execution cancelled >>>";
+
+        if (socket.connected) {
+          socket.emit("cancelled", message); 
         }
+
+        setTimeout(() => {
+          try {
+            pyProcess.stdout.pause();
+            pyProcess.stderr.pause();
+            pyProcess.stdout.removeAllListeners("data");
+            pyProcess.stderr.removeAllListeners("data");
+
+            pyProcess.stdout.destroy();
+            pyProcess.stderr.destroy();
+            stdoutBuffer = "";
+
+            spawn("docker", ["kill", containerName]);
+
+          } catch (err) {
+            console.error("Teardown error:", err);
+          }
+        }, 50); 
       });
 
       socket.on("disconnect", () => {
+        console.log("diconnecting...");
+
         socket.removeListener("userEntry", handleUserEntry);
         if (!pyProcess.killed) {
           wasCancelled = true;
