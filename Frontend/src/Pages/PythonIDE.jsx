@@ -167,6 +167,23 @@ function PythonIDE() {
     el.style.wordBreak = "break-word";
   };
 
+  const scrollToBottom = () => {
+    const desktopOutput = document.getElementById("outputDivDesktop");
+    const mobileOutput = document.getElementById("outputDivMobile");
+
+    const scrollOptions = {
+      top: Number.MAX_SAFE_INTEGER,
+      behavior: "smooth",
+    };
+
+    if (desktopOutput) {
+      desktopOutput.scrollTo(scrollOptions);
+    }
+    if (mobileOutput) {
+      mobileOutput.scrollTo(scrollOptions);
+    }
+  };
+
   const appendToOutputDivs = (el) => {
     // if (isCanceledRef.current) return;
     if (!el) return;
@@ -181,6 +198,8 @@ function PythonIDE() {
     el.style.width = "100%";
     el.style.fontFamily = "monospace";
     el.style.wordBreak = "break-word";
+
+    setTimeout(scrollToBottom, 0);
   };
 
   useEffect(() => {
@@ -221,6 +240,7 @@ function PythonIDE() {
 
       // document.getElementById("outputDiv").appendChild(res);
       appendToOutputDivs(res);
+      setTimeout(scrollToBottom, 50);
     };
 
     const handleExitSuccess = () => {
@@ -239,6 +259,7 @@ function PythonIDE() {
 
       // document.getElementById("outputDiv").appendChild(exitMsg);
       appendToOutputDivs(exitMsg);
+      scrollToBottom();
     };
 
     const handleExitError = () => {
@@ -258,6 +279,7 @@ function PythonIDE() {
 
       // document.getElementById("outputDiv").appendChild(exitMsg);
       appendToOutputDivs(exitMsg);
+      scrollToBottom();
     };
 
     const handleUser = (message) => {
@@ -304,12 +326,13 @@ function PythonIDE() {
 
       const inputPromptDiv = document.createElement("div");
       inputPromptDiv.id = "inputPromptDiv";
-      inputPromptDiv.style.padding = "2px";
+      // inputPromptDiv.style.padding = "2px";
       inputPromptDiv.style.width = "100%";
       inputPromptDiv.appendChild(existingContentSpan);
       inputPromptDiv.appendChild(promptLabel);
 
       appendToOutputDivs(inputPromptDiv);
+      scrollToBottom();
 
       promptLabel.focus();
       const range = document.createRange();
@@ -423,7 +446,9 @@ function PythonIDE() {
         isCanceledRef.current = true;
         setLoading(false);
         setDisable(false);
-        appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
+        appendToOutputDivs(
+          document.createTextNode("<<< Execution timed out >>>")
+        );
       }
     }
   };
