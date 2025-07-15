@@ -81,6 +81,7 @@ plt.show = safe_show
       let wasCancelled = false;
       let expectingEntry = false;
       let errorOutput = "";
+      let stdoutBuffer = "";
       const pyProcess = spawn("docker", dockerArgs);
 
       const handleUserEntry = (userInput) => {
@@ -92,8 +93,6 @@ plt.show = safe_show
 
       socket.removeAllListeners("userEntry");
       socket.on("userEntry", handleUserEntry);
-
-      let stdoutBuffer = "";
 
       pyProcess.stdout.on("data", (data) => {
         if (wasCancelled) return;
@@ -209,29 +208,35 @@ plt.show = safe_show
         }
       });
 
-      socket.on("cancel", (timeOut = false) => {
-        if (pyProcess && !pyProcess.killed && !wasCancelled) {
-          wasCancelled = true;
+      socket.on("cancel", (timeOut) => {
+        if (wasCancelled || !pyProcess) return;
 
-          // Safe teardown
-          pyProcess.kill();
+        wasCancelled = true;
+        const message = timeOut
+          ? "<<< Execution timed out >>>"
+          : "<<< Execution cancelled >>>";
 
-          pyProcess.stdout.pause();
-          pyProcess.stderr.pause();
-          pyProcess.stdout.removeAllListeners("data");
-          pyProcess.stderr.removeAllListeners("data");
-
-          pyProcess.stdout.destroy();
-          pyProcess.stderr.destroy();
-
-          if (socket.connected) {
-            socket.emit("cancelled", timeOut ? "<<< Execution timed out >>>" : "<<< Execution cancelled >>>");
-            console.log("📤 Emitted 'canceled' event");
-          }
-
-          stdoutBuffer = "";
-          spawn("docker", ["kill", containerName]);
+        if (socket.connected) {
+          socket.emit("cancelled", message); 
         }
+
+        setTimeout(() => {
+          try {
+            pyProcess.stdout.pause();
+            pyProcess.stderr.pause();
+            pyProcess.stdout.removeAllListeners("data");
+            pyProcess.stderr.removeAllListeners("data");
+
+            pyProcess.stdout.destroy();
+            pyProcess.stderr.destroy();
+            stdoutBuffer = "";
+
+            spawn("docker", ["kill", containerName]);
+
+          } catch (err) {
+            console.error("Teardown error:", err);
+          }
+        }, 50); 
       });
 
       socket.on("disconnect", () => {
@@ -246,7 +251,6 @@ plt.show = safe_show
           fs.unlinkSync(fullOutputPath);
         }
       });
-
     };
   });
 };

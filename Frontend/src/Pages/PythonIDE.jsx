@@ -87,6 +87,7 @@ function PythonIDE() {
   const [agentRes, setAgentRes] = useState(null);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [userEntry, setUserEntry] = useState(false);
   const isCanceledRef = useRef(false);
   const [showGraph, setShowGraph] = useState(false);
   const [graphData, setGraphData] = useState(null);
@@ -185,6 +186,7 @@ function PythonIDE() {
   useEffect(() => {
     const handlePyResponse = (message) => {
       if (isCanceledRef.current) return;
+      setUserEntry(false);
       var escapedMsgs = "";
 
       if (message.startsWith('"') && message.endsWith('"')) {
@@ -223,6 +225,7 @@ function PythonIDE() {
 
     const handleExitSuccess = () => {
       if (isCanceledRef.current) return;
+      setUserEntry(false);
       setLoading(false);
       const exitMsg = document.createElement("p");
       exitMsg.innerText = "--- Program Executed Successfully ---";
@@ -240,6 +243,7 @@ function PythonIDE() {
 
     const handleExitError = () => {
       if (isCanceledRef.current) return;
+      setUserEntry(false);
       setLoading(false);
       setIsError(true);
       const exitMsg = document.createElement("p");
@@ -258,6 +262,7 @@ function PythonIDE() {
 
     const handleUser = (message) => {
       if (isCanceledRef.current) return;
+      setUserEntry(true);
       setDisable(false);
 
       let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
@@ -366,12 +371,16 @@ function PythonIDE() {
 
     const handleGraphOutput = (imageData) => {
       if (isCanceledRef.current) return;
+      setUserEntry(false);
       setShowGraph(true);
       setGraphData(imageData);
     };
-
-    const handleAutoCancel = (message) => {
-      // console.log("canceled", message);
+    const handleCancelled = (message) => {
+      // clearOutput();
+      // console.log(message);
+      isCanceledRef.current = true;
+      setLoading(false);
+      setDisable(false);
       appendToOutputDivs(document.createTextNode(message));
     };
 
@@ -387,7 +396,7 @@ function PythonIDE() {
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
       socket.current.on("EXIT_ERROR", handleExitError);
       socket.current.on("userInput", handleUser);
-      socket.current.on("cancelled", handleAutoCancel);
+      socket.current.on("cancelled", handleCancelled);
     }
 
     return () => {
@@ -397,7 +406,7 @@ function PythonIDE() {
         socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
         socket.current?.off("EXIT_ERROR", handleExitError);
         socket.current?.off("userInput", handleUser);
-        socket.current?.off("cancelled", handleAutoCancel);
+        socket.current?.off("cancelled", handleCancelled);
         socket.current?.disconnect();
         socket.current?.close();
         socket.current = null;
@@ -405,18 +414,35 @@ function PythonIDE() {
     };
   }, []);
 
-  const handleCancel = (timeOut = false) => {
-    if (socket.current) {
-      isCanceledRef.current = true; // instant sync with React
-      setLoading(false); // stop spinner immediately
-      setDisable(false); // re-enable UI now
+  const handleCancel = (timeOut) => {
+    if (!isCanceledRef.current && socket.current) {
+      // console.log("cancel called", timeOut);
+      isCanceledRef.current = true;
       socket.current.emit("cancel", timeOut);
+      if (timeOut) {
+        isCanceledRef.current = true;
+        setLoading(false);
+        setDisable(false);
+        appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
+      }
     }
   };
 
-  setTimeout(() => {
-    handleCancel(true);
-  }, 5000);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // console.log(
+      //   "Timeout check — userEntry:",
+      //   userEntry,
+      //   "| loading:",
+      //   loading
+      // );
+      if (!userEntry && loading) {
+        handleCancel(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [userEntry, loading]);
 
   const handleRun = async () => {
     if (editorContent !== "") {
@@ -768,7 +794,7 @@ function PythonIDE() {
                             <Button
                               key={index}
                               classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg"
-                              action={handleCancel}
+                              action={() => handleCancel(false)}
                               text="Cancel"
                               icon={<StopCircleIcon />}
                             />
