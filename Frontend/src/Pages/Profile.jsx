@@ -396,39 +396,53 @@ export const Profile = () => {
               <div>
                 <div className="flex items-center justify-between">
                   <h2 className={`text-xl font-bold ${textColor}`}>
-                    Achievements &amp; Badges
+                    Achievements & Badges
                   </h2>
                 </div>
+
                 <div
-                  className={`flex ${secondaryBg} items-center gap-4 p-4 rounded-lg min-h-28`}
+                  className={`flex justify-between items-center w-full gap-4 ${secondaryBg} p-4 rounded-lg min-h-28`}
                 >
                   {(activeTab === "Python" ? pyUserBadges : sqlUserBadges)
-                    ?.length > 0 ? (
-                    (activeTab === "Python" ? pyUserBadges : sqlUserBadges).map(
-                      (badge, index) => (
-                        <div
-                          key={index}
-                          className={`flex flex-col items-center transition-transform duration-300 ${cardBg} border ${dividerColor} shadow rounded-xl hover:shadow-md hover:scale-105`}
-                        >
-                          <img
-                            src={badge?.logo}
-                            alt="badge"
-                            className="h-24 w-28"
-                          />
-                          <p
-                            className={`w-full text-sm font-medium text-center ${secondaryText}`}
-                          >
-                            {badge.title}
-                          </p>
-                        </div>
-                      )
+                    ?.slice(
+                      0,
+                      window.innerWidth >= 1024
+                        ? 5
+                        : window.innerWidth >= 768
+                        ? 3
+                        : 2
                     )
-                  ) : (
-                    <p
-                      className={`text-sm font-medium text-center ${secondaryText}`}
+                    .map((badge, index) => (
+                      <div
+                        key={index}
+                        className={`flex flex-col items-center transition-transform duration-300 ${cardBg} border ${dividerColor} shadow rounded-xl hover:shadow-md hover:scale-105`}
+                      >
+                        <img
+                          src={badge?.logo}
+                          alt="badge"
+                          className="h-24 w-28"
+                        />
+                        <p
+                          className={`w-full text-sm font-medium text-center ${secondaryText}`}
+                        >
+                          {badge.title}
+                        </p>
+                      </div>
+                    ))}
+
+                  {(activeTab === "Python" ? pyUserBadges : sqlUserBadges)
+                    ?.length >
+                    (window.innerWidth >= 1024
+                      ? 5
+                      : window.innerWidth >= 768
+                      ? 3
+                      : 2) && (
+                    <button
+                      className={`flex flex-col items-center justify-center px-4 py-2 transition-transform duration-300 ${cardBg} border border-dashed ${dividerColor} shadow rounded-xl hover:shadow-md hover:scale-105 ${secondaryText}`}
+                      onClick={() => setShowBadgesModal(true)}
                     >
-                      No Achieved Badges
-                    </p>
+                      See All
+                    </button>
                   )}
                 </div>
               </div>
