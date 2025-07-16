@@ -1,12 +1,8 @@
 import React from "react";
 import { X } from "lucide-react";
 
-const BadgesModal = ({ onClose, darkTheme }) => {
-  const pythonBadges = [
-    { title: "Loop Master", img: "" },
-    { title: "Function Pro", img: "" },
-    { title: "Syntax Ninja", img: "" },
-  ];
+const BadgesModal = ({ onClose, darkTheme, pyUserBadges, sqlUserBadges }) => {
+  
 
   return (
     <div
@@ -51,7 +47,7 @@ const BadgesModal = ({ onClose, darkTheme }) => {
             Python Badges
           </h3>
           <div className="flex flex-wrap gap-6">
-            {pythonBadges.map((badge, index) => (
+            {pyUserBadges?.map((badge, index) => (
               <div
                 key={index}
                 className={`flex flex-col items-center transition-transform duration-300 border ${
@@ -60,7 +56,40 @@ const BadgesModal = ({ onClose, darkTheme }) => {
                   darkTheme ? "bg-gray-700" : "bg-white"
                 }`}
               >
-                <img src={badge?.img} alt="badge" className="h-24 w-28" />
+                <img src={badge?.logo} alt="badge" className="h-24 w-28" />
+
+                <p
+                  className={`w-full text-sm font-medium text-center ${
+                    darkTheme ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  {badge.title}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="mb-16">
+          <h3
+            className={`text-2xl sm:text-3xl font-semibold ${
+              darkTheme ? "text-gray-200" : "text-gray-800"
+            } border-l-4 ${
+              darkTheme ? "border-blue-500" : "border-blue-600"
+            } pl-4 mb-8`}
+          >
+            SQL Badges
+          </h3>
+          <div className="flex flex-wrap gap-6">
+            {sqlUserBadges?.map((badge, index) => (
+              <div
+                key={index}
+                className={`flex flex-col items-center transition-transform duration-300 border ${
+                  darkTheme ? "border-gray-700" : "border-gray-200"
+                } shadow rounded-xl hover:shadow-md hover:scale-105 ${
+                  darkTheme ? "bg-gray-700" : "bg-white"
+                }`}
+              >
+                <img src={badge?.logo} alt="badge" className="h-24 w-28" />
                 <p
                   className={`w-full text-sm font-medium text-center ${
                     darkTheme ? "text-gray-300" : "text-gray-700"

@@ -438,7 +438,7 @@ export const Profile = () => {
                       ? 3
                       : 2) && (
                     <button
-                      className={`flex flex-col items-center justify-center px-4 py-2 transition-transform duration-300 ${cardBg} border border-dashed ${dividerColor} shadow rounded-xl hover:shadow-md hover:scale-105 ${secondaryText}`}
+                      className={`cursor-pointer flex flex-col items-center justify-center h-24 w-28 transition-transform duration-300 ${cardBg} border border-dashed ${dividerColor} shadow rounded-xl hover:shadow-md hover:scale-105 ${secondaryText}`}
                       onClick={() => setShowBadgesModal(true)}
                     >
                       See All
@@ -615,6 +615,8 @@ export const Profile = () => {
 
       {showBadgesModal && (
         <BadgesModal
+          pyUserBadges={pyUserBadges}
+          sqlUserBadges={sqlUserBadges}
           onClose={() => setShowBadgesModal(false)}
           darkTheme={darkTheme}
         />
