@@ -94,6 +94,7 @@ function PythonIDE() {
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [outputZoomLevel, setOutputZoomLevel] = useState(1);
+  const [codeModified, setCodeModified] = useState(false);
 
   const {
     mutate: handleAgentCall,
@@ -144,27 +145,44 @@ function PythonIDE() {
     if (mobileOutput) mobileOutput.innerText = "";
   };
 
-  const replaceOutputDivs = (el) => {
-    // if (isCanceledRef.current) return;
-    if (!el) return;
-    const clone = el.cloneNode(true);
-    const desktop = document.getElementById("outputDivDesktop");
-    const mobile = document.getElementById("outputDivMobile");
+  // const replaceOutputDivs = (el) => {
+  //   // if (isCanceledRef.current) return;
+  //   if (!el) return;
+  //   const clone = el.cloneNode(true);
+  //   const desktop = document.getElementById("outputDivDesktop");
+  //   const mobile = document.getElementById("outputDivMobile");
 
-    if (desktop) {
-      desktop.innerHTML = "";
-      desktop.appendChild(el);
-    }
+  //   if (desktop) {
+  //     desktop.innerHTML = "";
+  //     desktop.appendChild(el);
+  //   }
 
-    if (mobile) {
-      mobile.innerHTML = "";
-      mobile.appendChild(clone);
+  //   if (mobile) {
+  //     mobile.innerHTML = "";
+  //     mobile.appendChild(clone);
+  //   }
+  //   // Add styling to ensure proper display
+  //   el.style.display = "block";
+  //   el.style.width = "100%";
+  //   el.style.fontFamily = "monospace";
+  //   el.style.wordBreak = "break-word";
+  // };
+
+  const scrollToBottom = () => {
+    const desktopOutput = document.getElementById("outputDivDesktop");
+    const mobileOutput = document.getElementById("outputDivMobile");
+
+    const scrollOptions = {
+      top: Number.MAX_SAFE_INTEGER,
+      behavior: "smooth",
+    };
+
+    if (desktopOutput) {
+      desktopOutput.scrollTo(scrollOptions);
     }
-    // Add styling to ensure proper display
-    el.style.display = "block";
-    el.style.width = "100%";
-    el.style.fontFamily = "monospace";
-    el.style.wordBreak = "break-word";
+    if (mobileOutput) {
+      mobileOutput.scrollTo(scrollOptions);
+    }
   };
 
   const appendToOutputDivs = (el) => {
@@ -181,6 +199,8 @@ function PythonIDE() {
     el.style.width = "100%";
     el.style.fontFamily = "monospace";
     el.style.wordBreak = "break-word";
+
+    setTimeout(scrollToBottom, 0);
   };
 
   useEffect(() => {
@@ -221,6 +241,7 @@ function PythonIDE() {
 
       // document.getElementById("outputDiv").appendChild(res);
       appendToOutputDivs(res);
+      setTimeout(scrollToBottom, 50);
     };
 
     const handleExitSuccess = () => {
@@ -239,6 +260,7 @@ function PythonIDE() {
 
       // document.getElementById("outputDiv").appendChild(exitMsg);
       appendToOutputDivs(exitMsg);
+      scrollToBottom();
     };
 
     const handleExitError = () => {
@@ -258,6 +280,7 @@ function PythonIDE() {
 
       // document.getElementById("outputDiv").appendChild(exitMsg);
       appendToOutputDivs(exitMsg);
+      scrollToBottom();
     };
 
     const handleUser = (message) => {
@@ -304,12 +327,13 @@ function PythonIDE() {
 
       const inputPromptDiv = document.createElement("div");
       inputPromptDiv.id = "inputPromptDiv";
-      inputPromptDiv.style.padding = "2px";
+      // inputPromptDiv.style.padding = "2px";
       inputPromptDiv.style.width = "100%";
       inputPromptDiv.appendChild(existingContentSpan);
       inputPromptDiv.appendChild(promptLabel);
 
       appendToOutputDivs(inputPromptDiv);
+      scrollToBottom();
 
       promptLabel.focus();
       const range = document.createRange();
@@ -416,14 +440,22 @@ function PythonIDE() {
 
   const handleCancel = (timeOut) => {
     if (!isCanceledRef.current && socket.current) {
-      // console.log("cancel called", timeOut);
       isCanceledRef.current = true;
       socket.current.emit("cancel", timeOut);
+
       if (timeOut) {
-        isCanceledRef.current = true;
         setLoading(false);
         setDisable(false);
-        appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
+
+        const boldMessage = document.createElement("span");
+        boldMessage.innerHTML = "<<< <strong>Execution timed out</strong> >>>";
+        appendToOutputDivs(boldMessage);
+
+        // // OR (Method 2 - Using CSS fontWeight)
+        // const styledMessage = document.createElement("span");
+        // styledMessage.textContent = "<<< Execution timed out >>>";
+        // styledMessage.style.fontWeight = "bold";
+        // appendToOutputDivs(styledMessage);
       }
     }
   };
@@ -840,7 +872,14 @@ function PythonIDE() {
                         zoomTheme,
                         zoomButtons,
                       ]}
-                      onChange={setEditorContent}
+                      onChange={(value) => {
+                        setEditorContent(value);
+                        setCodeModified(true); // Mark code as modified when user changes it
+                        if (isError) {
+                          setIsError(false); // Clear error state when code is modified
+                          setAgentRes(null); // Clear agent response
+                        }
+                      }}
                       onCreateEditor={(editor) => {
                         editorRef.current = editor;
                         const zoomContainer = document.createElement("div");
