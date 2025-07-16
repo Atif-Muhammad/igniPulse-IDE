@@ -94,6 +94,7 @@ function PythonIDE() {
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [outputZoomLevel, setOutputZoomLevel] = useState(1);
+  const [codeModified, setCodeModified] = useState(false);
 
   const {
     mutate: handleAgentCall,
@@ -144,28 +145,28 @@ function PythonIDE() {
     if (mobileOutput) mobileOutput.innerText = "";
   };
 
-  const replaceOutputDivs = (el) => {
-    // if (isCanceledRef.current) return;
-    if (!el) return;
-    const clone = el.cloneNode(true);
-    const desktop = document.getElementById("outputDivDesktop");
-    const mobile = document.getElementById("outputDivMobile");
+  // const replaceOutputDivs = (el) => {
+  //   // if (isCanceledRef.current) return;
+  //   if (!el) return;
+  //   const clone = el.cloneNode(true);
+  //   const desktop = document.getElementById("outputDivDesktop");
+  //   const mobile = document.getElementById("outputDivMobile");
 
-    if (desktop) {
-      desktop.innerHTML = "";
-      desktop.appendChild(el);
-    }
+  //   if (desktop) {
+  //     desktop.innerHTML = "";
+  //     desktop.appendChild(el);
+  //   }
 
-    if (mobile) {
-      mobile.innerHTML = "";
-      mobile.appendChild(clone);
-    }
-    // Add styling to ensure proper display
-    el.style.display = "block";
-    el.style.width = "100%";
-    el.style.fontFamily = "monospace";
-    el.style.wordBreak = "break-word";
-  };
+  //   if (mobile) {
+  //     mobile.innerHTML = "";
+  //     mobile.appendChild(clone);
+  //   }
+  //   // Add styling to ensure proper display
+  //   el.style.display = "block";
+  //   el.style.width = "100%";
+  //   el.style.fontFamily = "monospace";
+  //   el.style.wordBreak = "break-word";
+  // };
 
   const scrollToBottom = () => {
     const desktopOutput = document.getElementById("outputDivDesktop");
@@ -871,7 +872,14 @@ function PythonIDE() {
                         zoomTheme,
                         zoomButtons,
                       ]}
-                      onChange={setEditorContent}
+                      onChange={(value) => {
+                        setEditorContent(value);
+                        setCodeModified(true); // Mark code as modified when user changes it
+                        if (isError) {
+                          setIsError(false); // Clear error state when code is modified
+                          setAgentRes(null); // Clear agent response
+                        }
+                      }}
                       onCreateEditor={(editor) => {
                         editorRef.current = editor;
                         const zoomContainer = document.createElement("div");
