@@ -20,7 +20,7 @@ import {
 } from "@codemirror/view";
 import { EditorSelection } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
-import py from "../assets/py.svg";
+import HTML from "../assets/HTML.webp";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
@@ -505,7 +505,7 @@ function HtmlIDE() {
                     } px-2 py-7`}
                   >
                     <div className="flex items-center justify-center gap-x-1 px-2">
-                      <img src="" alt="logo" className="w-8 h-8" />
+                      <img src={HTML} alt="HTML" className="w-8 h-8" />
                       <p
                         className={`font-black ${
                           darkTheme ? "text-white" : "text-black"
@@ -835,7 +835,6 @@ function HtmlIDE() {
           </div>
         </div>
       </div>
-      
     </>
   );
 }
