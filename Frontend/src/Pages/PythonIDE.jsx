@@ -94,6 +94,7 @@ function PythonIDE() {
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [outputZoomLevel, setOutputZoomLevel] = useState(1);
+  const [codeModified, setCodeModified] = useState(false);
 
   const {
     mutate: handleAgentCall,
@@ -246,6 +247,7 @@ function PythonIDE() {
       setUserEntry(false);
       setLoading(false);
       setIsError(true);
+      setCodeModified(false);
       const exitMsg = document.createElement("p");
       exitMsg.innerText = "--- Program Exited with Errors ---";
       exitMsg.style.fontWeight = "bold";
@@ -840,7 +842,14 @@ function PythonIDE() {
                         zoomTheme,
                         zoomButtons,
                       ]}
-                      onChange={setEditorContent}
+                      onChange={(value) => {
+                        setEditorContent(value);
+                        setCodeModified(true);
+                        if (isError) {
+                          setIsError(false);
+                          setAgentRes(null);
+                        }
+                      }}
                       onCreateEditor={(editor) => {
                         editorRef.current = editor;
                         const zoomContainer = document.createElement("div");
@@ -886,7 +895,7 @@ function PythonIDE() {
 
                     {/* Error Modal */}
                     <ErrorModalComponent
-                      isError={isError}
+                      isError={isError && !codeModified}
                       isPending={isPending}
                       agentRes={agentRes}
                       handleAgentCall={handleAgentCall}

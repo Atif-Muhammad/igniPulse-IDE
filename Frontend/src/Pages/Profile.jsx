@@ -272,7 +272,7 @@ export const Profile = () => {
                     className="text-xs cursor-pointer text-red-400"
                   />
                 </div>
-                <div className="flex flex-col w-full gap-5 px-4">
+                <div className="flex flex-col w-full gap-2 px-4">
                   <div>
                     <h2 className={`text-2xl font-bold ${textColor}`}>
                       {data?.data?.user_name || "No Name"}
@@ -284,7 +284,7 @@ export const Profile = () => {
                   </div>
 
                   <div>
-                    <p className={`${textColor} text-lg`}>
+                    <p className={`${textColor} text-3xl font-bold `}>
                       {userBadgesMap[activeTab]?.[0]?.title ??
                         "Run your first code to unlock!"}
                     </p>
@@ -396,7 +396,7 @@ export const Profile = () => {
               <div>
                 <div className="flex items-center justify-between">
                   <h2 className={`text-xl font-bold ${textColor}`}>
-                    Achievements & Badges
+                    Achievements and Badges
                   </h2>
                 </div>
 
@@ -548,7 +548,7 @@ export const Profile = () => {
               <h2
                 className={`text-xl z-20 sticky top-0 text-center rounded-t-xl py-3 ${secondaryBg} font-bold ${textColor} mb-4`}
               >
-                All Badges
+                Explore All Badges
               </h2>
               <div className="px-3 space-y-4">
                 {badgesLoading
