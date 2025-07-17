@@ -210,6 +210,7 @@ plt.show = safe_show
 
       socket.on("cancel", (timeOut) => {
         if (wasCancelled || !pyProcess) return;
+        // console.log("cancel called")
 
         wasCancelled = true;
         const message = timeOut
@@ -236,7 +237,7 @@ plt.show = safe_show
           } catch (err) {
             console.error("Teardown error:", err);
           }
-        }, 50); 
+        }, 150); 
       });
 
       socket.on("disconnect", () => {
