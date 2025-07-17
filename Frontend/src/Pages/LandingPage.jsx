@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { Rocket, Moon, Sun, User } from "lucide-react";
 import py from "../assets/py.svg";
 import sql from "../assets/sql.svg";
+import HTML from "../assets/HTML.webp";
 import pyVid from "../assets/python.webp";
 import sqlVid from "../assets/sql.webp";
 import { Canvas } from "@react-three/fiber";
@@ -100,7 +101,7 @@ const LandingPage = () => {
       name: "HTML",
       desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
       link: "/html",
-      logo: "",
+      logo: HTML,
     },
   ];
 

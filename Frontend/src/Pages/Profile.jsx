@@ -247,7 +247,7 @@ export const Profile = () => {
                   <div className="flex gap-5">
                     <Settings
                       onClick={() => setsettingmodel(true)}
-                      className={`text-xs ${
+                      className={`text-xs cursor-pointer ${
                         darkTheme ? "text-blue-400" : "text-blue-500"
                       }`}
                     />
@@ -269,7 +269,7 @@ export const Profile = () => {
                   </div>
                   <LogOut
                     onClick={() => setLogoutmodel(true)}
-                    className="text-xs text-red-400"
+                    className="text-xs cursor-pointer text-red-400"
                   />
                 </div>
                 <div className="flex flex-col w-full gap-5 px-4">
@@ -456,7 +456,7 @@ export const Profile = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`w-1/2 py-2 text-md font-semibold rounded-t-md transition-all duration-300 ${
+                      className={`w-1/2 py-2 text-md cursor-pointer font-semibold rounded-t-md transition-all duration-300 ${
                         activeTab === tab
                           ? // Active tab styles
                             `${darkTheme ? "bg-gray-700" : "bg-gray-100"} ${
@@ -467,7 +467,7 @@ export const Profile = () => {
                           : // Inactive tab styles
                             `${
                               darkTheme
-                                ? "bg-gray-800 text-gray-400 border-t  hover:bg-gray-700 hover:text-gray-300"
+                                ? "bg-gray-800 text-gray-400 cursor-pointer  hover:bg-gray-700 hover:text-gray-300"
                                 : "bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-700"
                             }`
                       }`}
