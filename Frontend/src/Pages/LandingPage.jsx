@@ -95,6 +95,13 @@ const LandingPage = () => {
       link: "/python",
       logo: py,
     },
+    {
+      id: "html",
+      name: "HTML",
+      desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
+      link: "/html",
+      logo: "",
+    },
   ];
 
   return (

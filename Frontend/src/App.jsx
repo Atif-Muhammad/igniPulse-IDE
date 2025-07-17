@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import config from "../Config/config";
 import { Profile } from "./Pages/Profile";
 import { AddBadge, AddAvatar } from "./Pages/admin";
+import HtmlIDE from "./Pages/HtmlIDE";
 
 function AppWrapper() {
   // This component will have access to the theme
@@ -44,6 +45,7 @@ function AppWrapper() {
         />
         <Route path="/authentication" element={<Authentication />} />
         <Route path="/python" element={<PythonPage />} />
+        <Route path="/html" element={<HtmlIDE />} />
         <Route path="/sql" element={<SQLPage />} />
         <Route path="/admin">
           <Route path="Badges" element={<AddBadge />} />

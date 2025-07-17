@@ -66,7 +66,7 @@ const insertSpacesAtCursor = keymap.of([
   },
 ]);
 
-function PythonIDE() {
+function HtmlIDE() {
   const location = useLocation();
   const editorType = location.state || "gen";
 
@@ -94,6 +94,7 @@ function PythonIDE() {
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [outputZoomLevel, setOutputZoomLevel] = useState(1);
+  const [codeModified, setCodeModified] = useState(false);
 
   const {
     mutate: handleAgentCall,
@@ -144,305 +145,36 @@ function PythonIDE() {
     if (mobileOutput) mobileOutput.innerText = "";
   };
 
-  const replaceOutputDivs = (el) => {
-    // if (isCanceledRef.current) return;
-    if (!el) return;
-    const clone = el.cloneNode(true);
-    const desktop = document.getElementById("outputDivDesktop");
-    const mobile = document.getElementById("outputDivMobile");
 
-    if (desktop) {
-      desktop.innerHTML = "";
-      desktop.appendChild(el);
-    }
+  const appendToOutputDivs = (htmlString) => {
+    const targets = ["outputDivDesktop", "outputDivMobile"];
 
-    if (mobile) {
-      mobile.innerHTML = "";
-      mobile.appendChild(clone);
-    }
-    // Add styling to ensure proper display
-    el.style.display = "block";
-    el.style.width = "100%";
-    el.style.fontFamily = "monospace";
-    el.style.wordBreak = "break-word";
+    targets.forEach((id) => {
+      const container = document.getElementById(id);
+      if (!container) return;
+
+      // Clear previous content
+      container.innerHTML = "";
+
+      // Create iframe
+      const iframe = document.createElement("iframe");
+      iframe.style.width = "100%";
+      iframe.style.height = "300px";
+      iframe.style.border = "1px solid #ccc";
+
+      // Optional: sandbox the iframe
+      // iframe.setAttribute("sandbox", "allow-scripts");
+
+      container.appendChild(iframe);
+
+      // Write HTML content into iframe
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(htmlString);
+      doc.close();
+    });
   };
 
-  const appendToOutputDivs = (el) => {
-    // if (isCanceledRef.current) return;
-    if (!el) return;
-    const clone = el.cloneNode(true);
-    const desktop = document.getElementById("outputDivDesktop");
-    const mobile = document.getElementById("outputDivMobile");
-
-    if (desktop) desktop.appendChild(el);
-    if (mobile) mobile.appendChild(clone);
-    // Add styling to ensure proper display
-    el.style.display = "block";
-    el.style.width = "100%";
-    el.style.fontFamily = "monospace";
-    el.style.wordBreak = "break-word";
-  };
-
-  useEffect(() => {
-    const handlePyResponse = (message) => {
-      if (isCanceledRef.current) return;
-      setUserEntry(false);
-      var escapedMsgs = "";
-
-      if (message.startsWith('"') && message.endsWith('"')) {
-        escapedMsgs = escapeHtml(message.replace(/^"(.*)"$/, "$1"));
-      } else {
-        escapedMsgs = message;
-      }
-      // console.log(escapedMsgs)
-      setDisable(false);
-      // setLoading(false);
-
-      let formattedMessage = escapedMsgs.replace(/\r\n|\r|\n/g, "\n");
-
-      if (formattedMessage.startsWith("\n")) {
-        formattedMessage = "<br>" + formattedMessage.trimStart();
-      }
-      if (formattedMessage.endsWith("\n")) {
-        formattedMessage = formattedMessage.trimEnd() + "<br>";
-      }
-      formattedMessage = formattedMessage.replace(/\n/g, "<br>");
-
-      const res = document.createElement("div");
-      res.innerHTML = formattedMessage;
-      res.style.fontSize = "15px";
-      // res.style.paddingBottom = "6px";
-      // res.style.padding = "2px";
-      // res.style.whiteSpace = "pre";
-      // res.style.wordBreak = "normal";
-      // res.style.overflowWrap = "break-word";// disable word breaking
-      res.style.width = "100%"; // make div as wide as content
-      // res.style.maxWidth = "100%";
-
-      // document.getElementById("outputDiv").appendChild(res);
-      appendToOutputDivs(res);
-    };
-
-    const handleExitSuccess = () => {
-      if (isCanceledRef.current) return;
-      setUserEntry(false);
-      setLoading(false);
-      const exitMsg = document.createElement("p");
-      exitMsg.innerText = "--- Program Executed Successfully ---";
-      exitMsg.style.fontWeight = "bold";
-      exitMsg.style.marginTop = "10px";
-      exitMsg.style.textAlign = "start";
-      exitMsg.style.wordWrap = "break-word";
-      exitMsg.style.overflowWrap = "break-word";
-      exitMsg.style.whiteSpace = "normal";
-      exitMsg.style.width = "100%";
-
-      // document.getElementById("outputDiv").appendChild(exitMsg);
-      appendToOutputDivs(exitMsg);
-    };
-
-    const handleExitError = () => {
-      if (isCanceledRef.current) return;
-      setUserEntry(false);
-      setLoading(false);
-      setIsError(true);
-      const exitMsg = document.createElement("p");
-      exitMsg.innerText = "--- Program Exited with Errors ---";
-      exitMsg.style.fontWeight = "bold";
-      exitMsg.style.marginTop = "10px";
-      exitMsg.style.textAlign = "start";
-      exitMsg.style.wordWrap = "break-word";
-      exitMsg.style.overflowWrap = "break-word";
-      exitMsg.style.whiteSpace = "normal";
-      exitMsg.style.width = "100%";
-
-      // document.getElementById("outputDiv").appendChild(exitMsg);
-      appendToOutputDivs(exitMsg);
-    };
-
-    const handleUser = (message) => {
-      if (isCanceledRef.current) return;
-      setUserEntry(true);
-      setDisable(false);
-
-      let formattedMessage = message.replace(/\r\n|\r|\n/g, "\n");
-      const lines = formattedMessage
-        .match(/[^\n]*(\n|$)/g)
-        .filter((line) => line !== "");
-
-      lines.slice(0, -1).forEach((line) => {
-        const lineDiv = document.createElement("div");
-        lineDiv.innerHTML = line.replace(/\n/g, "<br>");
-        lineDiv.style.marginBottom = "2px";
-        appendToOutputDivs(lineDiv);
-      });
-
-      const existingContentSpan = document.createElement("span");
-      existingContentSpan.className = "existing-content";
-      existingContentSpan.textContent = lines[lines.length - 1];
-      existingContentSpan.setAttribute("contenteditable", "false");
-      existingContentSpan.style.backgroundColor = "transparent";
-      existingContentSpan.style.whiteSpace = "pre";
-      existingContentSpan.style.wordBreak = "normal";
-      existingContentSpan.style.overflowWrap = "break-word";
-      existingContentSpan.style.boxSizing = "border-box";
-      existingContentSpan.style.display = "inline";
-
-      const promptLabel = document.createElement("span");
-      promptLabel.className = "prompt-label";
-      promptLabel.style.whiteSpace = "pre";
-      promptLabel.style.wordBreak = "normal";
-      promptLabel.style.overflowWrap = "break-word";
-      promptLabel.style.boxSizing = "border-box";
-      promptLabel.setAttribute("contenteditable", "true");
-      promptLabel.style.display = "inline";
-      promptLabel.style.backgroundColor = "transparent";
-      promptLabel.innerHTML = " ";
-
-      promptLabel.style.outline = "none";
-      promptLabel.style.border = "none";
-
-      const inputPromptDiv = document.createElement("div");
-      inputPromptDiv.id = "inputPromptDiv";
-      inputPromptDiv.style.padding = "2px";
-      inputPromptDiv.style.width = "100%";
-      inputPromptDiv.appendChild(existingContentSpan);
-      inputPromptDiv.appendChild(promptLabel);
-
-      appendToOutputDivs(inputPromptDiv);
-
-      promptLabel.focus();
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(promptLabel);
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
-
-      const handleKeyDown = (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          const userInput = promptLabel.textContent.trim();
-
-          if (userInput) {
-            socket.current.emit("userEntry", userInput);
-            promptLabel.setAttribute("contenteditable", "false");
-
-            // Remove the event listener after submission
-            promptLabel.removeEventListener("keydown", handleKeyDown);
-
-            // For mobile, ensure the virtual keyboard doesn't interfere
-            if (window.innerWidth <= 768) {
-              promptLabel.blur();
-            }
-          }
-        }
-      };
-
-      promptLabel.addEventListener("keydown", handleKeyDown);
-
-      // Additional handling for mobile devices
-      if (window.innerWidth <= 768) {
-        // Ensure the modal is open
-        setShowOutput(true);
-
-        // Add a submit button for mobile users
-        const mobileSubmitButton = document.createElement("button");
-        mobileSubmitButton.textContent = "Submit";
-        mobileSubmitButton.style.marginTop = "10px";
-        mobileSubmitButton.style.padding = "5px 10px";
-        mobileSubmitButton.style.backgroundColor = "#10B335";
-        mobileSubmitButton.style.color = "white";
-        mobileSubmitButton.style.border = "none";
-        mobileSubmitButton.style.borderRadius = "5px";
-
-        mobileSubmitButton.addEventListener("click", () => {
-          const userInput = promptLabel.textContent.trim();
-          if (userInput) {
-            socket.current.emit("userEntry", userInput);
-            promptLabel.setAttribute("contenteditable", "false");
-            inputPromptDiv.removeChild(mobileSubmitButton);
-          }
-        });
-
-        inputPromptDiv.appendChild(mobileSubmitButton);
-      }
-    };
-
-    const handleGraphOutput = (imageData) => {
-      if (isCanceledRef.current) return;
-      setUserEntry(false);
-      setShowGraph(true);
-      setGraphData(imageData);
-    };
-    const handleCancelled = (message) => {
-      // clearOutput();
-      // console.log(message);
-      isCanceledRef.current = true;
-      setLoading(false);
-      setDisable(false);
-      appendToOutputDivs(document.createTextNode(message));
-    };
-
-    if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true,
-      // });
-      socket.current = io("http://localhost:9000", { withCredentials: true });
-      socket.current.on("pyResponse", handlePyResponse);
-      socket.current.on("graphOutput", handleGraphOutput);
-      socket.current.on("EXIT_SUCCESS", handleExitSuccess);
-      socket.current.on("EXIT_ERROR", handleExitError);
-      socket.current.on("userInput", handleUser);
-      socket.current.on("cancelled", handleCancelled);
-    }
-
-    return () => {
-      if (socket.current) {
-        socket.current?.off("pyResponse", handlePyResponse);
-        socket.current?.off("graphOutput", handleGraphOutput);
-        socket.current?.off("EXIT_SUCCESS", handleExitSuccess);
-        socket.current?.off("EXIT_ERROR", handleExitError);
-        socket.current?.off("userInput", handleUser);
-        socket.current?.off("cancelled", handleCancelled);
-        socket.current?.disconnect();
-        socket.current?.close();
-        socket.current = null;
-      }
-    };
-  }, []);
-
-  const handleCancel = (timeOut) => {
-    if (!isCanceledRef.current && socket.current) {
-      // console.log("cancel called", timeOut);
-      isCanceledRef.current = true;
-      socket.current.emit("cancel", timeOut);
-      if (timeOut) {
-        isCanceledRef.current = true;
-        setLoading(false);
-        setDisable(false);
-        appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
-      }
-    }
-  };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      // console.log(
-      //   "Timeout check — userEntry:",
-      //   userEntry,
-      //   "| loading:",
-      //   loading
-      // );
-      if (!userEntry && loading) {
-        handleCancel(true);
-      }
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, [userEntry, loading]);
 
   const handleRun = async () => {
     if (editorContent !== "") {
@@ -451,12 +183,8 @@ function PythonIDE() {
       setLoading(true);
       setShowOutput(true);
       setShouldRunCode(true);
-      if (socket.current) {
-        // setIsError(false);
-        isCanceledRef.current = false;
-        socket.current.connect();
-        socket.current.emit("runPy", editorContent, editorType);
-      }
+      appendToOutputDivs(editorContent.toString());
+    
     }
   };
 
@@ -467,10 +195,10 @@ function PythonIDE() {
   const handleDownload = async () => {
     if (window.showSaveFilePicker) {
       const fileHandler = await window.showSaveFilePicker({
-        suggestedName: "code.py",
+        suggestedName: "code.html",
         types: [
           {
-            accept: { "text/plain": [".py"] },
+            accept: { "text/plain": [".html"] },
           },
         ],
       });
@@ -484,7 +212,7 @@ function PythonIDE() {
         type: "text/plain",
       });
       element.href = URL.createObjectURL(file);
-      element.download = `code.py`;
+      element.download = `code.html`;
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
@@ -547,7 +275,7 @@ function PythonIDE() {
           types: [
             {
               accept: {
-                "text/plain": [".txt", ".py"],
+                "text/plain": [".txt", ".html"],
               },
             },
           ],
@@ -572,7 +300,7 @@ function PythonIDE() {
         // Fallback for browsers that don't support File System Access API
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".sql,.txt";
+        input.accept = ".html,.txt";
 
         input.onchange = (e) => {
           const file = e.target.files[0];
@@ -777,30 +505,17 @@ function PythonIDE() {
                     } px-2 py-7`}
                   >
                     <div className="flex items-center justify-center gap-x-1 px-2">
-                      <img src={py} alt="python" className="w-8 h-8" />
+                      <img src="" alt="logo" className="w-8 h-8" />
                       <p
                         className={`font-black ${
                           darkTheme ? "text-white" : "text-black"
                         }`}
                       >
-                        {editorType === "ds" ? "Python Data Science" : "Python"}
+                        HTML
                       </p>
                     </div>
                     <div className="flex items-center justify-center gap-x-2">
                       {editorBtns.map((btn, index) => {
-                        if (loading && btn.text === "Execute") {
-                          // Show Cancel button instead of Execute while loading
-                          return (
-                            <Button
-                              key={index}
-                              classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg"
-                              action={() => handleCancel(false)}
-                              text="Cancel"
-                              icon={<StopCircleIcon />}
-                            />
-                          );
-                        }
-
                         return (
                           <Button
                             key={index}
@@ -840,7 +555,14 @@ function PythonIDE() {
                         zoomTheme,
                         zoomButtons,
                       ]}
-                      onChange={setEditorContent}
+                      onChange={(value) => {
+                        setEditorContent(value);
+                        setCodeModified(true); // Mark code as modified when user changes it
+                        if (isError) {
+                          setIsError(false); // Clear error state when code is modified
+                          setAgentRes(null); // Clear agent response
+                        }
+                      }}
                       onCreateEditor={(editor) => {
                         editorRef.current = editor;
                         const zoomContainer = document.createElement("div");
@@ -1113,71 +835,9 @@ function PythonIDE() {
           </div>
         </div>
       </div>
-      {showGraph && (
-        <div
-          className={`fixed ${
-            isGraphFullscreen
-              ? "inset-0"
-              : "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-          } 
-        ${darkTheme ? "bg-gray-800" : "bg-white"} 
-        ${isGraphFullscreen ? "w-full h-full" : "w-1/2 h-2/3"} 
-        shadow-2xl shadow-black rounded-lg z-50 border flex flex-col bg-black/40  backdrop-blur-sm `}
-        >
-          <div
-            className={`flex justify-between items-center p-2 ${
-              darkTheme ? "bg-gray-700" : "bg-gray-200"
-            } rounded-t-lg `}
-          >
-            <h3
-              className={`font-bold ${darkTheme ? "text-white" : "text-black"}`}
-            >
-              Graph Output
-            </h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setIsGraphFullscreen(!isGraphFullscreen)}
-                className="p-1 rounded hover:bg-gray-600"
-              >
-                {isGraphFullscreen ? (
-                  <Minimize2
-                    size={20}
-                    className={darkTheme ? "text-white" : "text-black"}
-                  />
-                ) : (
-                  <Maximize2
-                    size={20}
-                    className={darkTheme ? "text-white" : "text-black"}
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setShowGraph(false);
-                  setIsGraphFullscreen(false);
-                }}
-                className="p-1 rounded bg-red-600 hover:bg-red-500"
-              >
-                <X
-                  size={20}
-                  className={darkTheme ? "text-white" : "text-white"}
-                />
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 overflow-auto flex items-center justify-center p-4">
-            <img
-              src={graphData}
-              alt="Graph output"
-              className={`${
-                isGraphFullscreen ? "max-h-[90vh]" : "max-h-full"
-              } max-w-full object-contain`}
-            />
-          </div>
-        </div>
-      )}
+      
     </>
   );
 }
 
-export default PythonIDE;
+export default HtmlIDE;
