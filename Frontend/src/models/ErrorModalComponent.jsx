@@ -69,8 +69,8 @@ function ErrorModalComponent({
                 onClick={handleIconClick}
                 className="bg-black text-white text-xs px-3 py-2 flex items-center justify-center rounded-lg cursor-pointer hover:bg-gray-800"
               >
-                <HelpCircle size={16} className="mr-1" />
-                Need Help?
+                Need Help
+                <HelpCircle size={16} className="ml-1" />
               </div>
             )}
           </div>
