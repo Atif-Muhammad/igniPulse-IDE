@@ -152,10 +152,6 @@ function PythonIDE() {
     const desktop = document.getElementById("outputDivDesktop");
     const mobile = document.getElementById("outputDivMobile");
 
-    // Apply zoom level to the new element
-    el.style.fontSize = `${outputZoomLevel * 100}%`;
-    clone.style.fontSize = `${outputZoomLevel * 100}%`;
-
     if (desktop) {
       desktop.innerHTML = "";
       desktop.appendChild(el);
@@ -179,43 +175,14 @@ function PythonIDE() {
     const desktop = document.getElementById("outputDivDesktop");
     const mobile = document.getElementById("outputDivMobile");
 
-    // Apply zoom level to the new element
-    el.style.fontSize = `${outputZoomLevel * 100}%`;
-    clone.style.fontSize = `${outputZoomLevel * 100}%`;
-    clone.style.fontFamily = "monospace";
-    // clone.style.fontSize = "17px";
-
     if (desktop) desktop.appendChild(el);
     if (mobile) mobile.appendChild(clone);
     // Add styling to ensure proper display
     el.style.display = "block";
     el.style.width = "100%";
-    el.style.fontSize = "15px";
     el.style.fontFamily = "monospace";
     el.style.wordBreak = "break-word";
   };
-
-  useEffect(() => {
-    // Update all existing content when zoom level changes
-    const updateZoomForOutput = () => {
-      const desktopOutput = document.getElementById("outputDivDesktop");
-      const mobileOutput = document.getElementById("outputDivMobile");
-
-      if (desktopOutput) {
-        Array.from(desktopOutput.children).forEach((child) => {
-          child.style.fontSize = `${outputZoomLevel * 100}%`;
-        });
-      }
-
-      if (mobileOutput) {
-        Array.from(mobileOutput.children).forEach((child) => {
-          child.style.fontSize = `${outputZoomLevel * 100}%`;
-        });
-      }
-    };
-
-    updateZoomForOutput();
-  }, [outputZoomLevel]);
 
   useEffect(() => {
     const handlePyResponse = (message) => {
@@ -309,8 +276,6 @@ function PythonIDE() {
         const lineDiv = document.createElement("div");
         lineDiv.innerHTML = line.replace(/\n/g, "<br>");
         lineDiv.style.marginBottom = "2px";
-        lineDiv.style.fontSize = `${outputZoomLevel * 100}%`; // Apply zoom
-        lineDiv.style.fontFamily = "monospace";
         appendToOutputDivs(lineDiv);
       });
 
@@ -324,8 +289,6 @@ function PythonIDE() {
       existingContentSpan.style.overflowWrap = "break-word";
       existingContentSpan.style.boxSizing = "border-box";
       existingContentSpan.style.display = "inline";
-      existingContentSpan.style.fontSize = `${outputZoomLevel * 100}%`; // Apply zoom
-      existingContentSpan.style.fontFamily = "monospace";
 
       const promptLabel = document.createElement("span");
       promptLabel.className = "prompt-label";
@@ -336,8 +299,6 @@ function PythonIDE() {
       promptLabel.setAttribute("contenteditable", "true");
       promptLabel.style.display = "inline";
       promptLabel.style.backgroundColor = "transparent";
-      promptLabel.style.fontSize = `${outputZoomLevel * 100}%`; // Apply zoom
-      promptLabel.style.fontFamily = "monospace";
       promptLabel.innerHTML = " ";
 
       promptLabel.style.outline = "none";
@@ -345,10 +306,8 @@ function PythonIDE() {
 
       const inputPromptDiv = document.createElement("div");
       inputPromptDiv.id = "inputPromptDiv";
-      // inputPromptDiv.style.padding = "2px";
+      inputPromptDiv.style.padding = "2px";
       inputPromptDiv.style.width = "100%";
-      inputPromptDiv.style.fontSize = `${outputZoomLevel * 100}%`; // Apply zoom
-      inputPromptDiv.style.fontFamily = "monospace";
       inputPromptDiv.appendChild(existingContentSpan);
       inputPromptDiv.appendChild(promptLabel);
 
@@ -398,7 +357,6 @@ function PythonIDE() {
         mobileSubmitButton.style.color = "white";
         mobileSubmitButton.style.border = "none";
         mobileSubmitButton.style.borderRadius = "5px";
-        mobileSubmitButton.style.fontFamily = "monospace";
 
         mobileSubmitButton.addEventListener("click", () => {
           const userInput = promptLabel.textContent.trim();
@@ -429,12 +387,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true,
-      // });
-      socket.current = io("http://localhost:9000", { withCredentials: true });
+      socket.current = io("https://igniup.com", {
+        path: "/socket.io/",
+        transports: ["websocket", "polling"],
+        withCredentials: true,
+      });
+      // socket.current = io("http://localhost:9000", { withCredentials: true });
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
@@ -467,9 +425,7 @@ function PythonIDE() {
         isCanceledRef.current = true;
         setLoading(false);
         setDisable(false);
-        appendToOutputDivs(
-          document.createTextNode("<<< Execution timed out >>>")
-        );
+        appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
       }
     }
   };
