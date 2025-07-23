@@ -62,6 +62,29 @@ plt.show = safe_show
       const sharedVolumePath = "/temps";
       const fullOutputPath = path.join(sharedVolumePath, outputFile);
       const containerName = `py-${socket.id}`;
+
+      const safeCleanup = () => {
+        try {
+          pyProcess.kill("SIGKILL"); // Kill the child process
+          spawn("docker", ["kill", containerName]); // Kill docker container
+
+          pyProcess.stdout?.removeAllListeners("data");
+          pyProcess.stderr?.removeAllListeners("data");
+          socket.removeListener("userEntry", handleUserEntry);
+
+          pyProcess.stdout?.destroy();
+          pyProcess.stderr?.destroy();
+
+          clearTimeout(killTimeout);
+
+          if (type === "ds" && fs.existsSync(fullOutputPath)) {
+            fs.unlinkSync(fullOutputPath);
+          }
+        } catch (err) {
+          console.error("Cleanup error:", err);
+        }
+      };
+
       const dockerArgs = [
         "run",
         "--rm",
@@ -83,6 +106,14 @@ plt.show = safe_show
       let errorOutput = "";
       let stdoutBuffer = "";
       const pyProcess = spawn("docker", dockerArgs);
+      const killTimeout = setTimeout(() => {
+        if (!wasCancelled) {
+          console.log("⏰ Timeout reached. Killing container...");
+          wasCancelled = true;
+          socket.emit("cancelled", "<<< Execution timed out >>>");
+          safeCleanup();
+        }
+      }, 5000);
 
       const handleUserEntry = (userInput) => {
         if (expectingEntry) {
@@ -138,7 +169,7 @@ plt.show = safe_show
       });
 
       pyProcess.on("close", (ExecCode) => {
-        // clearTimeout(killTimeout);
+        clearTimeout(killTimeout);
         if (wasCancelled) {
           return;
         }
@@ -210,7 +241,7 @@ plt.show = safe_show
 
       socket.on("cancel", (timeOut) => {
         if (wasCancelled || !pyProcess) return;
-        console.log("cancel called")
+        console.log("cancel called");
 
         wasCancelled = true;
         const message = timeOut
@@ -218,26 +249,27 @@ plt.show = safe_show
           : "<<< Execution cancelled >>>";
 
         if (socket.connected) {
-          socket.emit("cancelled", message); 
+          socket.emit("cancelled", message);
         }
 
-        setTimeout(() => {
-          try {
-            pyProcess.stdout.pause();
-            pyProcess.stderr.pause();
-            pyProcess.stdout.removeAllListeners("data");
-            pyProcess.stderr.removeAllListeners("data");
+        safeCleanup();
 
-            pyProcess.stdout.destroy();
-            pyProcess.stderr.destroy();
-            stdoutBuffer = "";
+        // setTimeout(() => {
+        //   try {
+        //     pyProcess.stdout.pause();
+        //     pyProcess.stderr.pause();
+        //     pyProcess.stdout.removeAllListeners("data");
+        //     pyProcess.stderr.removeAllListeners("data");
 
-            spawn("docker", ["kill", containerName]);
+        //     pyProcess.stdout.destroy();
+        //     pyProcess.stderr.destroy();
+        //     stdoutBuffer = "";
 
-          } catch (err) {
-            console.error("Teardown error:", err);
-          }
-        }, 150); 
+        //     spawn("docker", ["kill", containerName]);
+        //   } catch (err) {
+        //     console.error("Teardown error:", err);
+        //   }
+        // }, 150);
       });
 
       socket.on("disconnect", () => {
@@ -246,7 +278,8 @@ plt.show = safe_show
         socket.removeListener("userEntry", handleUserEntry);
         if (!pyProcess.killed) {
           wasCancelled = true;
-          spawn("docker", ["kill", containerName]);
+          safeCleanup();
+          // spawn("docker", ["kill", containerName]);
         }
         if (type === "ds" && fs.existsSync(fullOutputPath)) {
           fs.unlinkSync(fullOutputPath);

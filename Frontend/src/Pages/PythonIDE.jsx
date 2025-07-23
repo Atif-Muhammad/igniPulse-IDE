@@ -196,22 +196,16 @@ function PythonIDE() {
   };
 
   useEffect(() => {
-    // Update all existing content when zoom level changes
     const updateZoomForOutput = () => {
-      const desktopOutput = document.getElementById("outputDivDesktop");
-      const mobileOutput = document.getElementById("outputDivMobile");
-
-      if (desktopOutput) {
-        Array.from(desktopOutput.children).forEach((child) => {
-          child.style.fontSize = `${outputZoomLevel * 100}%`;
-        });
-      }
-
-      if (mobileOutput) {
-        Array.from(mobileOutput.children).forEach((child) => {
-          child.style.fontSize = `${outputZoomLevel * 100}%`;
-        });
-      }
+      const ids = ["outputDivDesktop", "outputDivMobile"];
+      ids.forEach((id) => {
+        const output = document.getElementById(id);
+        if (output) {
+          Array.from(output.children).forEach((child) => {
+            child.style.fontSize = `${outputZoomLevel * 100}%`;
+          });
+        }
+      });
     };
 
     updateZoomForOutput();
@@ -432,12 +426,12 @@ function PythonIDE() {
     };
 
     if (!socket.current) {
-      // socket.current = io("https://igniup.com", {
-      //   path: "/socket.io/",
-      //   transports: ["websocket", "polling"],
-      //   withCredentials: true,
-      // });
-      socket.current = io("http://localhost:9000", { withCredentials: true });
+      socket.current = io("https://igniup.com", {
+        path: "/socket.io/",
+        transports: ["websocket", "polling"],
+        withCredentials: true,
+      });
+      // socket.current = io("http://localhost:9000", { withCredentials: true });
       socket.current.on("pyResponse", handlePyResponse);
       socket.current.on("graphOutput", handleGraphOutput);
       socket.current.on("EXIT_SUCCESS", handleExitSuccess);
@@ -461,22 +455,22 @@ function PythonIDE() {
     };
   }, []);
 
-  const handleCancel = useCallback((timeOut) => {
+  const handleCancel = (timeOut) => {
     if (!isCanceledRef.current && socket.current) {
-      setIsCancelling(true); // Show "Cancelling..." immediately
+      setIsCancelling(true);
       isCanceledRef.current = true;
       socket.current.emit("cancel", timeOut);
       if (timeOut) {
         isCanceledRef.current = true;
         setLoading(false);
         setDisable(false);
-        setIsCancelling(false); // Hide "Cancelling..." when done
+        setIsCancelling(false);
         appendToOutputDivs(
           document.createTextNode("<<< Execution timed out >>>")
         );
       }
     }
-  });
+  };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -486,13 +480,13 @@ function PythonIDE() {
       //   "| loading:",
       //   loading
       // );
-      if (!userEntry && loading) {
+      if (!userEntry && loading && !isCancelling) {
         handleCancel(true);
       }
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [userEntry, loading, handleCancel]);
+  }, [userEntry, loading]);
 
   const handleRun = async () => {
     if (editorContent !== "") {

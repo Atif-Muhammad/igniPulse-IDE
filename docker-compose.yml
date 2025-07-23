@@ -31,11 +31,11 @@ services:
 
   mysql:
     container_name: mysql-container
-    image: mysql:latest
+    image: mysql
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: mySql123
+      MYSQL_ROOT_PASSWORD: supersecret
       MYSQL_ROOT_HOST: "%"
     volumes:
       - ./mysql-conf.d:/etc/mysql/conf.d
