@@ -70,7 +70,7 @@ plt.show = safe_show
         "-i",
         ...(type === "ds" ? ["-v", `shared_temp:/temps`] : []),
         image,
-        "python3",
+        "python",
         "-u",
         "-c",
         code,
