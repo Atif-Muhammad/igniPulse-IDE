@@ -24,7 +24,7 @@ services:
       - USER=root
       - SQLPORT=3306
       - PASSWORD=mySql123
-      - VITE_N8N=https://furqankhan.app.n8n.cloud/webhook/240d0231-a338-4dd3-a4ae-cf4a1d3f4468
+      - VITE_N8N=https://atif001.app.n8n.cloud/webhook/d5172171-5517-4808-89e1-4db619b0b306
     command: sh -c "sleep 20 && node app.js"
     volumes:
       - shared_temp:/temps
