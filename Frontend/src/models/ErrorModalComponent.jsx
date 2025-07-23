@@ -79,14 +79,14 @@ function ErrorModalComponent({
           {showErrorModal && (
             <div
               ref={modalRef}
-              className="absolute bottom-10 right-0 md:right-10 z-50 md:w-80 w-68  max-w-sm backdrop-blur-lg bg-white/70 border border-blue-400 shadow-2xl rounded-2xl overflow-hidden animate-fadeInSlideUp"
+              className="absolute bottom-10 right-0 md:right-9 z-50 md:w-88 w-68  max-w-sm backdrop-blur-lg bg-white/70 border border-blue-400 shadow-2xl rounded-2xl overflow-hidden animate-fadeInSlideUp"
             >
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-2 bg-blue-100 border-b border-blue-300">
                 <div className="flex items-center gap-2">
                   <HelpCircle className="text-blue-600" size={18} />
                   <h2 className="text-sm font-semibold text-blue-800">
-                    AI Suggestions
+                    Suggestion
                   </h2>
                 </div>
                 <button

@@ -69,9 +69,9 @@ function Model() {
 
 const LandingPage = () => {
   const { darkTheme, toggleTheme } = useTheme();
-  
+
   const queryClient = useQueryClient();
-  const currentUser = queryClient.getQueryData(["currentUser"])?.data
+  const currentUser = queryClient.getQueryData(["currentUser"])?.data;
   // console.log(currentUser)
 
   const cards = [
@@ -92,14 +92,14 @@ const LandingPage = () => {
     {
       id: "ds",
       name: "Python for Data Science",
-      desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
+      desc: "Learn Python for Data Science with ease. Analyze data, visualizations, and build machine learning models using real-world datasets step by step.",
       link: "/python",
       logo: py,
     },
     {
       id: "html",
       name: "HTML",
-      desc: "An easy-to-use Python setup for beginners. Write and run your code, build projects, and learn programming basics step by step.",
+      desc: "An easy-to-use HTML for beginners. Write and preview your HTML code instantly. Build web pages, experiment with tags, and learn step by step.",
       link: "/html",
       logo: HTML,
     },

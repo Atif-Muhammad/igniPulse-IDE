@@ -159,8 +159,8 @@ function HtmlIDE() {
       // Create iframe
       const iframe = document.createElement("iframe");
       iframe.style.width = "100%";
-      iframe.style.height = "300px";
-      iframe.style.border = "1px solid #ccc";
+      iframe.style.height = "100%";
+      // iframe.style.border = "1px solid #ccc";
 
       // Optional: sandbox the iframe
       // iframe.setAttribute("sandbox", "allow-scripts");
