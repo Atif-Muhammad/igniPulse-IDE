@@ -1,4 +1,4 @@
-import { React, useState, useRef, useEffect } from "react";
+import { React, useState, useRef, useEffect, useCallback } from "react";
 import {
   CirclePlay,
   Eraser,
@@ -416,7 +416,7 @@ function PythonIDE() {
     };
   }, []);
 
-  const handleCancel = (timeOut) => {
+  const handleCancel = useCallback((timeOut) => {
     if (!isCanceledRef.current && socket.current) {
       // console.log("cancel called", timeOut);
       isCanceledRef.current = true;
@@ -428,7 +428,7 @@ function PythonIDE() {
         appendToOutputDivs(document.createTextNode("<<< Execution timed out >>>"));
       }
     }
-  };
+  });
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -444,7 +444,7 @@ function PythonIDE() {
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [userEntry, loading]);
+  }, [userEntry, loading, handleCancel]);
 
   const handleRun = async () => {
     if (editorContent !== "") {

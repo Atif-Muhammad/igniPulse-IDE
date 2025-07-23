@@ -210,7 +210,7 @@ plt.show = safe_show
 
       socket.on("cancel", (timeOut) => {
         if (wasCancelled || !pyProcess) return;
-        // console.log("cancel called")
+        console.log("cancel called")
 
         wasCancelled = true;
         const message = timeOut
