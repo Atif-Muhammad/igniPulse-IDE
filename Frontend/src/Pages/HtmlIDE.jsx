@@ -11,7 +11,9 @@ import {
 import { io } from "socket.io-client";
 import { useTheme } from "../context/ThemeContext";
 import CodeMirror from "@uiw/react-codemirror";
-import { python } from "@codemirror/lang-python";
+import { html } from "@codemirror/lang-html";
+import { css } from "@codemirror/lang-css";
+import { javascript } from "@codemirror/lang-javascript";
 import {
   EditorView,
   highlightActiveLineGutter,
@@ -21,6 +23,8 @@ import {
 import { EditorSelection } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import HTML from "../assets/HTML.webp";
+import CSS from "../assets/CSS.webp";
+import JS from "../assets/JS.webp";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";
 import Button from "../components/Button";
@@ -31,28 +35,22 @@ import escapeHtml from "../Functions/escapeHtml";
 import config from "../../Config/config";
 import { useMutation } from "@tanstack/react-query";
 import { ErrorModalComponent } from "../models/index";
-// import AgentRes from "../components/AgentRes";
-// import LinearLoader from "../components/Loaders/LinearLoader";
 
 const insertSpacesAtCursor = keymap.of([
   {
     key: "Tab",
     preventDefault: true,
     run(view) {
-      // console.log("first");
       const indent = "    ";
-
       const { state } = view;
 
       const transaction = state.changeByRange((range) => {
         if (range.empty) {
-          // Insert indent at the cursor position
           return {
             changes: { from: range.from, insert: indent },
             range: EditorSelection.cursor(range.from + indent.length),
           };
         } else {
-          // Replace selected text with indent
           return {
             changes: { from: range.from, to: range.to, insert: indent },
             range: EditorSelection.cursor(range.from + indent.length),
@@ -72,18 +70,26 @@ function HtmlIDE() {
 
   const { darkTheme } = useTheme();
   const editorRef = useRef(null);
+  const [activeTab, setActiveTab] = useState("html");
   const [tickerSuccess, setTickerSuccess] = useState({
     flag: false,
     message: "",
   });
   const [copyDone, setCopyDone] = useState(false);
   const [pasteDone, setPasteDone] = useState(false);
-  const [editorContent, setEditorContent] = useState("");
+  const [htmlContent, setHtmlContent] = useState(
+    `<!-- Write your HTML code here -->`
+  );
+  const [cssContent, setCssContent] = useState(
+    `/* Write your CSS code here */`
+  );
+  const [jsContent, setJsContent] = useState(
+    `// Write your JavaScript code here`
+  );
   const [disable, setDisable] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
   const [shouldRunCode, setShouldRunCode] = useState(false);
   const [isError, setIsError] = useState(false);
-  // const [isPending, setIsPending] = useState(false);
   const [agentRes, setAgentRes] = useState(null);
   const socket = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -93,8 +99,9 @@ function HtmlIDE() {
   const [graphData, setGraphData] = useState(null);
   const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [outputZoomLevel, setOutputZoomLevel] = useState(1);
   const [codeModified, setCodeModified] = useState(false);
+  const [isOutputFullscreen, setIsOutputFullscreen] = useState(false);
+  const [isOutputModalOpen, setIsOutputModalOpen] = useState(false);
 
   const {
     mutate: handleAgentCall,
@@ -102,12 +109,30 @@ function HtmlIDE() {
     isPending,
     isSuccess,
   } = useMutation({
-    mutationFn: async () => await config.callAgent(editorContent),
+    mutationFn: async () => await config.callAgent(getCombinedContent()),
   });
+
+  const toggleOutputModal = () => {
+    setIsOutputModalOpen(!isOutputModalOpen);
+  };
+
+  const getCombinedContent = () => {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>${cssContent}</style>
+      </head>
+      <body>
+        ${htmlContent}
+        <script>${jsContent}</script>
+      </body>
+      </html>
+    `;
+  };
 
   useEffect(() => {
     if (isSuccess) {
-      // console.log(editorContent)
       setAgentRes(null);
       const final = data?.data?.output?.includes("```json")
         ? JSON.parse(
@@ -120,21 +145,12 @@ function HtmlIDE() {
     }
   }, [data?.data, isSuccess]);
 
-  // / Add these zoom functions:
   const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.1, 2)); // Max zoom 200%
+    setZoomLevel((prev) => Math.min(prev + 0.1, 2));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
-  };
-
-  const handleOutputZoomIn = () => {
-    setOutputZoomLevel((prev) => Math.min(prev + 0.1, 2)); // Max zoom 200%
-  };
-
-  const handleOutputZoomOut = () => {
-    setOutputZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
+    setZoomLevel((prev) => Math.max(prev - 0.1, 0.8));
   };
 
   const clearOutput = () => {
@@ -145,29 +161,23 @@ function HtmlIDE() {
     if (mobileOutput) mobileOutput.innerText = "";
   };
 
-
   const appendToOutputDivs = (htmlString) => {
-    const targets = ["outputDivDesktop", "outputDivMobile"];
+    const targets = [
+      "outputDivDesktop",
+      "outputDivMobile",
+      "outputModalContent",
+    ];
 
     targets.forEach((id) => {
       const container = document.getElementById(id);
       if (!container) return;
 
-      // Clear previous content
       container.innerHTML = "";
-
-      // Create iframe
       const iframe = document.createElement("iframe");
       iframe.style.width = "100%";
       iframe.style.height = "100%";
-      // iframe.style.border = "1px solid #ccc";
-
-      // Optional: sandbox the iframe
-      // iframe.setAttribute("sandbox", "allow-scripts");
-
       container.appendChild(iframe);
 
-      // Write HTML content into iframe
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       doc.open();
       doc.write(htmlString);
@@ -175,16 +185,32 @@ function HtmlIDE() {
     });
   };
 
-
   const handleRun = async () => {
-    if (editorContent !== "") {
-      clearOutput();
-      setDisable(true);
-      setLoading(true);
-      setShowOutput(true);
-      setShouldRunCode(true);
-      appendToOutputDivs(editorContent.toString());
-    
+    const content = getCombinedContent();
+    clearOutput();
+    setDisable(true);
+    setLoading(true);
+    setShowOutput(true);
+    setShouldRunCode(true);
+
+    // Update both regular output and modal output
+    appendToOutputDivs(content);
+
+    // Also update modal content if open
+    if (isOutputModalOpen) {
+      const modalOutput = document.getElementById("outputModalContent");
+      if (modalOutput) {
+        modalOutput.innerHTML = "";
+        const iframe = document.createElement("iframe");
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        modalOutput.appendChild(iframe);
+
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(content);
+        doc.close();
+      }
     }
   };
 
@@ -193,6 +219,7 @@ function HtmlIDE() {
   };
 
   const handleDownload = async () => {
+    const content = getCombinedContent();
     if (window.showSaveFilePicker) {
       const fileHandler = await window.showSaveFilePicker({
         suggestedName: "code.html",
@@ -204,11 +231,11 @@ function HtmlIDE() {
       });
 
       const writeAbleStream = await fileHandler.createWritable();
-      await writeAbleStream.write(editorContent);
+      await writeAbleStream.write(content);
       await writeAbleStream.close();
     } else {
       const element = document.createElement("a");
-      const file = new Blob([editorContent || ""], {
+      const file = new Blob([content || ""], {
         type: "text/plain",
       });
       element.href = URL.createObjectURL(file);
@@ -218,21 +245,23 @@ function HtmlIDE() {
       document.body.removeChild(element);
     }
   };
+
   const handleCopy = async () => {
-    if (editorRef.current) {
-      try {
-        const editorContent = editorRef.current.state.doc.toString(); // Get the editor content
-        if (editorContent.trim()) {
-          await navigator.clipboard.writeText(editorContent); // Copy the content to clipboard
-          setCopyDone(true);
-          console.log("Copied to clipboard");
-          setTimeout(() => {
-            setCopyDone(false);
-          }, 1000);
-        }
-      } catch (err) {
-        console.error("Failed to copy:", err);
+    try {
+      let content = "";
+      if (activeTab === "html") content = htmlContent;
+      else if (activeTab === "css") content = cssContent;
+      else if (activeTab === "js") content = jsContent;
+
+      if (content.trim()) {
+        await navigator.clipboard.writeText(content);
+        setCopyDone(true);
+        setTimeout(() => {
+          setCopyDone(false);
+        }, 1000);
       }
+    } catch (err) {
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -251,12 +280,17 @@ function HtmlIDE() {
         });
 
         editorRef.current.focus();
-
         editorRef.current.dispatch({
           selection: { anchor: contentLength, head: contentLength },
         });
 
-        setEditorContent(editorRef.current.state.doc.toString());
+        if (activeTab === "html")
+          setHtmlContent(editorRef.current.state.doc.toString());
+        else if (activeTab === "css")
+          setCssContent(editorRef.current.state.doc.toString());
+        else if (activeTab === "js")
+          setJsContent(editorRef.current.state.doc.toString());
+
         setPasteDone(true);
         setTimeout(() => {
           setPasteDone(false);
@@ -269,13 +303,12 @@ function HtmlIDE() {
 
   const openFile = async () => {
     try {
-      // Check if the File System Access API is available
       if ("showOpenFilePicker" in window) {
         const [fileHandle] = await window.showOpenFilePicker({
           types: [
             {
               accept: {
-                "text/plain": [".txt", ".html"],
+                "text/plain": [".txt", ".html", ".css", ".js"],
               },
             },
           ],
@@ -284,23 +317,31 @@ function HtmlIDE() {
 
         const file = await fileHandle.getFile();
         const fileContent = await file.text();
-        setEditorContent(fileContent);
 
-        // Update the CodeMirror editor content directly
+        if (file.name.endsWith(".html") || file.name.endsWith(".htm")) {
+          setHtmlContent(fileContent || `<!-- Write your HTML code here -->`);
+          setActiveTab("html");
+        } else if (file.name.endsWith(".css")) {
+          setCssContent(fileContent || `/* Write your CSS code here */`);
+          setActiveTab("css");
+        } else if (file.name.endsWith(".js")) {
+          setJsContent(fileContent || `// Write your JavaScript code here`);
+          setActiveTab("js");
+        }
+
         if (editorRef.current) {
           editorRef.current.dispatch({
             changes: {
               from: 0,
               to: editorRef.current.state.doc.length,
-              insert: fileContent,
+              insert: fileContent || getCurrentContent(),
             },
           });
         }
       } else {
-        // Fallback for browsers that don't support File System Access API
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".html,.txt";
+        input.accept = ".html,.htm,.css,.js,.txt";
 
         input.onchange = (e) => {
           const file = e.target.files[0];
@@ -308,15 +349,24 @@ function HtmlIDE() {
 
           reader.onload = (event) => {
             const content = event.target.result;
-            setEditorContent(content);
 
-            // Update the CodeMirror editor content directly
+            if (file.name.endsWith(".html") || file.name.endsWith(".htm")) {
+              setHtmlContent(content || `<!-- Write your HTML code here -->`);
+              setActiveTab("html");
+            } else if (file.name.endsWith(".css")) {
+              setCssContent(content || `/* Write your CSS code here */`);
+              setActiveTab("css");
+            } else if (file.name.endsWith(".js")) {
+              setJsContent(content || `// Write your JavaScript code here`);
+              setActiveTab("js");
+            }
+
             if (editorRef.current) {
               editorRef.current.dispatch({
                 changes: {
                   from: 0,
                   to: editorRef.current.state.doc.length,
-                  insert: content,
+                  insert: content || getCurrentContent(),
                 },
               });
             }
@@ -329,28 +379,28 @@ function HtmlIDE() {
       }
     } catch (error) {
       console.error("Error opening file:", error);
-      toast.error("Failed to open file");
-
-      // If the user cancels the file picker, it throws an error
       if (error.name !== "AbortError") {
         toast.error("Failed to open file");
       }
     }
   };
+
   const handleClear = () => {
-    if (editorContent) {
-      setEditorContent("");
-      if (editorRef.current) {
-        editorRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: editorRef.current.state.doc.length,
-            insert: "",
-          },
-        });
-        setShowOutput(false);
-        editorRef.current.focus();
-      }
+    if (editorRef.current) {
+      editorRef.current.dispatch({
+        changes: {
+          from: 0,
+          to: editorRef.current.state.doc.length,
+          insert: "",
+        },
+      });
+
+      if (activeTab === "html") setHtmlContent("");
+      else if (activeTab === "css") setCssContent("");
+      else if (activeTab === "js") setJsContent("");
+
+      setShowOutput(false);
+      editorRef.current.focus();
     }
   };
 
@@ -415,7 +465,6 @@ function HtmlIDE() {
     },
   ];
 
-  // zoom theme extension
   const zoomTheme = EditorView.theme({
     "&": {
       fontSize: `${zoomLevel * 100}%`,
@@ -428,7 +477,6 @@ function HtmlIDE() {
     },
   });
 
-  // Create a custom theme extension that respects the zoom level
   const zoomButtons = EditorView.theme({
     ".cm-editor": {
       position: "relative",
@@ -439,7 +487,6 @@ function HtmlIDE() {
       right: "3px",
       display: "flex",
       gap: "5px",
-      // zIndex: "",
     },
     ".cm-zoom-button": {
       width: "28px",
@@ -459,6 +506,96 @@ function HtmlIDE() {
     },
   });
 
+  const getCurrentContent = () => {
+    switch (activeTab) {
+      case "html":
+        return htmlContent || `<!-- Write your HTML code here -->`;
+      case "css":
+        return cssContent || `/* Write your CSS code here */`;
+      case "js":
+        return jsContent || `// Write your JavaScript code here`;
+      default:
+        return htmlContent || `<!-- Write your HTML code here -->`;
+    }
+  };
+
+  const setCurrentContent = (value) => {
+    switch (activeTab) {
+      case "html":
+        setHtmlContent(value);
+        break;
+      case "css":
+        setCssContent(value);
+        break;
+      case "js":
+        setJsContent(value);
+        break;
+      default:
+        setHtmlContent(value);
+    }
+  };
+
+  const getLanguageExtension = () => {
+    switch (activeTab) {
+      case "html":
+        return html();
+      case "css":
+        return css();
+      case "js":
+        return javascript();
+      default:
+        return html();
+    }
+  };
+
+  const getTabIcon = () => {
+    switch (activeTab) {
+      case "html":
+        return HTML;
+      case "css":
+        return CSS;
+      case "js":
+        return JS;
+      default:
+        return HTML;
+    }
+  };
+
+  const getTabName = () => {
+    switch (activeTab) {
+      case "html":
+        return "HTML";
+      case "css":
+        return "CSS";
+      case "js":
+        return "JavaScript";
+      default:
+        return "HTML";
+    }
+  };
+
+  const OutputModal = () => (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
+      <div className="relative w-full h-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 bg-gray-200 dark:bg-gray-700">
+          <h2 className="font-bold text-black dark:text-white">
+            Output Preview
+          </h2>
+          <button
+            onClick={toggleOutputModal}
+            className="p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600"
+          >
+            <X className="text-black dark:text-white" size={20} />
+          </button>
+        </div>
+        <div
+          id="outputModalContent"
+          className="h-full pt-14 overflow-auto"
+        ></div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div
@@ -470,7 +607,7 @@ function HtmlIDE() {
           <div className="p-2 hidden md:flex items-center justify-center min-h-[120px]">
             {/* <Ads /> */}
           </div>
-          <div className="flex flex-col items-center justify-center h-full  min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
+          <div className="flex flex-col items-center justify-center h-full min-h-[120px] w-full lg:gap-y-1 md:gap-y-1 px-1">
             <NavBar handleDownload={handleDownload} openFile={openFile} />
 
             <div
@@ -479,7 +616,6 @@ function HtmlIDE() {
               } p-2 rounded-lg`}
             >
               <div className="w-full md:w-auto">
-                {/* Left Menu */}
                 <LeftMenu
                   handleCopy={handleCopy}
                   handlePaste={handlePaste}
@@ -490,7 +626,6 @@ function HtmlIDE() {
                 />
               </div>
 
-              {/* Editor and Output */}
               <div className="w-full h-full flex flex-row gap-2 overflow-hidden">
                 <div
                   className={`flex flex-col h-full flex-[7] min-w-0 overflow-hidden border-2 ${
@@ -504,17 +639,41 @@ function HtmlIDE() {
                       darkTheme ? "bg-gray-700" : "bg-gray-200"
                     } px-2 py-7`}
                   >
-                    <div className="flex items-center justify-center gap-x-1 px-2">
-                      <img src={HTML} alt="HTML" className="w-8 h-8" />
+                    <div className="flex w-full md:w-1/3 items-center justify-start gap-x-1 px-2">
+                      <img
+                        src={getTabIcon()}
+                        alt={activeTab}
+                        className="w-8 h-8"
+                      />
                       <p
                         className={`font-black ${
                           darkTheme ? "text-white" : "text-black"
                         }`}
                       >
-                        HTML
+                        {getTabName()}
                       </p>
                     </div>
-                    <div className="flex items-center justify-center gap-x-2">
+                    <div className="flex border rounded-lg overflow-hidden shadow-md">
+                      {["html", "css", "js"].map((tab, index) => (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveTab(tab)}
+                          className={`px-4 py-2 text-sm font-semibold capitalize transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                            activeTab === tab
+                              ? darkTheme
+                                ? "bg-blue-600 text-white shadow-inner"
+                                : "bg-sky-700 text-white shadow-inner"
+                              : darkTheme
+                              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }${index === 1 && "border-x"} `}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex w-full md:w-1/3 items-center justify-end gap-x-2">
                       {editorBtns.map((btn, index) => {
                         return (
                           <Button
@@ -538,7 +697,7 @@ function HtmlIDE() {
                     style={{ height: "70vh" }}
                   >
                     <CodeMirror
-                      defaultValue={editorContent}
+                      value={getCurrentContent()}
                       className="CodeMirror w-full h-full text-[1rem] scrollbar-custom"
                       style={{
                         height: "100%",
@@ -554,13 +713,14 @@ function HtmlIDE() {
                         insertSpacesAtCursor,
                         zoomTheme,
                         zoomButtons,
+                        getLanguageExtension(),
                       ]}
                       onChange={(value) => {
-                        setEditorContent(value);
-                        setCodeModified(true); // Mark code as modified when user changes it
+                        setCurrentContent(value);
+                        setCodeModified(true);
                         if (isError) {
-                          setIsError(false); // Clear error state when code is modified
-                          setAgentRes(null); // Clear agent response
+                          setIsError(false);
+                          setAgentRes(null);
                         }
                       }}
                       onCreateEditor={(editor) => {
@@ -568,7 +728,6 @@ function HtmlIDE() {
                         const zoomContainer = document.createElement("div");
                         zoomContainer.className = "cm-zoom-buttons";
 
-                        // Zoom Out Button with Magnifying Glass and Minus icon
                         const zoomOutButton = document.createElement("button");
                         zoomOutButton.className = "cm-zoom-button";
                         zoomOutButton.title = "Zoom Out";
@@ -583,7 +742,6 @@ function HtmlIDE() {
                           handleZoomOut();
                         };
 
-                        // Zoom In Button with Magnifying Glass and Plus icon
                         const zoomInButton = document.createElement("button");
                         zoomInButton.className = "cm-zoom-button";
                         zoomInButton.title = "Zoom In ";
@@ -606,7 +764,6 @@ function HtmlIDE() {
                       }}
                     />
 
-                    {/* Error Modal */}
                     <ErrorModalComponent
                       isError={isError}
                       isPending={isPending}
@@ -622,12 +779,14 @@ function HtmlIDE() {
                     darkTheme
                       ? "border-blue-600 bg-gray-800"
                       : "border-sky-700 bg-white"
-                  } rounded-lg p-2 gap-y-1 relative`}
+                  } rounded-lg p-2 gap-y-1 relative ${
+                    isOutputFullscreen ? "fixed inset-0 z-50 !m-0 !p-0" : ""
+                  }`}
                 >
                   <div
                     className={`h-14 w-full flex items-center justify-between gap-x-2 rounded-lg ${
                       darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2`}
+                    } px-2 ${isOutputFullscreen ? "!rounded-none" : ""}`}
                   >
                     <p
                       className={`font-black px-1 ${
@@ -637,6 +796,18 @@ function HtmlIDE() {
                       Output
                     </p>
                     <div className="flex items-center gap-x-2">
+                      <button
+                        onClick={toggleOutputModal}
+                        className={`p-2 rounded-full ${
+                          darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
+                        }`}
+                        title="Maximize"
+                      >
+                        <Maximize2
+                          size={20}
+                          className={darkTheme ? "text-white" : "text-black"}
+                        />
+                      </button>
                       <Button
                         classNames="cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold px-4 bg-[#FB2E38] hover:bg-[#FB2E10] rounded-lg text-xs"
                         text={editorBtns[0].text}
@@ -647,89 +818,38 @@ function HtmlIDE() {
                   </div>
                   <div
                     id="outputDivDesktop"
-                    className={`w-full overflow-auto rounded-lg ${
+                    className={`w-full overflow-auto ${
                       darkTheme
                         ? "text-gray-200 bg-gray-800"
                         : "text-black bg-white"
+                    } ${
+                      isOutputFullscreen ? "!h-[calc(100vh-56px)]" : "h-[70vh]"
                     }`}
                     style={{
-                      height: "70vh",
                       display: "flex",
                       flexDirection: "column",
                       whiteSpace: "pre",
                       wordBreak: "break-word",
                       overflow: "auto",
-                      fontSize: `${outputZoomLevel * 100}%`,
                     }}
                   ></div>
-                  {/* Zoom buttons for desktop output */}
-                  <div className="absolute bottom-3 right-2 flex  gap-1 z-10">
-                    <button
-                      onClick={handleOutputZoomOut}
-                      className={`w-7 h-7 flex items-center justify-center rounded ${
-                        darkTheme
-                          ? "bg-gray-600 hover:bg-gray-500"
-                          : "bg-gray-300 hover:bg-gray-400"
-                      }`}
-                      title="Zoom Out"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke={darkTheme ? "white" : "black"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        <line x1="8" y1="11" x2="14" y2="11"></line>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={handleOutputZoomIn}
-                      className={`w-7 h-7 flex items-center justify-center rounded ${
-                        darkTheme
-                          ? "bg-gray-600 hover:bg-gray-500"
-                          : "bg-gray-300 hover:bg-gray-400"
-                      }`}
-                      title="Zoom In"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke={darkTheme ? "white" : "black"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        <line x1="11" y1="8" x2="11" y2="14"></line>
-                        <line x1="8" y1="11" x2="14" y2="11"></line>
-                      </svg>
-                    </button>
-                  </div>
                 </div>
               </div>
 
-              {/* Output (Mobile only) */}
               {showOutput && (
                 <div
                   className={`lg:hidden md:hidden border-2 ${
                     darkTheme ? "border-blue-600" : "border-sky-700"
-                  } w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute h-1/2 left-1/2 ${
+                  } w-full rounded-t-lg p-2 flex flex-col gap-y-1 absolute left-1/2 ${
                     darkTheme ? "bg-gray-800" : "bg-gray-100"
-                  } -translate-x-1/2 bottom-0`}
+                  } -translate-x-1/2 ${
+                    isOutputFullscreen ? "top-0 h-screen" : "bottom-0 h-1/2"
+                  }`}
                 >
                   <div
                     className={`h-12 w-full flex items-center justify-between gap-x-2 rounded-lg ${
                       darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2 py-1`}
+                    } px-2 py-1 ${isOutputFullscreen ? "!rounded-none" : ""}`}
                   >
                     <p
                       className={`font-black px-1 ${
@@ -739,23 +859,46 @@ function HtmlIDE() {
                       Output
                     </p>
                     <div className="flex items-center gap-x-2">
+                      <button
+                        onClick={toggleOutputModal}
+                        className={`p-2 rounded-full ${
+                          darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
+                        }`}
+                        title={isOutputFullscreen ? "Minimize" : "Maximize"}
+                      >
+                        {isOutputFullscreen ? (
+                          <Minimize2
+                            size={20}
+                            className={darkTheme ? "text-white" : "text-black"}
+                          />
+                        ) : (
+                          <Maximize2
+                            size={20}
+                            className={darkTheme ? "text-white" : "text-black"}
+                          />
+                        )}
+                      </button>
                       <Button
                         classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-semibold bg-[#FB2E38] hover:bg-[#FB2E10] px-4 rounded-lg text-xs`}
                         text={editorBtns[0].text}
                         icon={editorBtns[0].icon}
                         action={clearOutput}
                       />
-                      <button
-                        onClick={handleClose}
-                        className={`p-2 rounded-full ${
-                          darkTheme ? "hover:bg-gray-600" : "hover:bg-gray-300"
-                        }`}
-                      >
-                        <X
-                          size={20}
-                          className={darkTheme ? "text-white" : "text-black"}
-                        />
-                      </button>
+                      {!isOutputFullscreen && (
+                        <button
+                          onClick={handleClose}
+                          className={`p-2 rounded-full ${
+                            darkTheme
+                              ? "hover:bg-gray-600"
+                              : "hover:bg-gray-300"
+                          }`}
+                        >
+                          <X
+                            size={20}
+                            className={darkTheme ? "text-white" : "text-black"}
+                          />
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div
@@ -770,61 +913,8 @@ function HtmlIDE() {
                       flexDirection: "column",
                       whiteSpace: "pre",
                       wordBreak: "break-word",
-                      fontSize: `${outputZoomLevel * 100}%`,
                     }}
                   ></div>
-                  {/* Zoom buttons for mobile output */}
-                  <div className="flex justify-end gap-2 p-2">
-                    <button
-                      onClick={handleOutputZoomOut}
-                      className={`w-7 h-7 flex items-center justify-center rounded ${
-                        darkTheme
-                          ? "bg-gray-600 hover:bg-gray-500"
-                          : "bg-gray-300 hover:bg-gray-400"
-                      }`}
-                      title="Zoom Out"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke={darkTheme ? "white" : "black"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        <line x1="8" y1="11" x2="14" y2="11"></line>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={handleOutputZoomIn}
-                      className={`w-7 h-7 flex items-center justify-center rounded ${
-                        darkTheme
-                          ? "bg-gray-600 hover:bg-gray-500"
-                          : "bg-gray-300 hover:bg-gray-400"
-                      }`}
-                      title="Zoom In"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke={darkTheme ? "white" : "black"}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        <line x1="11" y1="8" x2="11" y2="14"></line>
-                        <line x1="8" y1="11" x2="14" y2="11"></line>
-                      </svg>
-                    </button>
-                  </div>
                 </div>
               )}
             </div>
@@ -835,6 +925,8 @@ function HtmlIDE() {
           </div>
         </div>
       </div>
+
+      {isOutputModalOpen && <OutputModal />}
     </>
   );
 }

@@ -96,13 +96,13 @@ const LandingPage = () => {
       link: "/python",
       logo: py,
     },
-    // {
-    //   id: "html",
-    //   name: "HTML",
-    //   desc: "An easy-to-use HTML for beginners. Write and preview your HTML code instantly. Build web pages, experiment with tags, and learn step by step.",
-    //   link: "/html",
-    //   logo: HTML,
-    // },
+    {
+      id: "html",
+      name: "HTML",
+      desc: "An easy-to-use HTML for beginners. Write and preview your HTML code instantly. Build web pages, experiment with tags, and learn step by step.",
+      link: "/html",
+      logo: HTML,
+    },
   ];
 
   return (
@@ -151,7 +151,7 @@ const LandingPage = () => {
                   <Moon className="text-white" size={16} />
                 )}
               </div>
-              {/* {currentUser?.id ? (
+              {currentUser?.id ? (
                 <NavLink
                   to="/profile"
                   className={`${
@@ -173,7 +173,7 @@ const LandingPage = () => {
                 >
                   Login
                 </NavLink>
-              )} */}
+              )}
             </div>
           </div>
 
