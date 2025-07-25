@@ -172,12 +172,17 @@ function HtmlIDE() {
       const container = document.getElementById(id);
       if (!container) return;
 
+      // Clear existing content
       container.innerHTML = "";
+
+      // Create new iframe
       const iframe = document.createElement("iframe");
       iframe.style.width = "100%";
       iframe.style.height = "100%";
+      iframe.style.border = "none";
       container.appendChild(iframe);
 
+      // Write content to iframe
       const doc = iframe.contentDocument || iframe.contentWindow.document;
       doc.open();
       doc.write(htmlString);
@@ -185,33 +190,31 @@ function HtmlIDE() {
     });
   };
 
+  useEffect(() => {
+    // If output should be shown and we're on mobile
+    if (showOutput && window.innerWidth < 768) {
+      const mobileOutput = document.getElementById("outputDivMobile");
+      if (mobileOutput && mobileOutput.innerHTML === "") {
+        const content = getCombinedContent();
+        appendToOutputDivs(content);
+      }
+    }
+  }, [showOutput]);
+
   const handleRun = async () => {
     const content = getCombinedContent();
     clearOutput();
     setDisable(true);
     setLoading(true);
-    setShowOutput(true);
-    setShouldRunCode(true);
 
-    // Update both regular output and modal output
-    appendToOutputDivs(content);
-
-    // Also update modal content if open
-    if (isOutputModalOpen) {
-      const modalOutput = document.getElementById("outputModalContent");
-      if (modalOutput) {
-        modalOutput.innerHTML = "";
-        const iframe = document.createElement("iframe");
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        modalOutput.appendChild(iframe);
-
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        doc.open();
-        doc.write(content);
-        doc.close();
-      }
+    // Always show output on mobile when executing
+    if (window.innerWidth < 768) {
+      // Mobile breakpoint
+      setShowOutput(true);
     }
+
+    setShouldRunCode(true);
+    appendToOutputDivs(content);
   };
 
   const handleClose = () => {
@@ -574,27 +577,49 @@ function HtmlIDE() {
     }
   };
 
-  const OutputModal = () => (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
-      <div className="relative w-full h-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 bg-gray-200 dark:bg-gray-700">
-          <h2 className="font-bold text-black dark:text-white">
-            Output Preview
-          </h2>
-          <button
-            onClick={toggleOutputModal}
-            className="p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600"
-          >
-            <X className="text-black dark:text-white" size={20} />
-          </button>
+  const OutputModal = () => {
+    // Get the current combined content
+    const content = getCombinedContent();
+
+    // Use useEffect to update the modal content when it opens
+    useEffect(() => {
+      const modalOutput = document.getElementById("outputModalContent");
+      if (modalOutput && content) {
+        modalOutput.innerHTML = "";
+        const iframe = document.createElement("iframe");
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        modalOutput.appendChild(iframe);
+
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(content);
+        doc.close();
+      }
+    }, [content, isOutputModalOpen]);
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
+        <div className="relative w-full h-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-14 flex items-center justify-between px-4 bg-gray-200 dark:bg-gray-700">
+            <h2 className="font-bold text-black dark:text-white">
+              Output Preview
+            </h2>
+            <button
+              onClick={toggleOutputModal}
+              className="p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600"
+            >
+              <X className="text-black dark:text-white" size={20} />
+            </button>
+          </div>
+          <div
+            id="outputModalContent"
+            className="h-full pt-14 overflow-auto"
+          ></div>
         </div>
-        <div
-          id="outputModalContent"
-          className="h-full pt-14 overflow-auto"
-        ></div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -635,60 +660,70 @@ function HtmlIDE() {
                   } rounded-lg p-2 gap-y-1`}
                 >
                   <div
-                    className={`w-full h-12 flex items-center justify-between gap-x-2 rounded-lg ${
+                    className={`w-full h-12 flex flex-row items-center justify-between gap-1  rounded-lg ${
                       darkTheme ? "bg-gray-700" : "bg-gray-200"
-                    } px-2 py-7`}
+                    } lg:px-2 py-7`}
                   >
-                    <div className="flex w-full md:w-1/3 items-center justify-start gap-x-1 px-2">
+                    {/* LEFT: Icon + Tab Name */}
+                    <div className="flex w-full md:w-1/3  items-center justify-start gap-x-2 px-1">
                       <img
                         src={getTabIcon()}
                         alt={activeTab}
                         className="w-8 h-8"
                       />
                       <p
-                        className={`font-black ${
+                        className={`font-black hidden lg:block ${
                           darkTheme ? "text-white" : "text-black"
                         }`}
                       >
                         {getTabName()}
                       </p>
                     </div>
-                    <div className="flex border rounded-lg overflow-hidden shadow-md">
-                      {["html", "css", "js"].map((tab, index) => (
-                        <button
-                          key={tab}
-                          onClick={() => setActiveTab(tab)}
-                          className={`px-4 py-2 text-sm font-semibold capitalize transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                            activeTab === tab
-                              ? darkTheme
-                                ? "bg-blue-600 text-white shadow-inner"
-                                : "bg-sky-700 text-white shadow-inner"
-                              : darkTheme
-                              ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }${index === 1 && "border-x"} `}
-                        >
-                          {tab}
-                        </button>
-                      ))}
+
+                    {/* CENTER: Tab Switcher */}
+                    <div className="flex justify-center">
+                      <div className="flex border rounded-lg overflow-hidden shadow-md">
+                        {["html", "css", "js"].map((tab, index) => (
+                          <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`lg:px-4 md:px-2 px-4 py-2 text-sm font-semibold capitalize transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                              activeTab === tab
+                                ? darkTheme
+                                  ? "bg-blue-600 text-white shadow-inner"
+                                  : "bg-sky-700 text-white shadow-inner"
+                                : darkTheme
+                                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            } ${index === 1 ? "border-x" : ""}`}
+                          >
+                            {tab}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
+                    {/* RIGHT: Action Buttons */}
                     <div className="flex w-full md:w-1/3 items-center justify-end gap-x-2">
-                      {editorBtns.map((btn, index) => {
-                        return (
-                          <Button
-                            key={index}
-                            classNames={`cursor-pointer flex items-center justify-center gap-x-2 py-2.5 text-white font-bold ${
-                              btn.text === "Execute"
-                                ? "bg-[#10B335] hover:bg-green-600"
-                                : "bg-[#FB2E38] hover:bg-[#FB2E10]"
-                            } px-4 rounded-lg`}
-                            action={btn.action}
-                            text={btn.text}
-                            icon={btn.icon}
-                          />
-                        );
-                      })}
+                      {editorBtns.map((btn, index) => (
+                        <Button
+                          key={index}
+                          classNames={`cursor-pointer flex items-center justify-center md:gap-x-2 py-2.5 text-white font-bold ${
+                            btn.text === "Execute"
+                              ? "bg-[#10B335] hover:bg-green-600"
+                              : "bg-[#FB2E38] hover:bg-[#FB2E10]"
+                          } lg:px-4 md:px-2 px-4 rounded-lg`}
+                          action={btn.action}
+                          icon={btn.icon}
+                          text={
+                            <>
+                              <span className="hidden md:inline">
+                                {btn.text}
+                              </span>
+                            </>
+                          }
+                        />
+                      ))}
                     </div>
                   </div>
 
