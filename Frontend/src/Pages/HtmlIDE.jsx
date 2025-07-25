@@ -65,8 +65,6 @@ const insertSpacesAtCursor = keymap.of([
 ]);
 
 function HtmlIDE() {
-  const location = useLocation();
-  const editorType = location.state || "gen";
 
   const { darkTheme } = useTheme();
   const editorRef = useRef(null);
@@ -102,6 +100,7 @@ function HtmlIDE() {
   const [codeModified, setCodeModified] = useState(false);
   const [isOutputFullscreen, setIsOutputFullscreen] = useState(false);
   const [isOutputModalOpen, setIsOutputModalOpen] = useState(false);
+  const [codeValue, setCodeValue] = useState("");
 
   const {
     mutate: handleAgentCall,
@@ -559,10 +558,14 @@ function HtmlIDE() {
         return CSS;
       case "js":
         return JS;
-      default:
+      default:setDisable
         return HTML;
     }
   };
+
+  useEffect(()=>{
+    setCodeValue(getCurrentContent())
+  }, [activeTab])
 
   const getTabName = () => {
     switch (activeTab) {
@@ -732,7 +735,8 @@ function HtmlIDE() {
                     style={{ height: "70vh" }}
                   >
                     <CodeMirror
-                      value={getCurrentContent()}
+                      key={activeTab}
+                      value={codeValue}
                       className="CodeMirror w-full h-full text-[1rem] scrollbar-custom"
                       style={{
                         height: "100%",
