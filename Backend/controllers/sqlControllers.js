@@ -2135,7 +2135,7 @@ exports.createDB = async (req, res) => {
 
   const createAndSeed = (hash) => {
     connection.query(`CREATE DATABASE IF NOT EXISTS \`${hash}\``, (err) => {
-      console.log(err)
+      // console.log(err)
       if (err) return res.status(500).send("DB creation error: " + err.message);
 
       createTablesAndSeedData(hash, (err) => {
@@ -2145,9 +2145,8 @@ exports.createDB = async (req, res) => {
       });
     });
   };
-  console.log("unique id is:", unq_id);
+  // console.log("unique id is:", unq_id);
   if (!unq_id) {
-    
     const hash = generateHash();
     createAndSeed(hash);
   } else {
@@ -2158,6 +2157,7 @@ exports.createDB = async (req, res) => {
         console.log(err)
         if (err) return res.status(500).send(err);
         if (result.length > 0) {
+          // console.log("tablles found for:", unq_id)
           return res.status(200).send(unq_id);
         } else {
           const hash = generateHash();

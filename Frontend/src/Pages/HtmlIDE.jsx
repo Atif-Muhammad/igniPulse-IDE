@@ -23,7 +23,7 @@ import {
 import { EditorSelection } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import HTML from "../assets/HTML.webp";
-import CSS from "../assets/CSS.webp";
+import CSS from "../assets/Css.webp";
 import JS from "../assets/JS.webp";
 import LeftMenu from "../components/LeftMenu";
 import NavBar from "../components/NavBar";

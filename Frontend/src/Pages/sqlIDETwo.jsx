@@ -22,9 +22,12 @@ import { Info, X } from "lucide-react";
 import { oneDark } from "@codemirror/theme-one-dark";
 import LeftMenuSQL from "../components/leftmenuSQL";
 import Ads from "../components/Ads";
+import { useMutation } from "@tanstack/react-query";
+import config from "../../Config/config";
+import { ErrorModalComponent } from "../models";
 // import { EditorView } from "@codemirror/view";
 
-function sqlIDETwo() {
+export default function sqlIDETwo() {
   const { darkTheme } = useTheme();
   const dataRef = useRef(null);
   const editorRef = useRef(null);
@@ -44,6 +47,11 @@ function sqlIDETwo() {
   const [loadingDB, setLoadingDB] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
 
+  const [isError, setIsError] = useState(false);
+  const [codeModified, setCodeModified] = useState(false);
+  // const [isPending, setIsPending] = useState(false);
+  const [agentRes, setAgentRes] = useState(null);
+
   // / Add these zoom functions:
   const handleZoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 0.1, 2)); // Max zoom 200%
@@ -52,6 +60,30 @@ function sqlIDETwo() {
   const handleZoomOut = () => {
     setZoomLevel((prev) => Math.max(prev - 0.1, 0.8)); // Min zoom 80%
   };
+
+  const {
+    mutate: handleAgentCall,
+    data,
+    isPending,
+    isSuccess,
+  } = useMutation({
+    mutationFn: async () => await config.callAgent(editorContent),
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      // console.log(editorContent)
+      setAgentRes(null);
+      const final = data?.data?.output?.includes("```json")
+        ? JSON.parse(
+            data?.data?.output?.replace(/```json\n?/, "").replace(/```$/, "")
+          )
+        : typeof data?.data?.output === "string"
+        ? JSON.parse(data?.data?.output)
+        : data?.data?.output;
+      setAgentRes(final);
+    }
+  }, [data?.data, isSuccess]);
 
   // Add line wrapping extension
   const lineWrapping = EditorView.lineWrapping;
@@ -143,27 +175,28 @@ function sqlIDETwo() {
     setViews(viewDetails);
   };
 
-  const getTables = (database) => {
+  const getTables = async (database) => {
     // console.log(database);
-    Config.getTables(database)
+    await Config.getTables(database)
       .then((res) => {
         if (res.status === 200) {
           const { tables, views } = res.data;
           // console.log("tables:",tables);
           // console.log("views:",views);
-
           dispTables(tables, views);
-          setLoadingDB(false);
         }
       })
       .catch((err) => {
         console.log(err);
+      })
+      .finally(() => {
         setLoadingDB(false);
       });
   };
   const createDB = async () => {
     const inq_id = window.localStorage.unique_id;
-    Config.createDB(inq_id)
+    setLoadingDB(true);
+    await Config.createDB(inq_id)
       .then(async (res) => {
         if (res.status === 200) {
           const unique_id = res.data;
@@ -173,13 +206,13 @@ function sqlIDETwo() {
             setDb(unique_id);
             // console.log("first");
             getTables(unique_id);
+          } else {
+            getTables(unique_id);
           }
         }
       })
       .catch((err) => {
         console.log(err);
-      })
-      .finally(() => {
         setLoadingDB(false);
       });
   };
@@ -204,6 +237,8 @@ function sqlIDETwo() {
             setResDb(res.data.result);
             getTables(db);
           } else {
+            setCodeModified(false);
+            setIsError(true)
             setResDb([]);
             if (res.data.code == "ER_NO_SUCH_TABLE") {
               const cleanedMessage = res.data.sqlMessage.replace(
@@ -226,7 +261,6 @@ function sqlIDETwo() {
   useEffect(() => {
     createDB();
     // getDataBases();
-    getTables(db);
   }, []);
 
   useEffect(() => {
@@ -565,7 +599,7 @@ function sqlIDETwo() {
                       </div>
                     </div>
 
-                    <div className="w-full flex-1 flex items-start justify-center overflow-auto rounded-lg">
+                    <div className="w-full flex-1 flex items-start justify-center overflow-auto rounded-lg relative">
                       <CodeMirror
                         defaultValue={editorContent}
                         className={` CodeMirror text-[1rem] w-full scrollbar-custom rounded-lg ${
@@ -582,6 +616,7 @@ function sqlIDETwo() {
                         ]}
                         onChange={(newContent, viewUpdate) => {
                           setEditorContent(newContent);
+                          setCodeModified(true);
                           editorRef.current = viewUpdate.view;
                         }}
                         onCreateEditor={(editor) => {
@@ -627,6 +662,13 @@ function sqlIDETwo() {
 
                           editor.dom.appendChild(zoomContainer);
                         }}
+                      />
+                      <ErrorModalComponent
+                        isError={isError && !codeModified}
+                        isPending={isPending}
+                        agentRes={agentRes}
+                        handleAgentCall={handleAgentCall}
+                        setAgentRes={setAgentRes}
                       />
                     </div>
                   </div>
@@ -699,5 +741,3 @@ function sqlIDETwo() {
     </>
   );
 }
-
-export default sqlIDETwo;
